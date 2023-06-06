@@ -42,8 +42,7 @@ fetch('http://localhost:3000/pong-data/', {
         paddle1: paddle1,
         paddle2: paddle2
     })
-}).then(function (res) { return res.json(); })
-    .then(function (data) { return console.log(data); });
+});
 var intervalID;
 var ballSpeed = 1;
 var ballX = gameWidth / 2;

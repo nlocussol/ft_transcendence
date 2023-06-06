@@ -45,8 +45,7 @@ fetch('http://localhost:3000/pong-data/', {
     paddle2
   })
 
-}).then(res => res.json())
-.then(data => console.log(data))
+})
 
 
 let intervalID: any;
