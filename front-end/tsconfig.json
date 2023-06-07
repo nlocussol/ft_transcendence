@@ -1,8 +1,9 @@
 {
+    
     "compilerOptions": {
         "outDir": "dist",
         "noEmitOnError": true,
-        "strict": true
+        "strict": true,
     },
     "files": [
         "src/pong.ts"

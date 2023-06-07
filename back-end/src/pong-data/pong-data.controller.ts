@@ -1,20 +1,25 @@
-import { Body, Controller, Get, Headers, Post } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Param, Post, Patch } from '@nestjs/common';
 import { PongDataService } from './pong-data.service';
-import { MatchData } from './interfaces/pong-data.interface';
+import { MatchData, PlayerData, NoMatchFound } from './interfaces/pong-data.interface';
 
 @Controller('pong-data')
 export class PongDataController {
     constructor(private readonly pongData: PongDataService) {}
-    // @Get()
-    // getMatchData(): Promise<any[]> {
-    //     return ;
-    // }
+    @Get(':UUID')
+    getMatchmakingData(@Param('UUID') uuid: string): MatchData | NoMatchFound {
+        return this.pongData.matchmakingData(uuid);
+    }
 
     @Post()
-    createMatchData(@Body() newMatch: MatchData, @Headers() headers) {
-        console.log(headers)
-        console.log(newMatch)
-        this.pongData.addMatchData(newMatch)
+    createPlayerData(@Body() newPlayer: PlayerData, @Headers() headers) {
+        // console.log(headers)
+        // console.log(newPlayer)
+        this.pongData.addPlayerData(newPlayer)
+    }
+
+    @Patch(':matchUUID')
+    updateMatch(@Param('matchUUID') matchUUID: string, @Body() matchtoUpdate: MatchData) {
+
     }
 
 }
