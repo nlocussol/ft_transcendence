@@ -1,0 +1,8 @@
+{
+  "devDependencies": {
+    "typescript": "^5.2.0-dev.20230608"
+  },
+  "dependencies": {
+    "nest": "^0.1.6"
+  }
+}

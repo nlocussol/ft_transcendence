@@ -1,0 +1,9 @@
+body{
+    text-align: center;
+    background-color: blueviolet;
+}
+
+#board {
+    background-color: black;
+    border: 5px solid greenyellow;
+}
