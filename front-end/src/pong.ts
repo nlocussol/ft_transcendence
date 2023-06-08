@@ -24,24 +24,25 @@ interface paddle {
 }
 
 interface MatchData {
-    playerUUIDs: string[];
-    matchUUID: string;
-    findOpponent: boolean;
-    ballSpeed: number;
-    ballX: number;
-    ballY: number;
-    ballXDirection: number;
-    ballYDirection: number;
-    player1Score: number;
-    player2Score: number;
-    paddle1: paddle;
-    paddle2: paddle;
+  playerUUIDs: string[];
+  matchUUID: string;
+  findOpponent: boolean;
+  ballSpeed: number;
+  ballX: number;
+  ballY: number;
+  ballXDirection: number;
+  ballYDirection: number;
+  player1Score: number;
+  player2Score: number;
+  paddle1: paddle;
+  paddle2: paddle;
+  error: boolean;
 }
 
 let matchData: MatchData;
 
 window.addEventListener("keydown", changeDirection);
-stopBtn?.addEventListener("click", stopGame);
+// stopBtn?.addEventListener("click", stopGame);
 searchBtn?.addEventListener("click", gameSearch);
 
 // drawPaddles();
@@ -59,14 +60,14 @@ async function gameSearch() {
   if (searchBtn)
     searchBtn.textContent = "Searching";
   sendPlayerData();
-  waitMySecond(2000);
-  while (!findOpponent()) {
-    console.log('SEARCH AN OPPONENT !!');
+  await waitMySecond(1000);
+  console.log('SEARCH AN OPPONENT !!');
+  do {
+    findOpponent()
     await waitMySecond(1000);
-  }
+  } while (!matchData.findOpponent)
   console.log('FIND OPPONENT');
-  // createBall();
-  // nextTick();
+  nextTick();
 }
 
 function sendPlayerData() {
@@ -85,44 +86,31 @@ function sendPlayerData() {
   })
 }
 
-function findOpponent(): boolean {
+function findOpponent() {
   fetch(`http://localhost:3000/pong-data/${playerUUID}`)
   .then(reponse => reponse.json())
-  .then(reponseBis => {
-    if (!reponseBis.findOpponent) {
-      console.log('OPPONENT NOT FOUND');
-      return false;
-    }
-    else {
-      console.table(reponseBis);
-      matchData.playerUUIDs = reponseBis.playerUUIDs;
-      matchData.findOpponent = matchData.findOpponent;
-      matchData.matchUUID = reponseBis.matchUUID;
-      matchData.ballSpeed = reponseBis.ballSpeed;
-      matchData.ballX = reponseBis.ballX;
-      matchData.ballY = reponseBis.ballY;
-      matchData.ballXDirection = reponseBis.ballXDirection;
-      matchData.ballYDirection = reponseBis.ballYDirection;
-      matchData.player1Score = reponseBis.player1Score;
-      matchData.player2Score = reponseBis.player2Score;
-      matchData.paddle1 = reponseBis.paddle1;
-      matchData.paddle2 = reponseBis.paddle2;
-      return true;
-    }
-  })
-  .catch(error => console.log('Catch an error'));
-  return false;
+  .then(reponseBis => matchData = reponseBis)
+  .catch(error => console.log(error));
 }
 
 function updateMatch() {
-  fetch(`http://localhost:3000/pong-data/${matchData.matchUUID}`, {
-    method: 'POST',
+  fetch(`http://localhost:3000/pong-data/match/${matchData.matchUUID}`, {
+    method: 'PATCH',
     headers: {
       "Content-type": "application/json; charset=UTF-8"
     },
 
     body: JSON.stringify(matchData)
   })
+}
+
+function getMatch() {
+  fetch(`http://localhost:3000/pong-data/match/${matchData.matchUUID}`)
+  .then(reponse => reponse.json())
+  .then(reponseBis => {
+    console.log(reponseBis);
+    matchData = reponseBis})
+  .catch(error => console.log(error));
 }
 
 function nextTick() {
@@ -133,6 +121,8 @@ function nextTick() {
     drawball(matchData.ballX, matchData.ballY);
     checkCollision();
     nextTick();
+    updateMatch();
+    getMatch();
   }, 10);
 }
 
@@ -162,7 +152,6 @@ function createBall() {
   else matchData.ballYDirection = -1;
   matchData.ballX = gameWidth / 2;
   matchData.ballY = gameHeigth / 2;
-  drawball(matchData.ballX, matchData.ballY);
 }
 
 function moveball() {
@@ -234,13 +223,15 @@ function changeDirection(event: any) {
       if (matchData.paddle2.y < gameHeigth - matchData.paddle2.heigth) matchData.paddle2.y += paddleSpeed;
       break;
   }
+  updateMatch();
+  getMatch();
 }
 
 function updateScore() {
   if (scoreText) scoreText.textContent = `${matchData.player1Score} : ${matchData.player2Score}`;
 }
 
-function stopGame() {
+/*function stopGame() {
   matchData.player1Score = 0;
   matchData.player2Score = 0;
   matchData.paddle1 = {
@@ -265,4 +256,4 @@ function stopGame() {
   clearBoard();
   drawPaddles();
   drawball(gameWidth / 2, gameHeigth / 2);
-}
+}*/

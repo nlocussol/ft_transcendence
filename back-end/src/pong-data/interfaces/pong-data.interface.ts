@@ -13,10 +13,6 @@ export interface PlayerData {
     playerSide?: string;
 }
 
-export interface NoMatchFound {
-    findOpponent: boolean
-}
-
 export interface MatchData {
     playerUUIDs: string[];
     matchUUID: string;

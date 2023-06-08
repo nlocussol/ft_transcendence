@@ -54,7 +54,7 @@ var playerUUID = crypto.randomUUID();
 var intervalID;
 var matchData;
 window.addEventListener("keydown", changeDirection);
-stopBtn === null || stopBtn === void 0 ? void 0 : stopBtn.addEventListener("click", stopGame);
+// stopBtn?.addEventListener("click", stopGame);
 searchBtn === null || searchBtn === void 0 ? void 0 : searchBtn.addEventListener("click", gameSearch);
 // drawPaddles();
 //drawball(gameWidth / 2, gameHeigth / 2);
@@ -73,17 +73,23 @@ function gameSearch() {
                     if (searchBtn)
                         searchBtn.textContent = "Searching";
                     sendPlayerData();
-                    waitMySecond(2000);
-                    _a.label = 1;
-                case 1:
-                    if (!!findOpponent()) return [3 /*break*/, 3];
-                    console.log('SEARCH AN OPPONENT !!');
                     return [4 /*yield*/, waitMySecond(1000)];
-                case 2:
+                case 1:
                     _a.sent();
-                    return [3 /*break*/, 1];
+                    console.log('SEARCH AN OPPONENT !!');
+                    _a.label = 2;
+                case 2:
+                    findOpponent();
+                    return [4 /*yield*/, waitMySecond(1000)];
                 case 3:
+                    _a.sent();
+                    _a.label = 4;
+                case 4:
+                    if (!matchData.findOpponent) return [3 /*break*/, 2];
+                    _a.label = 5;
+                case 5:
                     console.log('FIND OPPONENT');
+                    nextTick();
                     return [2 /*return*/];
             }
         });
@@ -106,39 +112,26 @@ function sendPlayerData() {
 function findOpponent() {
     fetch("http://localhost:3000/pong-data/".concat(playerUUID))
         .then(function (reponse) { return reponse.json(); })
-        .then(function (reponseBis) {
-        if (!reponseBis.findOpponent) {
-            console.log('OPPONENT NOT FOUND');
-            return false;
-        }
-        else {
-            console.table(reponseBis);
-            matchData.playerUUIDs = reponseBis.playerUUIDs;
-            matchData.findOpponent = matchData.findOpponent;
-            matchData.matchUUID = reponseBis.matchUUID;
-            matchData.ballSpeed = reponseBis.ballSpeed;
-            matchData.ballX = reponseBis.ballX;
-            matchData.ballY = reponseBis.ballY;
-            matchData.ballXDirection = reponseBis.ballXDirection;
-            matchData.ballYDirection = reponseBis.ballYDirection;
-            matchData.player1Score = reponseBis.player1Score;
-            matchData.player2Score = reponseBis.player2Score;
-            matchData.paddle1 = reponseBis.paddle1;
-            matchData.paddle2 = reponseBis.paddle2;
-            return true;
-        }
-    })
-        .catch(function (error) { return console.log('Catch an error'); });
-    return false;
+        .then(function (reponseBis) { return matchData = reponseBis; })
+        .catch(function (error) { return console.log(error); });
 }
 function updateMatch() {
-    fetch("http://localhost:3000/pong-data/".concat(matchData.matchUUID), {
-        method: 'POST',
+    fetch("http://localhost:3000/pong-data/match/".concat(matchData.matchUUID), {
+        method: 'PATCH',
         headers: {
             "Content-type": "application/json; charset=UTF-8"
         },
         body: JSON.stringify(matchData)
     });
+}
+function getMatch() {
+    fetch("http://localhost:3000/pong-data/match/".concat(matchData.matchUUID))
+        .then(function (reponse) { return reponse.json(); })
+        .then(function (reponseBis) {
+        console.log(reponseBis);
+        matchData = reponseBis;
+    })
+        .catch(function (error) { return console.log(error); });
 }
 function nextTick() {
     intervalID = setTimeout(function () {
@@ -148,6 +141,8 @@ function nextTick() {
         drawball(matchData.ballX, matchData.ballY);
         checkCollision();
         nextTick();
+        updateMatch();
+        getMatch();
     }, 10);
 }
 function clearBoard() {
@@ -179,7 +174,6 @@ function createBall() {
         matchData.ballYDirection = -1;
     matchData.ballX = gameWidth / 2;
     matchData.ballY = gameHeigth / 2;
-    drawball(matchData.ballX, matchData.ballY);
 }
 function moveball() {
     matchData.ballX += matchData.ballSpeed * matchData.ballXDirection;
@@ -252,34 +246,36 @@ function changeDirection(event) {
                 matchData.paddle2.y += paddleSpeed;
             break;
     }
+    updateMatch();
+    getMatch();
 }
 function updateScore() {
     if (scoreText)
         scoreText.textContent = "".concat(matchData.player1Score, " : ").concat(matchData.player2Score);
 }
-function stopGame() {
-    matchData.player1Score = 0;
-    matchData.player2Score = 0;
-    matchData.paddle1 = {
-        width: 25,
-        heigth: 100,
-        x: 0,
-        y: 0,
-    };
-    matchData.paddle2 = {
-        width: 25,
-        heigth: 100,
-        x: gameWidth - 25,
-        y: gameHeigth - 100,
-    };
-    matchData.ballSpeed = 1;
-    matchData.ballX = 0;
-    matchData.ballY = 0;
-    matchData.ballXDirection = 0;
-    matchData.ballYDirection = 0;
-    updateScore();
-    clearInterval(intervalID);
-    clearBoard();
-    drawPaddles();
-    drawball(gameWidth / 2, gameHeigth / 2);
-}
+/*function stopGame() {
+  matchData.player1Score = 0;
+  matchData.player2Score = 0;
+  matchData.paddle1 = {
+    width: 25,
+    heigth: 100,
+    x: 0,
+    y: 0,
+  };
+  matchData.paddle2 = {
+    width: 25,
+    heigth: 100,
+    x: gameWidth - 25,
+    y: gameHeigth - 100,
+  };
+  matchData.ballSpeed = 1;
+  matchData.ballX = 0;
+  matchData.ballY = 0;
+  matchData.ballXDirection = 0;
+  matchData.ballYDirection = 0;
+  updateScore();
+  clearInterval(intervalID);
+  clearBoard();
+  drawPaddles();
+  drawball(gameWidth / 2, gameHeigth / 2);
+}*/
