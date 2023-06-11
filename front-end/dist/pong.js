@@ -48,16 +48,14 @@ var paddle2Color = "rgb(8, 75, 131)";
 var paddleBorder = "black";
 var ballColor = "rgb(255, 102, 179)";
 var ballBorderColor = "black";
-var ballRadius = 12.5;
 var paddleSpeed = 50;
 var playerUUID = crypto.randomUUID();
 var intervalID;
+var IP = "localhost";
 var matchData;
 window.addEventListener("keydown", changeDirection);
 // stopBtn?.addEventListener("click", stopGame);
 searchBtn === null || searchBtn === void 0 ? void 0 : searchBtn.addEventListener("click", gameSearch);
-// drawPaddles();
-//drawball(gameWidth / 2, gameHeigth / 2);
 function waitMySecond(ms) {
     return new Promise(function (resolve) {
         setTimeout(function () {
@@ -96,7 +94,7 @@ function gameSearch() {
     });
 }
 function sendPlayerData() {
-    fetch("http://localhost:3000/pong-data/", {
+    fetch("http://".concat(IP, ":3000/pong-data/"), {
         method: 'POST',
         headers: {
             "Content-type": "application/json; charset=UTF-8"
@@ -110,12 +108,12 @@ function sendPlayerData() {
     });
 }
 function findOpponent() {
-    fetch("http://localhost:3000/pong-data/".concat(playerUUID))
+    fetch("http://".concat(IP, ":3000/pong-data/").concat(playerUUID))
         .then(function (reponse) { return reponse.json(); })
         .then(function (reponseBis) { return matchData = reponseBis; })
         .catch(function (error) { return console.log(error); });
 }
-function updateMatch() {
+function updatePaddle() {
     fetch("http://localhost:3000/pong-data/match/".concat(matchData.matchUUID), {
         method: 'PATCH',
         headers: {
@@ -125,24 +123,22 @@ function updateMatch() {
     });
 }
 function getMatch() {
-    fetch("http://localhost:3000/pong-data/match/".concat(matchData.matchUUID))
+    fetch("http://".concat(IP, ":3000/pong-data/match/").concat(matchData.matchUUID))
         .then(function (reponse) { return reponse.json(); })
         .then(function (reponseBis) {
-        console.log(reponseBis);
+        console.table(reponseBis);
         matchData = reponseBis;
     })
         .catch(function (error) { return console.log(error); });
 }
 function nextTick() {
     intervalID = setTimeout(function () {
+        getMatch();
         clearBoard();
         drawPaddles();
-        moveball();
         drawball(matchData.ballX, matchData.ballY);
-        checkCollision();
+        updateScore();
         nextTick();
-        updateMatch();
-        getMatch();
     }, 10);
 }
 function clearBoard() {
@@ -162,23 +158,6 @@ function drawPaddles() {
     ctx === null || ctx === void 0 ? void 0 : ctx.fillRect(matchData.paddle2.x, matchData.paddle2.y, matchData.paddle2.width, matchData.paddle2.heigth);
     ctx === null || ctx === void 0 ? void 0 : ctx.strokeRect(matchData.paddle2.x, matchData.paddle2.y, matchData.paddle2.width, matchData.paddle2.heigth);
 }
-function createBall() {
-    matchData.ballSpeed = 1;
-    if (Math.round(Math.random()) == 1)
-        matchData.ballXDirection = 1;
-    else
-        matchData.ballXDirection = -1;
-    if (Math.round(Math.random()) == 1)
-        matchData.ballYDirection = 1;
-    else
-        matchData.ballYDirection = -1;
-    matchData.ballX = gameWidth / 2;
-    matchData.ballY = gameHeigth / 2;
-}
-function moveball() {
-    matchData.ballX += matchData.ballSpeed * matchData.ballXDirection;
-    matchData.ballY += matchData.ballSpeed * matchData.ballYDirection;
-}
 function drawball(ballX, ballY) {
     if (ctx) {
         ctx.fillStyle = ballColor;
@@ -186,41 +165,9 @@ function drawball(ballX, ballY) {
         ctx.lineWidth = 2;
     }
     ctx === null || ctx === void 0 ? void 0 : ctx.beginPath();
-    ctx === null || ctx === void 0 ? void 0 : ctx.arc(ballX, ballY, ballRadius, 0, 2 * Math.PI);
+    ctx === null || ctx === void 0 ? void 0 : ctx.arc(ballX, ballY, matchData.ballRadius, 0, 2 * Math.PI);
     ctx === null || ctx === void 0 ? void 0 : ctx.stroke();
     ctx === null || ctx === void 0 ? void 0 : ctx.fill();
-}
-function checkCollision() {
-    if (matchData.ballY <= 0 + ballRadius)
-        matchData.ballYDirection *= -1;
-    if (matchData.ballY >= gameHeigth - ballRadius)
-        matchData.ballYDirection *= -1;
-    if (matchData.ballX <= 0) {
-        matchData.player2Score++;
-        updateScore();
-        createBall();
-        return;
-    }
-    if (matchData.ballX >= gameWidth) {
-        matchData.player1Score++;
-        updateScore();
-        createBall();
-        return;
-    }
-    if (matchData.ballX <= matchData.paddle1.x + matchData.paddle1.width + ballRadius) {
-        if (matchData.ballY > matchData.paddle1.y && matchData.ballY < matchData.paddle1.y + matchData.paddle1.heigth) {
-            matchData.ballX = matchData.paddle1.x + matchData.paddle1.width + ballRadius; // if ball gets stuck
-            matchData.ballXDirection *= -1;
-            matchData.ballSpeed++;
-        }
-    }
-    if (matchData.ballX >= matchData.paddle2.x - ballRadius) {
-        if (matchData.ballY > matchData.paddle2.y && matchData.ballY < matchData.paddle2.y + matchData.paddle2.heigth) {
-            matchData.ballX = matchData.paddle2.x - ballRadius; // if ball gets stuck
-            matchData.ballXDirection *= -1;
-            matchData.ballSpeed++;
-        }
-    }
 }
 function changeDirection(event) {
     var keyPressed = event.keyCode;
@@ -246,8 +193,7 @@ function changeDirection(event) {
                 matchData.paddle2.y += paddleSpeed;
             break;
     }
-    updateMatch();
-    getMatch();
+    updatePaddle();
 }
 function updateScore() {
     if (scoreText)

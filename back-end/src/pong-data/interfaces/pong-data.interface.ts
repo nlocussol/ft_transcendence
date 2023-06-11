@@ -14,16 +14,17 @@ export interface PlayerData {
 }
 
 export interface MatchData {
-    playerUUIDs: string[];
-    matchUUID: string;
-    findOpponent: boolean;
-    ballSpeed: number;
-    ballX: number;
-    ballY: number;
-    ballXDirection: number;
-    ballYDirection: number;
-    player1Score: number;
-    player2Score: number;
-    paddle1: paddle;
-    paddle2: paddle;
+    playerUUIDs?: string[];
+    matchUUID?: string;
+    findOpponent?: boolean;
+    ballSpeed?: number;
+    ballX?: number;
+    ballY?: number;
+    ballRadius?: number;
+    ballXDirection?: number;
+    ballYDirection?: number;
+    player1Score?: number;
+    player2Score?: number;
+    paddle1?: paddle;
+    paddle2?: paddle;
 }

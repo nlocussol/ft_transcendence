@@ -19,8 +19,8 @@ export class PongDataController {
 
     //get match data with uuid
     @Get('match/:matchUUID')
-    getMatchData(@Param('matchUUID') matchUUID: string) {
-        this.pongData.matchToGet(matchUUID);
+    getMatchData(@Param('matchUUID') matchUUID: string) : MatchData {
+        return this.pongData.matchToGet(matchUUID);
     }
 
     //update match data with uuid
@@ -28,5 +28,4 @@ export class PongDataController {
     updateMatch(@Param('matchUUID') matchUUID: string, @Body() matchtoUpdate: MatchData) {
         this.pongData.matchToUpdate(matchUUID, matchtoUpdate);
     }
-
 }
