@@ -1,11 +1,11 @@
-{
-    
+{  
     "compilerOptions": {
         "outDir": "dist",
         "noEmitOnError": true,
         "strict": true,
     },
     "files": [
-        "src/pong.ts"
+        "src/pong.ts",
+        "src/interface/pong.interface.ts"
     ]
 }

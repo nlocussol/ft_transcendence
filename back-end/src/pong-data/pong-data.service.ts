@@ -100,6 +100,7 @@ export class PongDataService {
         for (let i:number = 0; i < this.matchInProgress.length; i++) {
             if (this.matchInProgress[i].playerUUIDs.find(id => id === uuid) !== undefined) {
                 console.log('FIND MATCH IN PROGRESS!');
+                this.matchInProgress[i].side = 2;
                 return this.matchInProgress[i];
             }
         }
@@ -110,6 +111,7 @@ export class PongDataService {
                     playerUUIDs: [uuid, this.playerData[i].playerUUID],
                     matchUUID: crypto.randomUUID(),
                     findOpponent: true,
+                    side: 1
                 }
                 this.playerData[i].waitingMatch = false;
                 for (let j:number = 0; j < this.playerData.length; j++) {

@@ -1,3 +1,5 @@
+import { MatchData } from './interface/pong.interface';
+
 const gameBoard = document.querySelector("#gameBoard") as HTMLCanvasElement;
 const ctx = gameBoard.getContext("2d");
 const scoreText = document.querySelector("#scoreText");
@@ -13,36 +15,13 @@ const ballColor: string = "rgb(255, 102, 179)";
 const ballBorderColor: string = "black";
 const paddleSpeed: number = 50;
 const playerUUID: string = crypto.randomUUID();
+
+let API_IP: string = "localhost";
 let intervalID: any;
-
-interface paddle {
-  width: number;
-  heigth: number;
-  x: number;
-  y: number;
-}
-
-interface MatchData {
-  playerUUIDs: string[];
-  matchUUID: string;
-  findOpponent: boolean;
-  ballSpeed: number;
-  ballX: number;
-  ballY: number;
-  ballRadius: number;
-  ballXDirection: number;
-  ballYDirection: number;
-  player1Score: number;
-  player2Score: number;
-  paddle1: paddle;
-  paddle2: paddle;
-}
-let IP: string = "localhost";
-
+let side: number;
 let matchData: MatchData;
 
 window.addEventListener("keydown", changeDirection);
-// stopBtn?.addEventListener("click", stopGame);
 searchBtn?.addEventListener("click", gameSearch);
 
 function waitMySecond(ms:number): Promise<void> {
@@ -63,12 +42,13 @@ async function gameSearch() {
     findOpponent()
     await waitMySecond(1000);
   } while (!matchData.findOpponent)
+  side = matchData.side;
   console.log('FIND OPPONENT');
   nextTick();
 }
 
 function sendPlayerData() {
-  fetch(`http://${IP}:3000/pong-data/`, {
+  fetch(`http://${API_IP}:3000/pong-data/`, {
     method: 'POST',
     headers: {
       "Content-type": "application/json; charset=UTF-8"
@@ -84,14 +64,14 @@ function sendPlayerData() {
 }
 
 function findOpponent() {
-  fetch(`http://${IP}:3000/pong-data/${playerUUID}`)
+  fetch(`http://${API_IP}:3000/pong-data/${playerUUID}`)
   .then(reponse => reponse.json())
   .then(reponseBis => matchData = reponseBis)
   .catch(error => console.log(error));
 }
 
 function updatePaddle() {
-  fetch(`http://localhost:3000/pong-data/match/${matchData.matchUUID}`, {
+  fetch(`http://${API_IP}:3000/pong-data/match/${matchData.matchUUID}`, {
     method: 'PATCH',
     headers: {
       "Content-type": "application/json; charset=UTF-8"
@@ -102,7 +82,7 @@ function updatePaddle() {
 }
 
 function getMatch() {
-  fetch(`http://${IP}:3000/pong-data/match/${matchData.matchUUID}`)
+  fetch(`http://${API_IP}:3000/pong-data/match/${matchData.matchUUID}`)
   .then(reponse => reponse.json())
   .then(reponseBis => {
     console.table(reponseBis);
@@ -153,23 +133,24 @@ function drawball(ballX: number, ballY: number) {
 
 function changeDirection(event: any) {
   const keyPressed = event.keyCode;
-  const paddle1Up = 87;
-  const paddle1Down = 83;
-  const paddle2Up = 38;
-  const paddle2Down = 40;
+  let paddleUp
+  let paddleDown
+  if (side === 1) {
+    paddleUp = 87;
+    paddleDown = 83;
+  } else if (side === 2){
+    paddleUp = 38;
+    paddleDown = 40;
+  }
 
   switch (keyPressed) {
-    case paddle1Up:
-      if (matchData.paddle1.y > 0) matchData.paddle1.y -= paddleSpeed;
+    case paddleUp:
+      if (side === 1 && matchData.paddle1.y > 0) matchData.paddle1.y -= paddleSpeed;
+      else if (matchData.paddle2.y > 0) matchData.paddle2.y -= paddleSpeed;
       break;
-    case paddle1Down:
-      if (matchData.paddle1.y < gameHeigth - matchData.paddle1.heigth) matchData.paddle1.y += paddleSpeed;
-      break;
-    case paddle2Up:
-      if (matchData.paddle2.y > 0) matchData.paddle2.y -= paddleSpeed;
-      break;
-    case paddle2Down:
-      if (matchData.paddle2.y < gameHeigth - matchData.paddle2.heigth) matchData.paddle2.y += paddleSpeed;
+    case paddleDown:
+      if (side === 1 && matchData.paddle1.y < gameHeigth - matchData.paddle1.heigth) matchData.paddle1.y += paddleSpeed;
+      else if (side === 2 && matchData.paddle2.y < gameHeigth - matchData.paddle2.heigth) matchData.paddle2.y += paddleSpeed;
       break;
   }
   updatePaddle();

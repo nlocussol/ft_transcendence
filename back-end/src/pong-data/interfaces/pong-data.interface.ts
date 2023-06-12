@@ -27,4 +27,5 @@ export interface MatchData {
     player2Score?: number;
     paddle1?: paddle;
     paddle2?: paddle;
+    side?: number;
 }

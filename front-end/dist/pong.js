@@ -35,6 +35,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+Object.defineProperty(exports, "__esModule", { value: true });
 var gameBoard = document.querySelector("#gameBoard");
 var ctx = gameBoard.getContext("2d");
 var scoreText = document.querySelector("#scoreText");
@@ -50,11 +51,11 @@ var ballColor = "rgb(255, 102, 179)";
 var ballBorderColor = "black";
 var paddleSpeed = 50;
 var playerUUID = crypto.randomUUID();
+var API_IP = "localhost";
 var intervalID;
-var IP = "localhost";
+var side;
 var matchData;
 window.addEventListener("keydown", changeDirection);
-// stopBtn?.addEventListener("click", stopGame);
 searchBtn === null || searchBtn === void 0 ? void 0 : searchBtn.addEventListener("click", gameSearch);
 function waitMySecond(ms) {
     return new Promise(function (resolve) {
@@ -86,6 +87,7 @@ function gameSearch() {
                     if (!matchData.findOpponent) return [3 /*break*/, 2];
                     _a.label = 5;
                 case 5:
+                    side = matchData.side;
                     console.log('FIND OPPONENT');
                     nextTick();
                     return [2 /*return*/];
@@ -94,7 +96,7 @@ function gameSearch() {
     });
 }
 function sendPlayerData() {
-    fetch("http://".concat(IP, ":3000/pong-data/"), {
+    fetch("http://".concat(API_IP, ":3000/pong-data/"), {
         method: 'POST',
         headers: {
             "Content-type": "application/json; charset=UTF-8"
@@ -108,13 +110,13 @@ function sendPlayerData() {
     });
 }
 function findOpponent() {
-    fetch("http://".concat(IP, ":3000/pong-data/").concat(playerUUID))
+    fetch("http://".concat(API_IP, ":3000/pong-data/").concat(playerUUID))
         .then(function (reponse) { return reponse.json(); })
         .then(function (reponseBis) { return matchData = reponseBis; })
         .catch(function (error) { return console.log(error); });
 }
 function updatePaddle() {
-    fetch("http://localhost:3000/pong-data/match/".concat(matchData.matchUUID), {
+    fetch("http://".concat(API_IP, ":3000/pong-data/match/").concat(matchData.matchUUID), {
         method: 'PATCH',
         headers: {
             "Content-type": "application/json; charset=UTF-8"
@@ -123,7 +125,7 @@ function updatePaddle() {
     });
 }
 function getMatch() {
-    fetch("http://".concat(IP, ":3000/pong-data/match/").concat(matchData.matchUUID))
+    fetch("http://".concat(API_IP, ":3000/pong-data/match/").concat(matchData.matchUUID))
         .then(function (reponse) { return reponse.json(); })
         .then(function (reponseBis) {
         console.table(reponseBis);
@@ -171,25 +173,27 @@ function drawball(ballX, ballY) {
 }
 function changeDirection(event) {
     var keyPressed = event.keyCode;
-    var paddle1Up = 87;
-    var paddle1Down = 83;
-    var paddle2Up = 38;
-    var paddle2Down = 40;
+    var paddleUp;
+    var paddleDown;
+    if (side === 1) {
+        paddleUp = 87;
+        paddleDown = 83;
+    }
+    else if (side === 2) {
+        paddleUp = 38;
+        paddleDown = 40;
+    }
     switch (keyPressed) {
-        case paddle1Up:
-            if (matchData.paddle1.y > 0)
+        case paddleUp:
+            if (side === 1 && matchData.paddle1.y > 0)
                 matchData.paddle1.y -= paddleSpeed;
-            break;
-        case paddle1Down:
-            if (matchData.paddle1.y < gameHeigth - matchData.paddle1.heigth)
-                matchData.paddle1.y += paddleSpeed;
-            break;
-        case paddle2Up:
-            if (matchData.paddle2.y > 0)
+            else if (matchData.paddle2.y > 0)
                 matchData.paddle2.y -= paddleSpeed;
             break;
-        case paddle2Down:
-            if (matchData.paddle2.y < gameHeigth - matchData.paddle2.heigth)
+        case paddleDown:
+            if (side === 1 && matchData.paddle1.y < gameHeigth - matchData.paddle1.heigth)
+                matchData.paddle1.y += paddleSpeed;
+            else if (side === 2 && matchData.paddle2.y < gameHeigth - matchData.paddle2.heigth)
                 matchData.paddle2.y += paddleSpeed;
             break;
     }
