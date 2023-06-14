@@ -6,13 +6,15 @@ import { AppComponent } from './app.component';
 import { GameComponent } from './game/game.component';
 import { HeaderComponent } from './header/header.component';
 import { HomeComponent } from './home/home.component';
+import { AuthComponent } from './auth/auth.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     GameComponent,
     HeaderComponent,
-    HomeComponent
+    HomeComponent,
+    AuthComponent
   ],
   imports: [
     BrowserModule,
