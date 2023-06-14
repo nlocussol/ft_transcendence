@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { HttpClient} from '@angular/common/http';
 
 @Component({
@@ -6,22 +6,25 @@ import { HttpClient} from '@angular/common/http';
   templateUrl: './auth.component.html',
   styleUrls: ['./auth.component.css']
 })
+export class AuthComponent implements OnInit {
+	constructor() {}
 
-export class AuthComponent {
-	constructor(private http: HttpClient) {}
-	
-	login (){
-		this.http.get("https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-d4f9852c6392f3a567c8fb78fac0ffaa6a248187093e5a84ba0a0b1e507c8f01&redirect_uri=http%3A%2F%2Flocalhost%3A4200%2Fhome&response_type=code").subscribe(
-			response => {
-				console.log(response);
-			},
-			error => {
-				console.log(error);
-			}
-		);
-		//fetch("https://api.intra.42.fr/oauth/authorize")
-		//.then(reponse => reponse.json())
-		//.then(reponseBis => console.log(reponseBis))
-		//.catch(error => console.log(error))
-	}
+  ngOnInit(): void {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code: string | null= urlParams.get('code');
+    console.log("CODE:", code);
+    if (code) {
+
+      fetch("https://api.intra.42.fr/oauth/token",{
+      method: 'POST',
+      body: JSON.stringify({
+        grant_type: "authorization_code",
+        client_id: "u-s4t2ud-d4f9852c6392f3a567c8fb78fac0ffaa6a248187093e5a84ba0a0b1e507c8f01",
+        secret_id: "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",
+        code: code,
+        redirect_uri: "http://localhost:4200/auth"
+      })
+      })
+    }
+  }
 }

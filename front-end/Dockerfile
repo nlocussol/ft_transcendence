@@ -10,6 +10,7 @@ COPY package.json package-lock.json ./
 # install dependences inside container && angular
 RUN npm install
 RUN npm install -g @angular/cli
+RUN npm install http-request
 
 # copy the all front end data
 COPY . .

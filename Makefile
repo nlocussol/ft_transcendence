@@ -2,26 +2,26 @@ IMAGES	:=	postgres front-end back-end
 
 CONTAINERS :=	postgres front-end back-end
 
-PATH_DATA :=	/home/adamiens/data
+PATH_DATA :=	${HOME}/data
 
 all:	build
 
 
 build_images:
 	sudo mkdir -p ${PATH_DATA}/db
-	@docker-compose  build
+	@docker compose  build
 	docker image ls
 
 build:
 	sudo mkdir -p ${PATH_DATA}/db
-	@docker-compose  up -d --build
+	@docker compose  up -d --build
 	docker ps
 
 stop:
-	@docker-compose  stop
+	@docker compose  stop
 
 down:
-	@docker-compose  down -v
+	@docker compose  down -v
 
 clean: down stop clean_volumes
 	@docker rm -f ${CONTAINERS}
