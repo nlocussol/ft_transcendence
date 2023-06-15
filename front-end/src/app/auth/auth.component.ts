@@ -15,7 +15,7 @@ export class AuthComponent implements OnInit {
       email: data.email,
       profilePicture: data.image.medium
     }
-    this.http.post('http://localhost:3000/user-data/', body)
+    this.http.post('http://localhost:3000/db-writer/', body)
   }
 
   getUserData(accessToken: string) {
