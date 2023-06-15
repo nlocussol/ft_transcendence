@@ -13,16 +13,23 @@ export class AuthComponent implements OnInit {
     const body = {
       login: data.login,
       email: data.email,
-      profilePicture: data.image.medium
-    }
-    this.http.post('http://localhost:3000/db-writer/', body)
+      profilPicture: data.image.versions.medium
+    }    
+    console.log(data);
+    console.log(data.link)
+    fetch('http://localhost:3000/db-writer/', {
+    method: 'POST',
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+    },
+    body: JSON.stringify(body),
+    })
   }
 
   getUserData(accessToken: string) {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`)
     this.http.get('https://api.intra.42.fr/v2/me', { headers }).subscribe(
       reponse => { 
-        console.table(reponse);
         this.sendUserData(reponse)
       },
       error => { console.table(error); }

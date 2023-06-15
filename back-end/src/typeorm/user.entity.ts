@@ -1,27 +1,83 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
+export interface friend {
+    name:string,
+    bloqued: boolean,
+}
+
+export interface stats {
+    matchs: number,
+    win: number,
+    loose: number,
+}
+
+export interface match {
+    OwnScore: number,
+    OpponentScore: number,
+    opponent: string,
+    winner: boolean,
+}
+
+export interface message {
+    name: string,
+    message: string[],
+}
+
 @Entity()
 export class User {
-    @Column({
-        nullable: false,
-        default: '',
-    })
+    @PrimaryGeneratedColumn()
     id: string;
+
+    @Column({
+        nullable: true,
+    })
+    login: string;
+
+    @Column({
+        nullable: true,
+    })
+    email: string;
 
     @Column({
         nullable: false,
         default: '',
     })
-    id: string;
-        name        VARCHAR(50) NOT NULL,
-        password    VARCHAR(50) NOT NULL,
-        pp          VARCHAR(250) DEFAULT 'path/to/some/default/pic',
-        doubleAuth  BOOLEAN DEFAULT false,
-        status      VARCHAR DEFAULT 'ONLINE',
-        friends     friend [],
-        room	      VARCHAR(50)[],
-        stats       stat,
-        history     match[],
-        mp   	      message[]
-      );
+    pp: string;
+
+    @Column({
+        nullable: false,
+        default: false,
+    })
+    doubleAuth: boolean;
+
+    @Column({
+        nullable: false,
+        default: 'ONLINE',
+    })
+    status: string;
+
+    @Column('jsonb', {
+        nullable: true,
+    })
+    friends: friend[];
+
+    @Column('jsonb', {
+        nullable: true,
+    })
+    room: string[];
+
+    @Column('jsonb', {
+        nullable: true,
+    })
+    stats: stats;
+
+    @Column('jsonb', {
+        nullable: true,
+    })
+    history: match[];
+
+    @Column('jsonb', {
+        nullable: true,
+    })
+    mp: message[];
 }

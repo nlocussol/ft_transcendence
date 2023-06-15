@@ -1,26 +1,27 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from "typeorm";
+import { Repository } from 'typeorm';
+import { User } from 'src/typeorm';
+
 
 @Injectable()
 export class DbWriterService {
     constructor(
-        @InjectRepository(User) private userRepository: Repository<User>,
+        @InjectRepository(User) private readonly userRepository: Repository<User>,
     ){}
 
     async createUser(newUser: any){
         const currentUser = await this.userRepository.findOneBy({
-            name: newUser.name,
+           login: newUser.login,
         });
+        if (currentUser)
+            return
         const user = new User();
-        user.name = newUser.login;
+        user.login = newUser.login;
         user.email = newUser.email;
         user.pp = newUser.profilPicture;
         await this.userRepository.save(user)
-        return ;
-    }
-
-    findUsersByToken(token: string){
-        return this.userRepository.findOne(token);
+        //const user = this.userRepository.create(newUser);
+        //return this.userRepository.save(user)
     }
 }
