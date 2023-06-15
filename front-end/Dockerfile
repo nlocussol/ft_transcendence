@@ -1,5 +1,9 @@
 #Node image from docker hub for development
-FROM node:20-alpine AS development
+FROM node:20-alpine
+
+#install missing package for using npm 
+RUN	apk add --update python3 make g++ \
+&&	rm -rf /var/cache/apk/*
 
 # specify the workdir inside cointainer
 WORKDIR /usr/src/app
