@@ -26,12 +26,17 @@ export interface message {
 @Entity()
 export class User {
     @PrimaryGeneratedColumn()
-    id: string;
+    id: number;
 
     @Column({
         nullable: true,
     })
     login: string;
+    
+    @Column({
+        nullable: true,
+    })
+    pseudo: string;
 
     @Column({
         nullable: true,

@@ -17,7 +17,7 @@ export class AuthComponent implements OnInit {
     }    
     console.log(data);
     console.log(data.link)
-    fetch('http://localhost:3000/db-writer/', {
+    fetch('http://localhost:3000/db-writer/create-user/', {
     method: 'POST',
     headers: {
       'Content-type': 'application/json; charset=UTF-8',
