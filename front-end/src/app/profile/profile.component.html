@@ -1,0 +1,6 @@
+<br>
+<form (ngSubmit)="handleFriendSubmit()" #profileForm="ngForm">
+    <label for="pseudo">add a friend:</label><br>
+    <input type="text" id="pseudo" name="pseudo" [(ngModel)]="pseudo" required>
+    <button type="submit">Submit</button>
+</form>

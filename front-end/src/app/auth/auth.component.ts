@@ -7,31 +7,32 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
   styleUrls: ['./auth.component.css']
 })
 export class AuthComponent implements OnInit {
-	constructor(private http: HttpClient) {}
+  
+  login:string;
 
+	constructor(private http: HttpClient) {
+    this.login = "null"
+  }
+
+  getLogin(): string {
+    return this.login
+  }
+  
   sendUserData(data: any) {
     const body = {
       login: data.login,
       email: data.email,
       profilPicture: data.image.versions.medium
     }    
-    console.log(data);
-    console.log(data.link)
-    fetch('http://localhost:3000/db-writer/', {
-    method: 'POST',
-    headers: {
-      'Content-type': 'application/json; charset=UTF-8',
-    },
-    body: JSON.stringify(body),
-    })
+    const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
+    this.http.post('http://localhost:3000/db-writer/', body, { headers }).subscribe()
+    this.login = data.login;
   }
 
   getUserData(accessToken: string) {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`)
     this.http.get('https://api.intra.42.fr/v2/me', { headers }).subscribe(
-      reponse => { 
-        this.sendUserData(reponse)
-      },
+      reponse => { this.sendUserData(reponse) },
       error => { console.table(error); }
     )
   }
