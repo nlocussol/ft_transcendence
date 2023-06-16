@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { DataService } from '../services/data.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-auth',
@@ -7,10 +9,11 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
   styleUrls: ['./auth.component.css']
 })
 export class AuthComponent implements OnInit {
-  
   login:string;
+  subscription!: Subscription;
 
-	constructor(private http: HttpClient) {
+	constructor(private http: HttpClient,
+    private dataService: DataService) {
     this.login = "null"
   }
 
@@ -27,7 +30,11 @@ export class AuthComponent implements OnInit {
     const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
     this.http.post('http://localhost:3000/db-writer/create-user/', body, { headers }).subscribe()
     this.login = data.login;
-  }
+    this.subscription = this.dataService.currentMessage.subscribe(message => {
+      message = this.login;
+      console.log(this.login)
+  })
+}
 
   getUserData(accessToken: string) {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`)
@@ -58,5 +65,13 @@ export class AuthComponent implements OnInit {
     if (code) {
       this.getAccessToken(code);
     }
+  }
+
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
+  }
+
+  newMessage() {
+    this.dataService.changeMessage(this.login);
   }
 }
