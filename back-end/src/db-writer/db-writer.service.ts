@@ -19,7 +19,7 @@ export class DbWriterService {
         });
         if (currentUser){
             console.log("The user already exist");
-            return;
+            return null;
         }
 
         // create an instance of user table & fill it
@@ -29,6 +29,7 @@ export class DbWriterService {
         user.email = newUser.email;
         user.pp = newUser.profilPicture;
         user.friends = [];
+        user.mp = [];
 
         // save in database (shared volume)
         await this.userRepository.save(user)
@@ -45,13 +46,13 @@ export class DbWriterService {
         });
         if (!user || !friend){
             console.log("The user didn't exist.");
-            return ;
+            return null;
         }
 
         // check if the friend is not already inside friend list
         if (user.friends && user.friends.includes(newFriend.friend)){
             console.log("The friend already exist.");
-            return ;
+            return null;
         }
 
         // add user inside the list & friend list
@@ -70,13 +71,26 @@ export class DbWriterService {
         });
         if (!user){
             console.log("The user didn't exist.");
-            return ;
+            return null;
         }
         for(let conversation of user.mp){
-            if (conversation.name === obj.friend)
+            if (conversation.name === obj.friend){
+                console.log(conversation.messages)
                 return conversation;
+            }
         }
         console.log("There is no conversation corresponding with ", obj.friend);
+    }
+
+    async addMessage(user: any, friendName:string, newMessage: message){
+        // search match friend and append the new message inside the conversation
+        for(const index in user.mp){
+            if (user.mp[index].name === friendName){
+                user.mp[index].messages.push(newMessage);
+                await this.userRepository.save(user);  
+                return null;
+            }
+        }
     }
 
     async writeMessage(obj: any){
@@ -89,20 +103,28 @@ export class DbWriterService {
         });
         if (!user || !friend){
             console.log("The user didn't exist.");
-            return ;
+            return null;
         }
 
         const newMessage: message = {
             content: obj.msg,
             sender: obj.sender,
         }
-        // search the mp interface of the corresponding friend
-        for(const index in user.mp){
-            if (user.mp[index].name === obj.friend){
-                user.mp[index].messages.push(newMessage);
-                return ;
-            }
+
+        // add new message inside user and friend conversation
+        this.addMessage(user, obj.friend, newMessage);
+        this.addMessage(friend, user.pseudo, newMessage);
+    }
+
+    async getDataUser(pseudo: string){
+        // check if user exist inside db
+        const user = await this.userRepository.findOneBy({
+            pseudo: pseudo,
+        });
+        if (!user){
+            console.log("The user didn't exist.");
+            return null;
         }
-        console.log("There is no conversation corresponding with ", obj.friend);
+        return user;
     }
 }

@@ -26,4 +26,9 @@ export class DbWriterController {
     addPm(@Body() obj: any, @Headers() headers){
         return this.dbWriter.writeMessage(obj);
     }
+
+    @Get(':pseudo')
+    getDataUser(@Param('pseudo') pseudo: string){
+        return this.dbWriter.getDataUser(pseudo);
+    }
 }
