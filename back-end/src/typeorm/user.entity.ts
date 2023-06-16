@@ -19,8 +19,13 @@ export interface match {
 }
 
 export interface message {
+    content: string,
+    sender: string,
+}
+
+export interface mp {
     name: string,
-    message: string[],
+    messages: message[],
 }
 
 @Entity()
@@ -84,5 +89,5 @@ export class User {
     @Column('jsonb', {
         nullable: true,
     })
-    mp: message[];
+    mp: mp[];
 }
