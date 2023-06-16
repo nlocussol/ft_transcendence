@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from 'src/typeorm';
-import { message, mp } from 'src/typeorm/user.entity';
+import { message, pm, messageData, friend } from 'src/typeorm/user.entity';
 
 
 @Injectable()
@@ -11,7 +11,7 @@ export class DbWriterService {
         @InjectRepository(User) private readonly userRepository: Repository<User>,
     ){}
 
-    async createUser(newUser: any){
+    async createUser(newUser: User){
 
         // search if the user is already inside the data base.
         const currentUser = await this.userRepository.findOneBy({
@@ -27,15 +27,15 @@ export class DbWriterService {
         user.login = newUser.login;
         user.pseudo = newUser.login;
         user.email = newUser.email;
-        user.pp = newUser.profilPicture;
+        user.pp = newUser.pp;
         user.friends = [];
-        user.mp = [];
+        user.pm = [];
 
         // save in database (shared volume)
         await this.userRepository.save(user)
     }
 
-    async addFriend(newFriend: any){
+    async addFriend(newFriend: messageData){
 
         // check if user & friend exist inside db
         const user = await this.userRepository.findOneBy({
@@ -49,23 +49,28 @@ export class DbWriterService {
             return null;
         }
 
+        // add friend inside the friend list
+        const dataFriend: friend = {
+            name: newFriend.friend,
+            bloqued: false,
+        }
         // check if the friend is not already inside friend list
-        if (user.friends && user.friends.includes(newFriend.friend)){
+        if (user.friends && user.friends.includes(dataFriend)){
             console.log("The friend already exist.");
             return null;
         }
-
-        // add user inside the list & friend list
-        user.friends.push(newFriend.friend);
-        const newMp: mp = {
+        user.friends.push(dataFriend);
+        // add a friend to the private message list
+        const newMp: pm = {
             name: newFriend.friend,
             messages: [],
         }
-        user.mp.push(newMp);
+        user.pm.push(newMp);
         await this.userRepository.save(user);
     }
 
-    async getMp(obj: any){
+    async getPm(obj: messageData){
+        // check user
         const user = await this.userRepository.findOneBy({
             pseudo: obj.pseudo,
         });
@@ -73,27 +78,27 @@ export class DbWriterService {
             console.log("The user didn't exist.");
             return null;
         }
-        for(let conversation of user.mp){
+        // return the conversation with the match friend
+        for(let conversation of user.pm){
             if (conversation.name === obj.friend){
-                console.log(conversation.messages)
                 return conversation;
             }
         }
         console.log("There is no conversation corresponding with ", obj.friend);
     }
 
-    async addMessage(user: any, friendName:string, newMessage: message){
+    async addMessage(user: User, friendName:string, newMessage: message){
         // search match friend and append the new message inside the conversation
-        for(const index in user.mp){
-            if (user.mp[index].name === friendName){
-                user.mp[index].messages.push(newMessage);
+        for(const index in user.pm){
+            if (user.pm[index].name === friendName){
+                user.pm[index].messages.push(newMessage);
                 await this.userRepository.save(user);  
                 return null;
             }
         }
     }
 
-    async writeMessage(obj: any){
+    async addPrivateMessage(obj: messageData){
         // check if user & friend exist inside db
         const user = await this.userRepository.findOneBy({
             pseudo: obj.pseudo,

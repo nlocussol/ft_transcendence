@@ -23,9 +23,16 @@ export interface message {
     sender: string,
 }
 
-export interface mp {
+export interface pm {
     name: string,
     messages: message[],
+}
+
+export interface messageData {
+    pseudo: string,
+    friend: string,
+    msg: string,
+    sender: string,
 }
 
 @Entity()
@@ -89,5 +96,5 @@ export class User {
     @Column('jsonb', {
         nullable: true,
     })
-    mp: mp[];
+    pm: pm[];
 }
