@@ -25,7 +25,7 @@ export class AuthComponent implements OnInit {
       profilPicture: data.image.versions.medium
     }    
     const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
-    this.http.post('http://localhost:3000/db-writer/', body, { headers }).subscribe()
+    this.http.post('http://localhost:3000/db-writer/create-user/', body, { headers }).subscribe()
     this.login = data.login;
   }
 
