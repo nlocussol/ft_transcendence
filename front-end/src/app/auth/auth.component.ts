@@ -16,7 +16,7 @@ export class AuthComponent implements OnInit {
     const body = {
       login: data.login,
       email: data.email,
-      profilPicture: data.image.versions.medium
+      pp: data.image.versions.medium
     }    
     const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
     await this.http.post('http://localhost:3000/db-writer/create-user/', body, { headers }).subscribe()
