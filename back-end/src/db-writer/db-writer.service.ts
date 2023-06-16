@@ -45,10 +45,13 @@ export class DbWriterService {
             pseudo: newFriend.friend,
         });
         if (!user || !friend){
-            console.log("The user didn't exist.");
+            console.log("The user doesn't exist.");
             return null;
         }
-
+        if (user === friend){
+            console.log("The user and friend's name are the same.");
+            return null;
+        }
         // add friend inside the friend list
         const dataFriend: friend = {
             name: newFriend.friend,
