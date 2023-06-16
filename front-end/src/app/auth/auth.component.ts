@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { DataService } from '../services/data.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -12,13 +11,12 @@ export class AuthComponent implements OnInit {
   login:string;
   subscription!: Subscription;
 
-	constructor(private http: HttpClient,
-    private dataService: DataService) {
+	constructor(private http: HttpClient) {
     this.login = "null"
   }
 
   getLogin(): string {
-    return this.login
+    return this.login;
   }
   
   sendUserData(data: any) {
@@ -30,10 +28,6 @@ export class AuthComponent implements OnInit {
     const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
     this.http.post('http://localhost:3000/db-writer/create-user/', body, { headers }).subscribe()
     this.login = data.login;
-    this.subscription = this.dataService.currentMessage.subscribe(message => {
-      message = this.login;
-      console.log(this.login)
-  })
 }
 
   getUserData(accessToken: string) {
@@ -67,11 +61,4 @@ export class AuthComponent implements OnInit {
     }
   }
 
-  ngOnDestroy() {
-    this.subscription.unsubscribe();
-  }
-
-  newMessage() {
-    this.dataService.changeMessage(this.login);
-  }
 }

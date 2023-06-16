@@ -1,6 +1,5 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { DataService } from '../services/data.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -9,24 +8,14 @@ import { Subscription } from 'rxjs';
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css']
 })
-export class ProfileComponent implements OnInit {
+export class ProfileComponent {
   pseudo: string;
   login: string;
-  subscription!: Subscription;
 
   // constructor(private user: AuthService, private http: HttpClient) {
-  constructor(private http: HttpClient,
-    private dataService: DataService) {
+  constructor(private http: HttpClient,) {
     this.pseudo = ""
     this.login = ""
-  }
-
-  ngOnInit(): void {
-    this.subscription = this.dataService.currentMessage.subscribe(message => this.login = message)
-  }
-
-  ngOnDestroy() {
-    this.subscription.unsubscribe();
   }
 
   handleFriendSubmit() {
