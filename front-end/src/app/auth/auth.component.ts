@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Subscription } from 'rxjs';
+import { DataService } from '../services/data.service';
 
 @Component({
   selector: 'app-auth',
@@ -8,37 +8,30 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./auth.component.css']
 })
 export class AuthComponent implements OnInit {
-  login:string;
-  subscription!: Subscription;
+  login!: string;
 
-	constructor(private http: HttpClient) {
-    this.login = "null"
-  }
-
-  getLogin(): string {
-    return this.login;
-  }
+	constructor(private http: HttpClient, private dataService: DataService) {}
   
-  sendUserData(data: any) {
+  async sendUserData(data: any) {
     const body = {
       login: data.login,
       email: data.email,
-      profilPicture: data.image.versions.medium
+      pp: data.image.versions.medium
     }    
     const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
-    this.http.post('http://localhost:3000/db-writer/create-user/', body, { headers }).subscribe()
-    this.login = data.login;
+    await this.http.post('http://localhost:3000/db-writer/create-user/', body, { headers }).subscribe()
 }
 
-  getUserData(accessToken: string) {
+  async getUserData(accessToken: string) {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`)
-    this.http.get('https://api.intra.42.fr/v2/me', { headers }).subscribe(
-      reponse => { this.sendUserData(reponse) },
-      error => { console.table(error); }
-    )
+    const res: any = await this.http.get('https://api.intra.42.fr/v2/me', { headers }).toPromise()
+    this.login = await (res.login);
+    this.dataService.setLogin(this.login)
+    this.sendUserData(res)
   }
 
-  getAccessToken(code: string) {
+  async getAccessToken(code: string) {
+    
     const body = new URLSearchParams({
           grant_type: "authorization_code",
           client_id: "u-s4t2ud-d4f9852c6392f3a567c8fb78fac0ffaa6a248187093e5a84ba0a0b1e507c8f01",
@@ -47,10 +40,8 @@ export class AuthComponent implements OnInit {
           redirect_uri: "http://localhost:4200/auth"
     });
     const headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded')
-    this.http.post('https://api.intra.42.fr/oauth/token', body.toString(), { headers }).subscribe(
-      (reponse: any) => { this.getUserData(reponse.access_token); },
-      error => { console.table(error); }
-    )
+    const res: any = await this.http.post('https://api.intra.42.fr/oauth/token', body.toString(), { headers }).toPromise()
+    this.getUserData(res.access_token)
    }
 
   ngOnInit(): void {
@@ -60,5 +51,4 @@ export class AuthComponent implements OnInit {
       this.getAccessToken(code);
     }
   }
-
 }

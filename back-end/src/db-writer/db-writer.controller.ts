@@ -17,13 +17,18 @@ export class DbWriterController {
         return this.dbWriter.addFriend(newFriend);
     }
 
-    @Post('conversation')
-    getMp(@Body() obj: any, @Headers() headers){
-        return this.dbWriter.getMp(obj);
+    @Post('get-pm')
+    getPm(@Body() obj: any, @Headers() headers){
+        return this.dbWriter.getPm(obj);
     }
 
-    @Post('add-mp')
+    @Post('add-pm')
     addPm(@Body() obj: any, @Headers() headers){
-        return this.dbWriter.writeMessage(obj);
+        return this.dbWriter.addPrivateMessage(obj);
+    }
+
+    @Get(':pseudo')
+    getDataUser(@Param('pseudo') pseudo: string){
+        return this.dbWriter.getDataUser(pseudo);
     }
 }
