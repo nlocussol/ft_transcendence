@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Headers, Param, Post, Patch } from '@nestjs/common';
-import { DbWriterService } from 'src/db-writer/services/db-writer/db-writer.service';
+import { DbWriterService } from 'src/db-writer/db-writer.service';
 
 @Controller('db-writer')
 export class DbWriterController {
