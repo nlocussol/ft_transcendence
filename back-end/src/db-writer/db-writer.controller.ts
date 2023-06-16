@@ -22,7 +22,7 @@ export class DbWriterController {
         return this.dbWriter.getMp(obj);
     }
 
-    @Post('add-pm')
+    @Post('add-mp')
     addPm(@Body() obj: any, @Headers() headers){
         return this.dbWriter.writeMessage(obj);
     }
