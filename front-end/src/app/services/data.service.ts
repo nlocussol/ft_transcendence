@@ -5,12 +5,14 @@ import { BehaviorSubject } from 'rxjs';
   providedIn: 'root'
 })
 export class DataService {
+  login!: string;
+  constructor() {}
 
-  private messageSource = new BehaviorSubject('nologin')
-  currentMessage  = this.messageSource.asObservable();
-  constructor() { }
+  setLogin(login: string) {
+    this.login = login;
+  }
 
-  changeMessage(message:string) {
-    this.messageSource.next(message);
+  getLogin(): string {
+    return this.login;
   }
 }
