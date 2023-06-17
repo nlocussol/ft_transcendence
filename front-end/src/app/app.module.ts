@@ -11,6 +11,7 @@ import { HomeComponent } from './home/home.component';
 import { AuthComponent } from './auth/auth.component';
 import { ProfileComponent } from './profile/profile.component';
 import { GameComponent } from './game/game.component';
+import { MessageComponent } from './message/message.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { GameComponent } from './game/game.component';
     HeaderComponent,
     HomeComponent,
     AuthComponent,
-    ProfileComponent
+    ProfileComponent,
+    MessageComponent
   ],
   imports: [
     FormsModule,
