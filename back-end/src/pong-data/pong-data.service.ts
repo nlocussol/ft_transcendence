@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { MatchData, PlayerData } from './interfaces/pong-data.interface';
-import { log, table } from 'console';
 
 @Injectable()
 export class PongDataService {

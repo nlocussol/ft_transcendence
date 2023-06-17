@@ -17,6 +17,9 @@ build:
 	@docker compose  up -d --build
 	docker ps
 
+b:
+	@docker compose  up
+	
 stop:
 	@docker compose  stop
 

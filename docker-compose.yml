@@ -1,4 +1,4 @@
-version: "3.7"
+version: "3.8"
 
 services:
 
@@ -7,7 +7,7 @@ services:
     image: front-end
     container_name: front-end
     ports:
-      - "4200:4200"
+      - 4200:4200
     env_file:
       - .env
     networks:
@@ -24,7 +24,8 @@ services:
     image: back-end
     container_name: back-end
     ports:
-      - "3000:3000"
+      - 3000:3000
+      - 9229:9229
     env_file:
       - .env
     networks:
@@ -35,6 +36,7 @@ services:
     volumes:
       - ./back-end:/usr/src/app
       - /usr/src/app/node_modules
+    command: npm run start:dev
 
   db:
     image: postgres:10.5

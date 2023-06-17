@@ -5,6 +5,9 @@ import { PongDataModule } from './pong-data/pong-data.module';
 import { DbWriterModule } from './db-writer/db-writer.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { GameService } from './game/game.service';
+import { GameController } from './game/game.controller';
+import { GameModule } from './game/game.module';
 import entities from './typeorm';
 
 @Module({
@@ -26,8 +29,9 @@ import entities from './typeorm';
       }),
       inject: [ConfigService],
     }),
+    GameModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, GameController],
+  providers: [AppService, GameService],
 })
 export class AppModule {}
