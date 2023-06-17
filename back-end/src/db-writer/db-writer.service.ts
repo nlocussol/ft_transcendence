@@ -44,12 +44,12 @@ export class DbWriterService {
         const friend = await this.userRepository.findOneBy({
             pseudo: newFriend.friend,
         });
-        if (!user || !friend){
-            console.log("The user doesn't exist.");
-            return null;
-        }
         if (user === friend){
             console.log("The user and friend's name are the same.");
+            return null;
+        }
+        if (!user || !friend){
+            console.log("The user doesn't exist.");
             return null;
         }
         // add friend inside the friend list
@@ -125,12 +125,13 @@ export class DbWriterService {
     }
 
     async getDataUser(pseudo: string){
+        console.log(pseudo);
         // check if user exist inside db
         const user = await this.userRepository.findOneBy({
             pseudo: pseudo,
         });
         if (!user){
-            console.log("The user didn't exist.");
+            console.log("getDataUser: The user didn't exist.");
             return null;
         }
         return user;

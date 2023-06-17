@@ -14,6 +14,7 @@ export class AuthComponent implements OnInit {
   
   async sendUserData(data: any) {
     const body = {
+      pseudo: data.login,
       login: data.login,
       email: data.email,
       pp: data.image.versions.medium

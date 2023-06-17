@@ -1,5 +1,5 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { DataService } from '../services/data.service';
 
 @Component({
@@ -8,12 +8,27 @@ import { DataService } from '../services/data.service';
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css']
 })
-export class ProfileComponent{
+export class ProfileComponent {
   pseudo!: string;
-  login: string;
+  profileData: any;
+  login: string = "! Go Login to get a profile card !";
+  ppUrl!: string;
+  status!: string;
 
   constructor(private http: HttpClient, private dataService: DataService) {
-    this.login = dataService.getLogin();
+    const tmp: string = dataService.getLogin();
+    if (!tmp)
+      return ;
+    this.login = tmp;
+    console.log('My login:', this.login);
+    this.getProfileData();
+  }
+
+  async getProfileData() {
+    this.profileData = await this.http.get(`http://localhost:3000/db-writer/${this.login}`).toPromise()
+    this.ppUrl = this.profileData.pp;
+    this.status = this.profileData.status;
+    console.log(this.profileData);
   }
 
   handleFriendSubmit() {

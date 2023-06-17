@@ -1,34 +1,61 @@
-header {
-  background: white;
-  padding: 0;
-  border-bottom: 2px solid #f28900;
+* {
+  margin: 0px;
+  padding: 0px;
+  box-sizing: border-box;
 }
 
-a {
-  color: #f28900;
-}
-
-a:hover {
-  background: #000000;
-}
-
-.container {
-  margin: 0 auto;
+.body-text {
   display: flex;
-  justify-content: space-between;
+  font-family: "Montserrat", sans-serif;
+  align-items: center;
+  justify-content: center;
+  margin-top: 250px;
 }
 
-a.logo {
+nav {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  min-height: 8vh;
+  background-color: teal;
+  font-family: "Montserrat", sans-serif;
+}
+
+.heading {
+  display: flex;
+  flex-wrap: nowrap;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 5px;
+  font-size: 20px;
+}
+
+.nav-links {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-around;
+  width: 30%;
+}
+
+.nav-links li {
+  list-style: none;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  letter-spacing: 3px;
   font-weight: bold;
-  padding: 1em;
+  font-size: 14px;
+  padding: 14px 16px;
+
 }
 
-nav ul {
-  list-style-type: none;
-  margin: 0;
+.nav-links a:hover:not(.active) {
+  background-color: lightseagreen;
 }
 
-nav ul li a {
-  padding: 1em;
-  display: inline-block;
+.nav-links li a.active {
+  background-color: #4caf50;
+
 }
