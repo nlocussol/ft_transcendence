@@ -2,6 +2,7 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 export interface friend {
     name:string,
+    pp: string,
     bloqued: boolean,
 }
 

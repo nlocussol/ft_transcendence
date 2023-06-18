@@ -19,7 +19,10 @@ export class DbWriterController {
 
     @Post('get-pm')
     getPm(@Body() obj: any, @Headers() headers){
-        return this.dbWriter.getPm(obj);
+        console.log(obj);
+        let pm = this.dbWriter.getPm(obj);
+        console.log('PM', pm);
+        return pm
     }
 
     @Post('add-pm')

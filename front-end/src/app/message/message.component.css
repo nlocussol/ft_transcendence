@@ -66,6 +66,8 @@ html, body {
   }
   
   .chat-header {
+    background-color: orange;
+    width: 19vh;
     font-weight: bold;
     margin-bottom: 10px;
   }
@@ -81,6 +83,7 @@ html, body {
   }
   
   .sender {
+    background-color: lightseagreen;
     font-weight: bold;
   }
   

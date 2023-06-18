@@ -35,6 +35,28 @@ export class DbWriterService {
         await this.userRepository.save(user)
     }
 
+    async addFriendToDb(user: User, friend: User, friendPseudo: string){
+        // add friend inside the friend list
+        const dataFriend: friend = {
+            name: friendPseudo,
+            pp: friend.pp,
+            bloqued: false,
+        }
+        // check if the friend is not already inside friend list
+        if (user.friends && user.friends.find(friend => friend.name === friendPseudo)){
+            console.log("The friend already exist.");
+            return null;
+        }
+        user.friends.push(dataFriend);
+        // add a friend to the private message list
+        const newMp: pm = {
+            name: friendPseudo,
+            messages: [],
+        }
+        user.pm.push(newMp);
+        await this.userRepository.save(user);
+    }
+
     async addFriend(newFriend: messageData){
 
         // check if user & friend exist inside db
@@ -52,24 +74,9 @@ export class DbWriterService {
             console.log("The user doesn't exist.");
             return null;
         }
-        // add friend inside the friend list
-        const dataFriend: friend = {
-            name: newFriend.friend,
-            bloqued: false,
-        }
-        // check if the friend is not already inside friend list
-        if (user.friends && user.friends.includes(dataFriend)){
-            console.log("The friend already exist.");
-            return null;
-        }
-        user.friends.push(dataFriend);
-        // add a friend to the private message list
-        const newMp: pm = {
-            name: newFriend.friend,
-            messages: [],
-        }
-        user.pm.push(newMp);
-        await this.userRepository.save(user);
+        // add new friend to both users list
+        this.addFriendToDb(user, friend, newFriend.friend);
+        this.addFriendToDb(friend, user, user.pseudo);
     }
 
     async getPm(obj: messageData){
@@ -84,7 +91,8 @@ export class DbWriterService {
         // return the conversation with the match friend
         for(let conversation of user.pm){
             if (conversation.name === obj.friend){
-                return conversation;
+                console.log('PMMMMMMM:', conversation);
+                return conversation.messages;
             }
         }
         console.log("There is no conversation corresponding with ", obj.friend);
