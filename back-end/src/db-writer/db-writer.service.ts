@@ -91,7 +91,6 @@ export class DbWriterService {
         // return the conversation with the match friend
         for(let conversation of user.pm){
             if (conversation.name === obj.friend){
-                console.log('PMMMMMMM:', conversation);
                 return conversation.messages;
             }
         }
@@ -133,7 +132,6 @@ export class DbWriterService {
     }
 
     async getDataUser(pseudo: string){
-        console.log(pseudo);
         // check if user exist inside db
         const user = await this.userRepository.findOneBy({
             pseudo: pseudo,
