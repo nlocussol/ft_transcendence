@@ -12,6 +12,7 @@ import { AuthComponent } from './auth/auth.component';
 import { ProfileComponent } from './profile/profile.component';
 import { GameComponent } from './game/game.component';
 import { MessageComponent } from './message/message.component';
+import { ChatRoomComponent } from './chat-room/chat-room.component';
 
 @NgModule({
   declarations: [
@@ -22,7 +23,8 @@ import { MessageComponent } from './message/message.component';
     HomeComponent,
     AuthComponent,
     ProfileComponent,
-    MessageComponent
+    MessageComponent,
+    ChatRoomComponent
   ],
   imports: [
     FormsModule,

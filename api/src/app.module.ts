@@ -8,6 +8,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { GameService } from './game/game.service';
 import { GameController } from './game/game.controller';
 import { GameModule } from './game/game.module';
+import { GatewayModule } from './gateway/gateway.module';
 import entities from './typeorm';
 
 @Module({
@@ -30,6 +31,7 @@ import entities from './typeorm';
       inject: [ConfigService],
     }),
     GameModule,
+    GatewayModule,
   ],
   controllers: [AppController, GameController],
   providers: [AppService, GameService],

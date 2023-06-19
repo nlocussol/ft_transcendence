@@ -27,7 +27,7 @@ export class MessageComponent {
       return
     this.getUserData();
   }
-  
+
   async onClickFriend(friend: any){
     this.selectedFriend = friend;
     const body = {
@@ -41,7 +41,6 @@ export class MessageComponent {
   }
 
   async sendMessage(message: string) {
-    console.log(message);
     const body = {
       pseudo: this.login,
       friend: this.selectedFriend.name,

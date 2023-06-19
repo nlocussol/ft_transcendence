@@ -22,10 +22,7 @@ export class AuthComponent implements OnInit {
     }    
     const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
     await this.http.post('http://localhost:3000/db-writer/create-user/', body, { headers }).subscribe()
-    //window.location.href = window.location.href.split("/")[0] + "profile";
     this.router.navigateByUrl("/profile");
-    // window.location.assign(newURL);
-    // window.location.href = newURL;
 }
 
   async getUserData(accessToken: string) {
@@ -53,10 +50,7 @@ export class AuthComponent implements OnInit {
   ngOnInit(): void {
     const urlParams = new URLSearchParams(window.location.search);
     const code: string | null= urlParams.get('code');
-    if (code) {
+    if (code)
       this.getAccessToken(code);
-      // window.location.replace(window.location.href.split("/")[0] + "profile");
-      // window.location.replace(window.location.href.split("?")[0]);
-    }
   }
 }

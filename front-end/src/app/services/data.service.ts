@@ -9,12 +9,10 @@ export class DataService {
   constructor() {}
 
   setLogin(login: string) {
-    console.log(login);
     this.login = login;
   }
 
   getLogin(): string {
-    console.log('GETLOGIN:', this.login);
     return this.login;
   }
 }

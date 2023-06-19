@@ -20,7 +20,7 @@ services:
     restart: always
 
   back:
-    build: back-end/
+    build: api/
     image: back-end
     container_name: back-end
     ports:
@@ -34,7 +34,7 @@ services:
       - db
     restart: always
     volumes:
-      - ./back-end:/usr/src/app
+      - ./api:/usr/src/app
       - /usr/src/app/node_modules
     command: npm run start:dev
 
