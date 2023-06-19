@@ -19,8 +19,8 @@
       </div>
     </div>
     <div class="chat-input" *ngIf="selectedFriend">
-      <input type="text" [(ngModel)]="message" (keyup.enter)="sendMessage(message)" placeholder="Type a message..." />
-      <button (click)="sendMessage(message)">Send</button>
+      <input type="text" [(ngModel)]="newMessage" (keyup.enter)="sendMessage(newMessage)" placeholder="Type a message..." />
+      <button (click)="sendMessage(newMessage)">Send</button>
     </div>
   </div>
 </div>
