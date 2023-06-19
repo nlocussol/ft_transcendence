@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { DataService } from '../services/data.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { MessageService } from './message.service';
 
 @Component({
   selector: 'app-message',
@@ -21,7 +22,7 @@ export class MessageComponent {
     this.friends = res?.friends;
   }
 
-  constructor(private http: HttpClient, private dataServices : DataService) {
+  constructor(private messageService: MessageService, private http: HttpClient, private dataServices : DataService) {
     this.login = this.dataServices.getLogin();
     if (!this.login)
       return
