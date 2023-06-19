@@ -7,21 +7,17 @@ export class DbWriterController {
     //get the object of a new user configuration
     @Post('create-user')
     initNewUser(@Body() newUser: any, @Headers() headers){
-        console.log(newUser);
         return this.dbWriter.createUser(newUser);
     }
 
     @Post('add-friend')
     addFriend(@Body() newFriend: any, @Headers() headers){
-        console.log(newFriend);
         return this.dbWriter.addFriend(newFriend);
     }
 
     @Post('get-pm')
     getPm(@Body() obj: any, @Headers() headers){
-        console.log(obj);
         let pm = this.dbWriter.getPm(obj);
-        console.log('PM', pm);
         return pm
     }
 
