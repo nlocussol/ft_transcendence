@@ -1,18 +1,16 @@
 import { Injectable } from '@angular/core';
-import { Socket } from 'ngx-socket-io';
+import { io } from 'socket.io-client';
+import { environment } from 'src/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MessageService {
+  socket: any;
 
-  constructor(private socket: Socket) { }
+  constructor() { }
 
-  sendMessage() {
-		this.socket.emit('add-pm');
-	}
-  
-  receiveMessage() {
-		return this.socket.fromEvent('receive-pm');
-	}
+  setupSocketConnection() {
+    this.socket = io(environment.SOCKET_ENDPOINT);
+  }
 }

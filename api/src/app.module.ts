@@ -9,6 +9,7 @@ import { GameService } from './game/game.service';
 import { GameController } from './game/game.controller';
 import { GameModule } from './game/game.module';
 import entities from './typeorm';
+import { GatewayModule } from './gateway/gateway.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import entities from './typeorm';
       inject: [ConfigService],
     }),
     GameModule,
+    GatewayModule
   ],
   controllers: [AppController, GameController],
   providers: [AppService, GameService],

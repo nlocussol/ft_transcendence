@@ -13,19 +13,7 @@ import { ProfileComponent } from './profile/profile.component';
 import { GameComponent } from './game/game.component';
 import { MessageComponent } from './message/message.component';
 import { ChatRoomComponent } from './chat-room/chat-room.component';
-import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
-
-const environment = {
-  production: false,
-  socketUrl: 'http://localhost:3000' 
-};
-
-const config: SocketIoConfig = {
-	url: environment.socketUrl, // socket server url;
-	options: {
-		transports: ['websocket']
-	}
-}
+import { MessageService } from './message/message.service';
 
 @NgModule({
   declarations: [
@@ -43,10 +31,9 @@ const config: SocketIoConfig = {
     FormsModule,
     HttpClientModule,
     BrowserModule,
-    AppRoutingModule,
-    SocketIoModule.forRoot(config)
+    AppRoutingModule
   ],
-  providers: [],
+  providers: [MessageService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
