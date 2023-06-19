@@ -11,7 +11,7 @@ export class MessageComponent {
   login: string;
   friends!: any;
   selectedFriend: any;
-  newMessage: string = '';
+  message: string = '';
 
   async getUserData() {
     const res: any = await this.http.get(`http://localhost:3000/db-writer/${this.login}`).toPromise()
@@ -31,6 +31,6 @@ export class MessageComponent {
 
   sendMessage(message: string) {
     console.log(message);
-    this.newMessage = '';
+    this.message = '';
   }
 }

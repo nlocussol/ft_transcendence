@@ -13,14 +13,14 @@
     <div class="chat-header" *ngIf="selectedFriend">
       Chatting with {{ selectedFriend.name }}
     </div>
-    <div class="chat-messages" *ngIf="selectedFriend">
-      <!-- <div *ngFor="let message of selectedFriend.chat" class="message">
+    <!-- <div class="chat-messages" *ngIf="selectedFriend">
+      <div *ngFor="let message of selectedFriend.chat" class="message">
         <span class="sender">{{ message.sender }}:</span> {{ message.message }}
-      </div> -->
-    </div>
+      </div>
+    </div> -->
     <div class="chat-input" *ngIf="selectedFriend">
-      <input type="text" [(ngModel)]="newMessage" (keyup.enter)="sendMessage(newMessage)" placeholder="Type a message..." />
-      <button (click)="sendMessage(newMessage)">Send</button>
+      <input type="text" [(ngModel)]="message" (keyup.enter)="sendMessage(message)" placeholder="Type a message..." />
+      <button (click)="sendMessage(message)">Send</button>
     </div>
   </div>
 </div>
