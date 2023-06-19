@@ -11,10 +11,13 @@ export class MessageComponent {
   login: string;
   friends!: any;
   selectedFriend: any;
-  message: string = '';
+  userData: any;
+  conversation: any;
+  newMessage: string = '';
 
   async getUserData() {
     const res: any = await this.http.get(`http://localhost:3000/db-writer/${this.login}`).toPromise()
+    this.userData = res;
     this.friends = res?.friends;
   }
 
@@ -25,12 +28,29 @@ export class MessageComponent {
     this.getUserData();
   }
   
-  onClickFriend(friend: any){
+  async onClickFriend(friend: any){
     this.selectedFriend = friend;
+    const body = {
+      pseudo: this.login,
+      friend: this.selectedFriend.name,
+      msg: '',
+      sender: ''
+    }    
+    const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
+    this.conversation = await this.http.post('http://localhost:3000/db-writer/get-pm/', body, { headers }).toPromise()
   }
 
-  sendMessage(message: string) {
+  async sendMessage(message: string) {
     console.log(message);
-    this.message = '';
+    const body = {
+      pseudo: this.login,
+      friend: this.selectedFriend.name,
+      msg: message,
+      sender: this.login
+    }    
+    const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
+    await this.http.post("http://localhost:3000/db-writer/add-pm/", body, { headers }).toPromise()
+    this.conversation = await this.http.post('http://localhost:3000/db-writer/get-pm/', body, { headers }).toPromise()
+    this.newMessage = '';
   }
 }

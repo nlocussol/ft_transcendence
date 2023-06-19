@@ -2,7 +2,7 @@
   <div class="friends-list">
     <ul>
       <li class="friend" *ngFor="let friend of friends" [class.selected]="friend === selectedFriend" (click)="onClickFriend(friend)">
-        <img [src]="friend.imageUrl" />
+        <img [src]="friend.pp" />
         <div class="name">
           {{ friend.name }}
         </div>
@@ -13,11 +13,11 @@
     <div class="chat-header" *ngIf="selectedFriend">
       Chatting with {{ selectedFriend.name }}
     </div>
-    <!-- <div class="chat-messages" *ngIf="selectedFriend">
-      <div *ngFor="let message of selectedFriend.chat" class="message">
-        <span class="sender">{{ message.sender }}:</span> {{ message.message }}
+    <div class="chat-messages" *ngIf="selectedFriend">
+      <div *ngFor="let message of conversation.reverse()" class="message">
+        <span class="sender">{{ message.sender }}:</span> {{ message.content }}
       </div>
-    </div> -->
+    </div>
     <div class="chat-input" *ngIf="selectedFriend">
       <input type="text" [(ngModel)]="message" (keyup.enter)="sendMessage(message)" placeholder="Type a message..." />
       <button (click)="sendMessage(message)">Send</button>

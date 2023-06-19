@@ -28,7 +28,6 @@ export class ProfileComponent {
     this.profileData = await this.http.get(`http://localhost:3000/db-writer/${this.login}`).toPromise()
     this.ppUrl = this.profileData.pp;
     this.status = this.profileData.status;
-    console.log(this.profileData);
   }
 
   handleFriendSubmit() {

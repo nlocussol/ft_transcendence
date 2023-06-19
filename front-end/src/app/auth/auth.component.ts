@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { DataService } from '../services/data.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-auth',
@@ -10,7 +11,7 @@ import { DataService } from '../services/data.service';
 export class AuthComponent implements OnInit {
   login!: string;
 
-	constructor(private http: HttpClient, private dataService: DataService) {}
+	constructor(private http: HttpClient, private dataService: DataService, private router: Router) {}
   
   async sendUserData(data: any) {
     const body = {
@@ -21,6 +22,10 @@ export class AuthComponent implements OnInit {
     }    
     const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
     await this.http.post('http://localhost:3000/db-writer/create-user/', body, { headers }).subscribe()
+    //window.location.href = window.location.href.split("/")[0] + "profile";
+    this.router.navigateByUrl("/profile");
+    // window.location.assign(newURL);
+    // window.location.href = newURL;
 }
 
   async getUserData(accessToken: string) {
@@ -50,6 +55,8 @@ export class AuthComponent implements OnInit {
     const code: string | null= urlParams.get('code');
     if (code) {
       this.getAccessToken(code);
+      // window.location.replace(window.location.href.split("/")[0] + "profile");
+      // window.location.replace(window.location.href.split("?")[0]);
     }
   }
 }
