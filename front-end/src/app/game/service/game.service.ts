@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { io } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
 import { GameData, Player } from '../models/game.models';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -10,6 +10,7 @@ import { Observable } from 'rxjs';
 export class GameService{
   private readonly API_ENDPOINT = 'http://localhost:3000/game'
   socket: any;
+  payload$: BehaviorSubject<GameData> = new BehaviorSubject<GameData>(new GameData())
   constructor(private http: HttpClient) { }
 
   enterQueue(playerUUID: string) {
@@ -30,13 +31,25 @@ export class GameService{
 
   connectToSocket() {
     this.socket = io(this.API_ENDPOINT + "/inprogress");
-    this.socket.on('updatePlayers', (gamedata: any) => {
+    this.socket.on('joinGameRoom', (gamedata: any) => {
       console.log("ici")
     });
   }
 
-  emitToSocket(payload: any) {
-    this.socket.emit('updatePlayers', payload);
+  joinGameRoom(payload: any) {
+    this.socket.emit('joinGameRoom', payload);
+  }
+
+  updateGame = () => {
+    this.socket.on('updatePlayers', (payload: GameData) => {
+      this.payload$.next(payload);
+    })
+    return this.payload$.asObservable();
+    // return this.socket.on('updatePlayers', GameData);
+  }
+
+  sendPlayerInfo(payload: any) {
+    this.socket.emit('keydown', payload);
   }
 
   // Ask API for game info 

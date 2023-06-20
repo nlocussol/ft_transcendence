@@ -18,7 +18,7 @@ export class MyGateway implements OnModuleInit{
     }
 
     @SubscribeMessage('add-pm')
-    async addPrivateMessage(client: any, messageData: messageData) {        
+    async addPrivateMessage(client: Socket, messageData: messageData) {        
         const uuid = await this.dbWriter.addPrivateMessage(messageData);
         if (uuid == null)
             return ;
@@ -36,7 +36,7 @@ export class MyGateway implements OnModuleInit{
     }
 
     @SubscribeMessage('create-room')
-    createRoom(client: Socket, messageData: any){
+    createRoom(client: Socket, messageData: any) {
         this.dbWriterRoom.createRoom(messageData);
         this.server.emit('all-room', messageData);
     }

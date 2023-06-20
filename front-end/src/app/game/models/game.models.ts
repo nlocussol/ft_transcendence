@@ -1,6 +1,11 @@
-export enum Side {
+export enum side {
     LEFT = 0,
     RIGHT = 1,
+}
+
+export enum movement {
+    UP = 0,
+    DOWN = 1,
 }
 
 class Ball {
@@ -23,8 +28,8 @@ export class Player {
 
 export class GameData {
     matchUUID?: string;
-    player: Player[] = [];
+    players: Player[] = [];
     ball?: Ball;
-    player1Pos?: number;
-    player2Pos?: number;
+    frontEndPlayer?: Player;
+    backEndPlayer?: Player;
 }

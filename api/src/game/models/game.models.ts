@@ -1,4 +1,4 @@
-export enum Side {
+export enum side {
     LEFT = 0,
     RIGHT = 1
 }
@@ -12,18 +12,19 @@ export class Ball {
 }
 
 export class Player {
-    side: number;
-    UUID: string;
-    socketID: string;
-    posX: number;
-    posY: number;
-    height: number;
-    width: number;
-    score: number;
+    side?: number;
+    UUID?: string;
+    socketID?: string;
+    posX?: number;
+    posY?: number;
+    height?: number;
+    width?: number;
+    score?: number;
 }
 
 export class GameData {
     matchUUID?: string;
+    intervalID: any;
     ball: Ball;
-    player: Player[] = [];
+    players: Player[] = [];
 }
