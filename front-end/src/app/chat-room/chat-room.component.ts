@@ -31,12 +31,9 @@ export class ChatRoomComponent {
     const body = {
       pseudo: this.login,
       room: this.selectedRoom.name,
-      msg: message,
+      content: message,
       sender: this.login
-    }    
-    const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
-    await this.http.post("http://localhost:3000/db-writer-room/add-pm/", body, { headers }).toPromise() 
-    this.conversation = await this.http.get('http://localhost:3000/db-writer-room/').toPromise() // get message
+    }  
     this.newMessage = '';
   }
 
