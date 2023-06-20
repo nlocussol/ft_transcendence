@@ -110,7 +110,7 @@ export class DbWriterRoomService {
  
          // create an instance of membre & push back to the membre list
          const message: message = {
-            sender: newMessage.pseudo,
+            sender: newMessage.sender,
             content: newMessage.content,
          }
          currentRoom.messages.push(message);

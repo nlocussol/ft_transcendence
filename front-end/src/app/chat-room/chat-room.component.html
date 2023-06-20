@@ -18,18 +18,23 @@
         </li>
       </ul>
     </div>
-    <div class="chat">
-      <div class="chat-header" *ngIf="selectedRoom">
-        Chat in {{ selectedRoom.name }} room
-      </div>
-      <div class="chat-messages" *ngIf="selectedRoom">
-        <div *ngFor="let message of conversation.reverse()" class="message">
-          <span class="sender">{{ message.sender }}:</span> {{ message.content }}
+    <div *ngIf="selectedRoom">
+      <div class="chat" *ngIf="canAccess">
+        <div class="chat-header">
+          Chat in {{ selectedRoom.name }} room
+        </div>
+        <div class="chat-messages" *ngIf="canAccess">
+          <div *ngFor="let message of conversation.reverse()" class="message">
+            <span class="sender">{{ message.sender }}:</span> {{ message.content }}
+          </div>
+        </div>
+        <div class="chat-input" *ngIf="selectedRoom">
+          <input type="text" [(ngModel)]="newMessage" (keyup.enter)="sendMessage(newMessage)" placeholder="Type a message..." />
+          <button (click)="sendMessage(newMessage)">Send</button>
         </div>
       </div>
-      <div class="chat-input" *ngIf="selectedRoom">
-        <input type="text" [(ngModel)]="newMessage" (keyup.enter)="sendMessage(newMessage)" placeholder="Type a message..." />
-        <button (click)="sendMessage(newMessage)">Send</button>
+      <div *ngIf="!canAccess">
+        <input type="text" [(ngModel)]="selectedRoomPwd" (keyup.enter)="verifyRoomPwd()" placeholder="Enter the Passwordof the room to get access!" />
       </div>
     </div>
   </div>

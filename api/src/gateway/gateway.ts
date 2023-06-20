@@ -32,7 +32,8 @@ export class MyGateway implements OnModuleInit{
         if (uuid == null)
             return ;
         this.clientSocket.join(uuid);
-        this.server.to(uuid).emit('receive-room-msg', messageData)
+        // this.server.to(uuid).emit('receive-room-msg', messageData)
+        this.server.emit('receive-room-msg', messageData)
     }
 
     @SubscribeMessage('create-room')

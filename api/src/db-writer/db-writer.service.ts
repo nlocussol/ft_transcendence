@@ -25,6 +25,7 @@ export class DbWriterService {
         // create an instance of user table & fill it
         const user = new User();
         user.login = newUser.login;
+        user.authCode = crypto.randomUUID();
         user.pseudo = newUser.login;
         user.email = newUser.email;
         user.pp = newUser.pp;
