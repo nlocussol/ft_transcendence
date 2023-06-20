@@ -14,6 +14,7 @@ import { GameComponent } from './game/game.component';
 import { MessageComponent } from './message/message.component';
 import { ChatRoomComponent } from './chat-room/chat-room.component';
 import { MessageService } from './message/message.service';
+import { PongComponent } from './pong/pong.component';
 
 @NgModule({
   declarations: [
@@ -25,7 +26,8 @@ import { MessageService } from './message/message.service';
     AuthComponent,
     ProfileComponent,
     MessageComponent,
-    ChatRoomComponent
+    ChatRoomComponent,
+    PongComponent
   ],
   imports: [
     FormsModule,
