@@ -2,3 +2,11 @@
 <a href="https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-d4f9852c6392f3a567c8fb78fac0ffaa6a248187093e5a84ba0a0b1e507c8f01&redirect_uri=http%3A%2F%2Flocalhost%3A4200%2Fauth&response_type=code">
     <button>Login</button>
 </a>
+<form  (ngSubmit)="submitPin()">
+    <label for="pin">Enter PIN:</label>
+    <input type="password" id="pin" name="pin" [(ngModel)]="pin" maxlength="6" minlength="6" pattern="\d{6}" required>
+    <button type="submit">Submit</button>
+</form>
+<!-- <a [href]="doubleAuthQrCode">aaaa -->
+<!-- </a> -->
+<!-- <a title='Manually pair with ORSXG5A' href='https://www.authenticatorapi.com'><img [src]="doubleAuthQrCode"></a> -->

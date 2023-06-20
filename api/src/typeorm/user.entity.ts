@@ -70,6 +70,11 @@ export class User {
     doubleAuth: boolean;
 
     @Column({
+        nullable: true,
+    })
+    authCode: string;
+
+    @Column({
         nullable: false,
         default: 'ONLINE',
     })
