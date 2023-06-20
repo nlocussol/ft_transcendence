@@ -44,7 +44,6 @@ export class DbWriterRoomService {
 
     async getAllRoom(){
         const allRooms = await this.roomRepository.find();
-        console.log(allRooms);
         return allRooms;
     }
 

@@ -1,12 +1,14 @@
 <div class="container">
-    <form (ngSubmit)="submitRoom()">
-      <p>Create a room:</p>
-      <input class="input" type="text" [(ngModel)]="roomName" name="roomName" placeholder="Name" />
-      <input class="input" type="text" [(ngModel)]="roomPassword" (keyup.enter)="submitRoom()" name="roomPassword" placeholder="Password" />
-      <button type="submit">Submit</button>
-    </form>
-    <p>Search a room:</p>
-    <input class="input" type="text" [(ngModel)]="roomSearch" (keyup.enter)="findRoom(roomSearch)" placeholder="Search a room ..." />
+    <div class="input">
+      <form (ngSubmit)="submitRoom()">
+        <p>Create a room:</p>
+        <input class="input" type="text" [(ngModel)]="roomName" name="roomName" placeholder="Name" />
+        <input class="input" type="text" [(ngModel)]="roomPassword" name="roomPassword" placeholder="Password" />
+        <button type="submit">Submit</button>
+      </form>
+      <p>Search a room:</p>
+      <input class="input" type="text" [(ngModel)]="roomSearch" (keyup.enter)="findRoom(roomSearch)" placeholder="Search a room ..." />
+    </div>
     <div class="room-list">
       <ul>
         <li class="room" *ngFor="let room of rooms" [class.selected]="room === selectedRoom" (click)="onClickRoom(room)">
@@ -18,7 +20,7 @@
     </div>
     <div class="chat">
       <div class="chat-header" *ngIf="selectedRoom">
-        Chatting with {{ selectedRoom.name }}
+        Chat in {{ selectedRoom.name }} room
       </div>
       <div class="chat-messages" *ngIf="selectedRoom">
         <div *ngFor="let message of conversation.reverse()" class="message">

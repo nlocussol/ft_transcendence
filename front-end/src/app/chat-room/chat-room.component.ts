@@ -26,7 +26,12 @@ export class ChatRoomComponent {
     if (!this.login)
       return;
     this.getAllRoom();
-    this.socket.on('all-room', (data:any) => this.rooms = data)
+    this.getNewRoom()
+    
+  }
+
+  getNewRoom() {
+    this.socket.on('all-room', (data:any) => this.rooms.push(data))
   }
 
   submitRoom() {
@@ -38,8 +43,7 @@ export class ChatRoomComponent {
       pwd: this.roomPassword,
       status: "PUBLIC"
     }
-    const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`);
-    this.http.post('http://localhost:3000/db-writer-room/create-room/', body, { headers }).subscribe();
+    this.socket.emit('create-room', body);
   }
 
   async onClickRoom(room: any){
@@ -66,10 +70,10 @@ export class ChatRoomComponent {
   }
 
   async getAllRoom() {
-    this.rooms = await this.http.get('http://localhost:3000/db-writer-room/').toPromise();
+    this.rooms = await this.http.get('http://localhost:3000/db-writer-room/all-room/').toPromise();
   }
 
   async findRoom(roomName: string) {
-    // this.rooms = await this.http.get(`http://localhost:3000/db-writer-room/${roomName}`).toPromise();
+    this.rooms = await this.http.get(`http://localhost:3000/db-writer-room/search-room/${roomName}`).toPromise();
   }
 }

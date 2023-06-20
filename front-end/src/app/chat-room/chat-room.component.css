@@ -18,12 +18,12 @@ html, body {
   
   .container {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
   }
 
   .input {
-    
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .room {
