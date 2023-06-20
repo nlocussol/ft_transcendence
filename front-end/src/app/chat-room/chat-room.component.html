@@ -1,6 +1,12 @@
 <div class="container">
-    <input type="text" [(ngModel)]="roomSearch" (keyup.enter)="findRoom(roomSearch)" placeholder="Search a room ..." />
-    <button (click)="findRoom(roomSearch)">Send</button>
+    <form (ngSubmit)="submitRoom()">
+      <p>Create a room:</p>
+      <input class="input" type="text" [(ngModel)]="roomName" name="roomName" placeholder="Name" />
+      <input class="input" type="text" [(ngModel)]="roomPassword" (keyup.enter)="submitRoom()" name="roomPassword" placeholder="Password" />
+      <button type="submit">Submit</button>
+    </form>
+    <p>Search a room:</p>
+    <input class="input" type="text" [(ngModel)]="roomSearch" (keyup.enter)="findRoom(roomSearch)" placeholder="Search a room ..." />
     <div class="room-list">
       <ul>
         <li class="room" *ngFor="let room of rooms" [class.selected]="room === selectedRoom" (click)="onClickRoom(room)">
@@ -25,3 +31,4 @@
       </div>
     </div>
   </div>
+  
