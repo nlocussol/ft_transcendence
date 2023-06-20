@@ -26,13 +26,13 @@ export class MyGateway implements OnModuleInit{
         this.server.to(uuid).emit('receive-pm', messageData)
     }
 
-    @SubscribeMessage('add-pm-room')
-    async addRoomMessage(client: Socket, messageData: messageData) {
-        const uuid = await this.dbWriter.addPrivateMessage(messageData);
+    @SubscribeMessage('add-msg')
+    async addRoomMessage(client: Socket, messageData: any) {
+        const uuid = await this.dbWriterRoom.addMessage(messageData);
         if (uuid == null)
             return ;
         this.clientSocket.join(uuid);
-        this.server.to(uuid).emit('receive-pm-room', messageData)
+        this.server.to(uuid).emit('receive-room', messageData)
     }
 
     @SubscribeMessage('create-room')
