@@ -7,6 +7,7 @@ import { ProfileComponent } from './profile/profile.component';
 import { GameComponent } from './game/game.component';
 import { MessageComponent } from './message/message.component';
 import { ChatRoomComponent } from './chat-room/chat-room.component';
+import { PongComponent } from './pong/pong.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -16,6 +17,7 @@ const routes: Routes = [
   { path: 'profile', component: ProfileComponent },
   { path: 'message', component: MessageComponent },
   { path: 'chat-room', component: ChatRoomComponent },
+  { path: 'pong', component: PongComponent}
 ];
 
 @NgModule({
