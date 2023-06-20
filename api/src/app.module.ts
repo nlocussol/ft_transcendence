@@ -2,23 +2,25 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PongDataModule } from './pong-data/pong-data.module';
+import { DbWriterRoomModule } from './db-writer-room/db-writer-room.module';
 import { DbWriterModule } from './db-writer/db-writer.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GameService } from './game/game.service';
 import { GameController } from './game/game.controller';
 import { GameModule } from './game/game.module';
-import entities from './typeorm';
 import { GatewayModule } from './gateway/gateway.module';
 import { PongController } from './pong/pong.controller';
 import { PongService } from './pong/pong.service';
 import { PongGateway } from './pong/pong.gateway';
 import { PongModule } from './pong/pong.module';
+import entities from './typeorm';
 
 @Module({
   imports: [
     PongDataModule,
     DbWriterModule,
+    DbWriterRoomModule,
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],

@@ -26,13 +26,14 @@ export interface message {
 
 export interface pm {
     name: string,
+    uuid: string,
     messages: message[],
 }
 
 export interface messageData {
     pseudo: string,
     friend: string,
-    msg: string,
+    content: string,
     sender: string,
 }
 

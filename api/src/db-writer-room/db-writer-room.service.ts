@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { Room } from 'src/typeorm';
 import { membre } from 'src/typeorm/room.entity';
 import { message } from 'src/typeorm/user.entity';
@@ -23,6 +23,7 @@ export class DbWriterRoomService {
  
          // create an instance of room table & fill it
          const room = new Room();
+         room.uuid = crypto.randomUUID();
          room.name = newRoom.name;
          room.owner = newRoom.owner;
          room.pwd = newRoom.pwd;
@@ -32,7 +33,7 @@ export class DbWriterRoomService {
 
          // the first user is admin
          const admin: membre = {
-            pseudo: newRoom.pseudo,
+            pseudo: newRoom.owner,
             status: 'ADMIN',
          }
          room.membres.push(admin);
@@ -41,31 +42,36 @@ export class DbWriterRoomService {
          await this.roomRepository.save(room)
     }
 
+    async getAllRoom(){
+        const allRooms = await this.roomRepository.find();
+        return allRooms;
+    }
+
     async dataRoom(roomName: string){
         // check if the room doesn't already exist
         const currentRoom = await this.roomRepository.findOneBy({
             name: roomName,
          });
-         if (!currentRoom){
-             console.log("The room doesn't exist");
-             return null;
-         }
+        if (!currentRoom){
+            console.log("The room doesn't exist");
+            return null;
+        }
         return currentRoom;
     }
 
     async searchRoom(roomName: string){
         // check if the room doesn't already exist
-        const currentRoom = await this.roomRepository.find({
-            where: {
-                name: Like(`%${roomName}%`)
-            },
-         });
-         if (!currentRoom){
+        const roomList = this.roomRepository
+            .createQueryBuilder('room')
+            .where('room.name LIKE :keyword', { keyword: `%${roomName}%` })
+            .getMany();
+         console.log(roomList);
+
+         if (!roomList){
              console.log("The room doesn't exist");
              return null;
          }
-         console.log(currentRoom);
-        return currentRoom;
+        return roomList;
     }
 
     async addUserToRoom(newUser: any){
@@ -111,6 +117,7 @@ export class DbWriterRoomService {
  
          // save in database (shared volume)
          await this.roomRepository.save(currentRoom)
+         return currentRoom.uuid;
     }
     
     async changeRoomName(newName: any){

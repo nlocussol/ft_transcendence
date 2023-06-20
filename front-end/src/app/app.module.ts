@@ -13,7 +13,6 @@ import { ProfileComponent } from './profile/profile.component';
 import { GameComponent } from './game/game.component';
 import { MessageComponent } from './message/message.component';
 import { ChatRoomComponent } from './chat-room/chat-room.component';
-import { MessageService } from './message/message.service';
 import { PongComponent } from './pong/pong.component';
 
 @NgModule({
@@ -35,7 +34,7 @@ import { PongComponent } from './pong/pong.component';
     BrowserModule,
     AppRoutingModule
   ],
-  providers: [MessageService],
+  providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
