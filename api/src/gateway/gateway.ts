@@ -38,6 +38,6 @@ export class MyGateway implements OnModuleInit{
     @SubscribeMessage('create-room')
     createRoom(client: Socket, messageData: any){
         this.dbWriterRoom.createRoom(messageData);
-        this.server.emit('all-room', this.dbWriterRoom.getAllRoom());
+        this.server.emit('all-room', messageData);
     }
 }
