@@ -1,6 +1,6 @@
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { DbWriterService } from "src/db-writer/db-writer.service";
-import { Server } from 'socket.io'
+import { Server, Socket } from 'socket.io'
 import { OnModuleInit } from "@nestjs/common";
 import { messageData } from "src/typeorm/user.entity";
 import { DbWriterRoomService } from "src/db-writer-room/db-writer-room.service";
@@ -8,23 +8,26 @@ import { DbWriterRoomService } from "src/db-writer-room/db-writer-room.service";
 @WebSocketGateway({cors : true})
 export class MyGateway implements OnModuleInit{
     @WebSocketServer()
-    server: Server
+    server: Server;
+    clientSocket: Socket;
 
     constructor(private dbWriter: DbWriterService, private dbWriterRoom: DbWriterRoomService) {}
 
     onModuleInit() {
-        this.server.on('connection', (socket) => {
-        })
+        this.server.on('connection', (socket) => this.clientSocket = socket)
     }
 
     @SubscribeMessage('add-pm')
-    addPrivateMessage(client: any, messageData: messageData) {
-        this.dbWriter.addPrivateMessage(messageData);
-        this.server.emit('receive-pm', messageData)
+    async addPrivateMessage(client: any, messageData: messageData) {        
+        const uuid = await this.dbWriter.addPrivateMessage(messageData);
+        if (uuid == null)
+            return ;
+        this.clientSocket.join(uuid);
+        this.server.to(uuid).emit('receive-pm', messageData)
     }
 
     @SubscribeMessage('add-pm-room')
-    addRoomMessage(client: any, messageData: messageData) {
+    addRoomMessage(client: Socket, messageData: messageData) {
         this.dbWriter.addPrivateMessage(messageData);
         this.server.emit('receive-pm-room', messageData)
     }

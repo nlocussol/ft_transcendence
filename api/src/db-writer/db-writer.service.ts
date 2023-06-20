@@ -35,7 +35,7 @@ export class DbWriterService {
         await this.userRepository.save(user)
     }
 
-    async addFriendToDb(user: User, friend: User, friendPseudo: string){
+    async addFriendToDb(user: User, friend: User, friendPseudo: string, uuid: string){
         // add friend inside the friend list
         const dataFriend: friend = {
             name: friendPseudo,
@@ -51,6 +51,7 @@ export class DbWriterService {
         // add a friend to the private message list
         const newMp: pm = {
             name: friendPseudo,
+            uuid: uuid,
             messages: [],
         }
         user.pm.push(newMp);
@@ -60,6 +61,7 @@ export class DbWriterService {
     async addFriend(newFriend: messageData){
 
         // check if user & friend exist inside db
+        let uuid: string = crypto.randomUUID()
         const user = await this.userRepository.findOneBy({
             pseudo: newFriend.pseudo,
         });
@@ -75,8 +77,9 @@ export class DbWriterService {
             return null;
         }
         // add new friend to both users list
-        this.addFriendToDb(user, friend, newFriend.friend);
-        this.addFriendToDb(friend, user, user.pseudo);
+        this.addFriendToDb(user, friend, newFriend.friend, uuid);
+        this.addFriendToDb(friend, user, user.pseudo, uuid);
+        return uuid;
     }
 
     async getPm(obj: messageData){
@@ -94,7 +97,7 @@ export class DbWriterService {
                 return conversation.messages;
             }
         }
-        console.log("There is no conversation corresponding with ", obj.friend);
+        console.log("There is no conversation with ", obj.friend);
     }
 
     async addMessage(user: User, friendName:string, newMessage: message){
@@ -103,12 +106,13 @@ export class DbWriterService {
             if (user.pm[index].name === friendName){
                 user.pm[index].messages.push(newMessage);
                 await this.userRepository.save(user);  
-                return null;
+                return user.pm[index].uuid;
             }
         }
+        return null;
     }
 
-    async addPrivateMessage(obj: messageData){
+    async addPrivateMessage(obj: messageData): Promise<string> {
         // check if user & friend exist inside db
         const user = await this.userRepository.findOneBy({
             pseudo: obj.pseudo,
@@ -127,8 +131,11 @@ export class DbWriterService {
         }
 
         // add new message inside user and friend conversation
-        this.addMessage(user, obj.friend, newMessage);
-        this.addMessage(friend, user.pseudo, newMessage);
+        const ret = await this.addMessage(user, obj.friend, newMessage);
+        const friendRet = await this.addMessage(friend, user.pseudo, newMessage);
+        if (ret == null || friendRet == null)
+            return null;
+        return ret;
     }
 
     async getDataUser(pseudo: string){

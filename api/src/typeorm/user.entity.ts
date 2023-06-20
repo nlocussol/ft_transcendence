@@ -26,6 +26,7 @@ export interface message {
 
 export interface pm {
     name: string,
+    uuid: string,
     messages: message[],
 }
 
