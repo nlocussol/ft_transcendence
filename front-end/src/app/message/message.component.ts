@@ -25,6 +25,7 @@ export class MessageComponent {
     if (!this.login)
       return
     this.getUserData();
+    this.receiveMessage()
   }
 
   receiveMessage() {
@@ -33,6 +34,7 @@ export class MessageComponent {
       this.conversation.push(data)}
       )
   }
+
   async getUserData() {
     const res: any = await this.http.get(`http://localhost:3000/db-writer/${this.login}`).toPromise()
     this.userData = res;
@@ -44,7 +46,7 @@ export class MessageComponent {
     const body = {
       pseudo: this.login,
       friend: this.selectedFriend.name,
-      msg: '',
+      content: '',
       sender: ''
     }    
     const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
@@ -55,12 +57,10 @@ export class MessageComponent {
     const body = {
       pseudo: this.login,
       friend: this.selectedFriend.name,
-      msg: message,
+      content: message,
       sender: this.login
     }
-    console.log('avant emit');
     this.socket.emit('add-pm', body);
-    console.log('apres emit');
     this.newMessage = '';
   }
 }

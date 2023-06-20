@@ -122,7 +122,7 @@ export class DbWriterService {
         }
 
         const newMessage: message = {
-            content: obj.msg,
+            content: obj.content,
             sender: obj.sender,
         }
 

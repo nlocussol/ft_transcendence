@@ -8,8 +8,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { GameService } from './game/game.service';
 import { GameController } from './game/game.controller';
 import { GameModule } from './game/game.module';
-import entities from './typeorm';
 import { GatewayModule } from './gateway/gateway.module';
+import entities from './typeorm';
 
 @Module({
   imports: [

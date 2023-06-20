@@ -32,7 +32,7 @@ export interface pm {
 export interface messageData {
     pseudo: string,
     friend: string,
-    msg: string,
+    content: string,
     sender: string,
 }
 
