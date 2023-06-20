@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PongDataModule } from './pong-data/pong-data.module';
+import { DbWriterRoomModule } from './db-writer-room/db-writer-room.module';
 import { DbWriterModule } from './db-writer/db-writer.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -15,6 +16,7 @@ import entities from './typeorm';
   imports: [
     PongDataModule,
     DbWriterModule,
+    DbWriterRoomModule,
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],

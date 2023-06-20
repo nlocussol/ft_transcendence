@@ -14,6 +14,11 @@ export class Room {
     @Column({
         nullable: true,
     })
+    uuid: string;
+
+    @Column({
+        nullable: true,
+    })
     name: string;
     
     @Column({

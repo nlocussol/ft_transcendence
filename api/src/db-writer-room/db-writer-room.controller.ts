@@ -10,12 +10,17 @@ export class DbWriterRoomController {
         return this.dbWriterRoom.createRoom(newRoom);
     }
 
+    @Get('all-room/')
+    getAllRoom(){
+        return this.dbWriterRoom.getAllRoom();
+    }
+
     @Get('data-room/:roomName')
     dataRoom(@Param('roomName') roomName: string){
         return this.dbWriterRoom.dataRoom(roomName);
     }
 
-    @Get('data-room/:roomName')
+    @Get('search-room/:roomName')
     searchRoom(@Param('roomName') roomName: string){
         return this.dbWriterRoom.searchRoom(roomName);
     }
