@@ -2,22 +2,25 @@ import { SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/web
 import { DbWriterService } from "src/db-writer/db-writer.service";
 import { Server } from 'socket.io'
 import { OnModuleInit } from "@nestjs/common";
+import { messageData } from "src/typeorm/user.entity";
 
-@WebSocketGateway()
+@WebSocketGateway({cors : true})
 export class MyGateway implements OnModuleInit {
     @WebSocketServer()
     server: Server
-    dbWriter: DbWriterService;
+    private dbWriter: DbWriterService
+
+    // constructor(private dbWriter: DbWriterService) {}
 
     onModuleInit() {
         this.server.on('connection', (socket) => {
-            console.log(socket.id);
         })    
     }
 
     @SubscribeMessage('add-pm')
-    addPrivateMessage(client: any, data: any) {
-        this.dbWriter.addPrivateMessage(data);
-        this.server.emit('receive-pm', data)
+    addPrivateMessage(client: any, messageData: messageData) {
+        console.log("BACK RECEIVE MESSAGE:", messageData);
+        this.dbWriter.addPrivateMessage(messageData);
+        this.server.emit('receive-pm', messageData)
     }
 }

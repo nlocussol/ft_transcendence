@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { DataService } from '../services/data.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { MessageService } from './message.service';
+import { Socket, io } from 'socket.io-client';
+import { environment } from 'src/environment';
 
 @Component({
   selector: 'app-message',
@@ -15,18 +16,27 @@ export class MessageComponent {
   userData: any;
   conversation: any;
   newMessage: string = '';
+  socket: Socket;
+  newMessageObj: any;
 
-  async getUserData() {
-    const res: any = await this.http.get(`http://localhost:3000/db-writer/${this.login}`).toPromise()
-    this.userData = res;
-    this.friends = res?.friends;
-  }
-
-  constructor(private messageService: MessageService, private http: HttpClient, private dataServices : DataService) {
+  constructor(private http: HttpClient, private dataServices : DataService) {
+    this.socket = io(environment.SOCKET_ENDPOINT);
     this.login = this.dataServices.getLogin();
     if (!this.login)
       return
     this.getUserData();
+  }
+
+  receiveMessage() {
+    this.socket.on('receive-pm', (data:any) => {
+      console.log('MESSAGE RECEIVE', data);
+      this.conversation.push(data)}
+      )
+  }
+  async getUserData() {
+    const res: any = await this.http.get(`http://localhost:3000/db-writer/${this.login}`).toPromise()
+    this.userData = res;
+    this.friends = res?.friends;
   }
 
   async onClickFriend(friend: any){
@@ -47,10 +57,10 @@ export class MessageComponent {
       friend: this.selectedFriend.name,
       msg: message,
       sender: this.login
-    }    
-    const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
-    await this.http.post("http://localhost:3000/db-writer/add-pm/", body, { headers }).toPromise()
-    this.conversation = await this.http.post('http://localhost:3000/db-writer/get-pm/', body, { headers }).toPromise()
+    }
+    console.log('avant emit');
+    this.socket.emit('add-pm', body);
+    console.log('apres emit');
     this.newMessage = '';
   }
 }

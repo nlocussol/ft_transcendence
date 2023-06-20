@@ -13,7 +13,6 @@ import { ProfileComponent } from './profile/profile.component';
 import { GameComponent } from './game/game.component';
 import { MessageComponent } from './message/message.component';
 import { ChatRoomComponent } from './chat-room/chat-room.component';
-import { MessageService } from './message/message.service';
 
 @NgModule({
   declarations: [
@@ -33,7 +32,7 @@ import { MessageService } from './message/message.service';
     BrowserModule,
     AppRoutingModule
   ],
-  providers: [MessageService],
+  providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
