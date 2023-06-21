@@ -10,8 +10,10 @@
         <input type="checkbox" [(ngModel)]="allRoomChecked" (change)="onCheckboxChange()" name="all-room">
         <label for="all-room">all room</label>
       </div>
-      <p>Search a room:</p>
-      <input class="input" type="text" [(ngModel)]="roomSearch" (keyup.enter)="findRoom(roomSearch)" placeholder="Search a room ..." />
+      <div *ngIf="allRoomChecked">
+        <p>Search a room:</p>
+        <input class="input" type="text" [(ngModel)]="roomSearch" (keyup.enter)="findRoom(roomSearch)" placeholder="Search a room ..." />
+      </div>
     </div>
     <div class="room-list">
       <ul>
@@ -23,29 +25,34 @@
       </ul>
     </div>
     <div *ngIf="selectedRoom">
-      <div class="chat" *ngIf="canAccess">
-        <div class="chat-header">
-          Chat in {{ selectedRoom.name }} room
-        </div>
-        <div class="chat-messages" *ngIf="canAccess">
-          <div *ngFor="let message of conversation.reverse()" class="message">
-            <span class="sender">{{ message.sender }}:</span> {{ message.content }}
+      <div class="chat" *ngIf="roomStatus === 'PUBLIC'">
+        <div *ngIf="joined">
+          <div class="chat-header">
+            Chat in {{ selectedRoom.name }} room
+          </div>
+          <div class="chat-messages" *ngIf="roomStatus === 'PUBLIC'">
+            <div *ngFor="let message of conversation.reverse()" class="message">
+              <span class="sender">{{ message.sender }}:</span> {{ message.content }}
+            </div>
+          </div>
+          <form >
+            <label for="lang">Room Status: </label>
+            <select id="room-status">
+              <option value="public">Public</option>
+              <option value="protected">Protected</option>
+              <option value="private">Private</option>
+            </select>
+          </form>
+          <div class="chat-input" *ngIf="selectedRoom">
+            <input type="text" [(ngModel)]="newMessage" (keyup.enter)="sendMessage(newMessage)" placeholder="Type a message..." />
+            <button (click)="sendMessage(newMessage)">Send</button>
           </div>
         </div>
-        <form >
-          <label for="lang">Room Status: </label>
-          <select id="room-status">
-            <option value="public">Public</option>
-            <option value="protected">Protected</option>
-            <option value="private">Private</option>
-          </select>
-        </form>
-        <div class="chat-input" *ngIf="selectedRoom">
-          <input type="text" [(ngModel)]="newMessage" (keyup.enter)="sendMessage(newMessage)" placeholder="Type a message..." />
-          <button (click)="sendMessage(newMessage)">Send</button>
+        <div *ngIf="!joined">
+          <button type="submit" class="join-button" (click)="joinRoom()">Join</button>
         </div>
       </div>
-      <div *ngIf="!canAccess" class="input">
+      <div *ngIf="roomStatus === 'PROTECTED'" class="input">
         <input type="text" [(ngModel)]="selectedRoomPwd" (keyup.enter)="verifyRoomPwd()" placeholder="Enter the Passwordof the room to get access!" />
       </div>
     </div>

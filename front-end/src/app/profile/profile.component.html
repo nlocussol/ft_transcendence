@@ -18,5 +18,16 @@
       <button routerLink="/message" class="btn draw-border">Message</button>
       <button routerLink="/chat-room" class="btn draw-border">Chat Room</button>
     </div>
+    <div *ngIf="requests" class="notif-list">
+      <ul>
+        <li class="notif" *ngFor="let request of requests">
+          <div class="name">
+            {{ request.pseudo }} wants to be your friend !
+          </div>
+          <button type="submit" class="accept-button" (click)="acceptRequest(request)">Accept</button>
+          <button type="button" class="refuse-button" (click)="refuseRequest(request)">Refuse</button>
+        </li>
+      </ul>
+    </div>
   </div>
   

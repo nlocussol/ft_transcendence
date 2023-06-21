@@ -17,6 +17,11 @@ export class MyGateway implements OnModuleInit{
         this.server.on('connection', (socket) => this.clientSocket = socket)
     }
 
+    @SubscribeMessage('send-friend-request')
+    async sendFriendRequest(client: Socket, friendToAdd: any) {
+        this.server.emit('receive-friend-request', friendToAdd)
+    }
+
     @SubscribeMessage('add-pm')
     async addPrivateMessage(client: Socket, messageData: messageData) {        
         const uuid = await this.dbWriter.addPrivateMessage(messageData);
