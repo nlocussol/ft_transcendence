@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, Repository } from 'typeorm';
 import { Room } from 'src/typeorm';
-import { membre } from 'src/typeorm/room.entity';
+import { member } from 'src/typeorm/room.entity';
 import { message } from 'src/typeorm/user.entity';
 
 @Injectable()
@@ -28,15 +28,15 @@ export class DbWriterRoomService {
          room.owner = newRoom.owner;
          room.pwd = newRoom.pwd;
          room.status = newRoom.status;
-         room.membres = [];
+         room.members = [];
          room.messages = [];
 
          // the first user is admin
-         const admin: membre = {
+         const admin: member = {
             pseudo: newRoom.owner,
             status: 'ADMIN',
          }
-         room.membres.push(admin);
+         room.members.push(admin);
          
          // save in database (shared volume)
          await this.roomRepository.save(room)
@@ -51,7 +51,7 @@ export class DbWriterRoomService {
         const allRooms = await this.roomRepository.find();
 
         for (var tmp of allRooms){
-            if (!tmp.membres.find(membre => membre.pseudo === userName))
+            if (!tmp.members.find(membre => membre.pseudo === userName))
                 allRooms.splice(allRooms.indexOf(tmp, 0), 1);
         }
 
@@ -94,16 +94,16 @@ export class DbWriterRoomService {
              console.log("The room doesn't exist");
              return null;
          }
-         if (currentRoom.membres.find(membre => membre.pseudo === newUser.pseudo)){
+         if (currentRoom.members.find(membre => membre.pseudo === newUser.pseudo)){
             console.log("The user already exist.");
             return null;
         }
          // create an instance of membre & push back to the membre list
-         const newMembre: membre = {
+         const newMembre: member = {
             pseudo: newUser.pseudo,
             status: 'NORMAL',
          }
-         currentRoom.membres.push(newMembre);
+         currentRoom.members.push(newMembre);
  
          // save in database (shared volume)
          await this.roomRepository.save(currentRoom)
@@ -142,8 +142,8 @@ export class DbWriterRoomService {
          }
  
          //check si le user est modo
-        currentRoom.membres.find(async membre => {
-            if (membre.status === 'ADMIN'){
+        currentRoom.members.find(async member => {
+            if (member.status === 'ADMIN'){
                 currentRoom.name = newName.new;
                 await this.roomRepository.save(currentRoom)
                 return true;

@@ -26,6 +26,11 @@ export class DbWriterController {
         return this.dbWriter.getDataUser(pseudo);
     }
 
+    @Get('friends/:pseudo')
+    getFriends(@Param('pseudo') pseudo: string){
+        return this.dbWriter.getFriends(pseudo);
+    }
+
     @Post('change-user-pseudo')
     changeUserPseudo(@Body() obj: any, @Headers() headers){
         return this.dbWriter.changeUserPseudo(obj);
@@ -34,5 +39,15 @@ export class DbWriterController {
     @Post('change-user-pp')
     changeUserPp(@Body() obj: any, @Headers() headers){
         return  this.dbWriter.changeUserPp(obj);
+    }
+
+    @Post('change-2fa')
+    change2fa(@Body() obj: any, @Headers() headers){
+        return  this.dbWriter.change2fa(obj);
+    }
+
+    @Post('block-friend')
+    blockFriend(@Body() obj: any, @Headers() headers){
+        return  this.dbWriter.blockFriend(obj);
     }
 }

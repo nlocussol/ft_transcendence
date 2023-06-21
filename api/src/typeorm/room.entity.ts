@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { message } from "./user.entity"
 
-export interface membre {
+export interface member {
     pseudo: string,
     status: string,
 }
@@ -40,7 +40,7 @@ export class Room {
     @Column('jsonb', {
         nullable: true,
     })
-    membres: membre[];
+    members: member[];
 
     @Column('jsonb', {
         nullable: true,

@@ -40,7 +40,7 @@ export class DbWriterService {
         const dataFriend: friend = {
             name: friendPseudo,
             pp: friend.pp,
-            bloqued: false,
+            blocked: false,
         }
         // check if the friend is not already inside friend list
         if (user.friends && user.friends.find(friend => friend.name === friendPseudo)){
@@ -150,8 +150,26 @@ export class DbWriterService {
         return user;
     }
 
+    async getFriends(pseudo: string){
+        // check if user exist inside db
+        const user = await this.userRepository.findOneBy({
+            pseudo: pseudo,
+        });
+        if (!user){
+            console.log("getDataUser: The user didn't exist.");
+            return null;
+        }
+
+        let list = user.friends;
+        for (var i of list){
+            if (i.blocked == true)
+                list.splice(list.indexOf(i, 0), 1);
+        }
+        return list;
+    }   
+
     async changeUserPseudo(newName: any){
-        // check if the room exist
+        // check if the user exist
         const currentUser = await this.userRepository.findOneBy({
             pseudo: newName.currentPseudo,
          });
@@ -160,25 +178,61 @@ export class DbWriterService {
              return null;
          }
  
-         //check si le user est modo
+         // change the current pseudo to the new one
          currentUser.pseudo = newName.newPseudo;
          await this.userRepository.save(currentUser)
         return true;
     }
 
     async changeUserPp(newPp: any){
-        // check if the room exist
+        // check if the user exist
         const currentUser = await this.userRepository.findOneBy({
-            pseudo: newPp.currentPseudo,
+            pseudo: newPp.pseudo,
          });
          if (!currentUser){
              console.log("The user doesn't exist");
              return null;
          }
  
-         //check si le user est modo
+         // change the current pp to the new one
          currentUser.pp = newPp.newPp;
          await this.userRepository.save(currentUser)
+        return true;
+    }
+
+    async change2fa(change2fa: any){
+        // check if the user exist
+        const currentUser = await this.userRepository.findOneBy({
+            pseudo: change2fa.pseudo,
+         });
+         if (!currentUser){
+             console.log("The user doesn't exist");
+             return null;
+         }
+ 
+         // change the current 2fa setting to the new one
+         currentUser.doubleAuth = change2fa.doubleAuth;
+         await this.userRepository.save(currentUser)
+        return true;
+    }
+
+    async blockFriend(blockFriend: any){
+        // check if the user exist
+        const currentUser = await this.userRepository.findOneBy({
+            pseudo: blockFriend.pseudo,
+         });
+         if (!currentUser){
+             console.log("The user doesn't exist");
+             return null;
+         }
+ 
+         // search the corresponding friend and set the new parameters
+        for (var i in currentUser.friends){
+            if (currentUser.friends[i].name == blockFriend.friend){
+                currentUser.friends[i].blocked = blockFriend.block;
+            }
+        }
+        await this.userRepository.save(currentUser)
         return true;
     }
 }
