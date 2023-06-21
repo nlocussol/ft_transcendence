@@ -15,6 +15,11 @@ export class DbWriterRoomController {
         return this.dbWriterRoom.getAllRoom();
     }
 
+    @Get('all-room/:userName')
+    getAllRoomOfUser(@Param('userName') userName: string){
+        return this.dbWriterRoom.getAllRoomOfUser(userName);
+    }
+
     @Get('data-room/:roomName')
     dataRoom(@Param('roomName') roomName: string){
         return this.dbWriterRoom.dataRoom(roomName);

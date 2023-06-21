@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { DataService } from '../services/data.service';
 import { Router } from '@angular/router';
+// import { totp } from 'otplib';
 
 
 @Component({
@@ -56,7 +57,7 @@ export class AuthComponent implements OnInit {
     this.getUserData(res.access_token)
    }
 
-  async ngOnInit() {
+  ngOnInit() {
     const urlParams = new URLSearchParams(window.location.search);
     const code: string | null= urlParams.get('code');
     if (code)
@@ -75,10 +76,11 @@ export class AuthComponent implements OnInit {
     const body = new URLSearchParams({
       pin : this.pin,
     });
-    // init new qr code
     // const res: any = await this.http.get(`https://www.authenticatorApi.com/Validate.aspx?Pin=${this.pin}&SecretCode=${this.profileData.authCode}`).toPromise()
-  const headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded')
-    const res: any = await this.http.post(`https://www.authenticatorapi.com/api.asmx/ValidatePin?pin=${this.pin}&SecretCode=${this.profileData.authCode}`, body.toString(), { headers }).toPromise()
-    console.log("Return : ", res);
+    // const headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded')
+    // const res: any = await this.http.post(`https://www.authenticatorapi.com/api.asmx/ValidatePin?pin=${this.pin}&SecretCode=${this.profileData.authCode}`, body.toString(), { headers }).toPromise()
+    // console.log("Return : ", res);
+    // let status = totp.check(this.pin, this.profileData.authCode);
+    console.log("OH LE STATUS: ", status)
   }
 }

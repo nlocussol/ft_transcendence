@@ -47,6 +47,20 @@ export class DbWriterRoomService {
         return allRooms;
     }
 
+    async getAllRoomOfUser(userName: string){
+        const allRooms = await this.roomRepository.find();
+
+        for (var tmp in allRooms){
+            allRooms[tmp].membres.find(membre => {
+                if (membre.pseudo != userName){
+                    delete allRooms[tmp];
+                }
+            })
+        }
+
+        return allRooms;
+    }
+
     async dataRoom(roomName: string){
         // check if the room doesn't already exist
         const currentRoom = await this.roomRepository.findOneBy({
