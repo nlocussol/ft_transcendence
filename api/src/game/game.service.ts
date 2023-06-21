@@ -5,10 +5,10 @@ const GAMEWIDTH = 858,
 GAMEHEIGHT = 525,
 BALL_INITIAL_SPEED = 5,
 BALL_INITIAL_RADIUS = 5,
-PLAYER_INITIAL_WIDTH = 5,
-PLAYER_INITIAL_HEIGHT = 50,
+PLAYER_INITIAL_WIDTH = 8,
+PLAYER_INITIAL_HEIGHT = 70,
 PLAYER_SPEED = 5,
-OFFSET_FROM_WALL = 50;
+OFFSET_FROM_WALL = 10;
 
 @Injectable()
 export class GameService implements OnModuleInit {
@@ -35,7 +35,8 @@ export class GameService implements OnModuleInit {
                 side: side,
                 height: PLAYER_INITIAL_HEIGHT,
                 width: PLAYER_INITIAL_WIDTH,
-                UUID: playerUUID
+                UUID: playerUUID,
+                score: 0,
             });
         } else {
             return ({
@@ -44,7 +45,8 @@ export class GameService implements OnModuleInit {
                 side: side,
                 height: PLAYER_INITIAL_HEIGHT,
                 width: PLAYER_INITIAL_WIDTH,
-                UUID: playerUUID
+                UUID: playerUUID,
+                score: 0,
             })
         }
   
@@ -93,6 +95,22 @@ export class GameService implements OnModuleInit {
         } else if (game.ball.velX > 0 && this.isCollidingP1(game)) {
             this.handleBallBounce(game);
         }
+
+        if (game.ball.posX - game.ball.radius <= 0) {
+            game.players[1].score += 1;
+            this.resetBall(game);
+        } else if ( game.ball.posX + game.ball.radius >= GAMEWIDTH) {
+            game.players[0].score += 1;
+            this.resetBall(game);
+        }
+    }
+
+    resetBall(game: GameData) {
+        game.ball.posX = GAMEWIDTH / 2;
+        game.ball.posY = GAMEHEIGHT / 2;
+        game.ball.radius = BALL_INITIAL_RADIUS;
+        game.ball.velX = -BALL_INITIAL_SPEED;
+        game.ball.velY = 0;
     }
 
     isCollidingTopBottom(game: GameData): boolean {

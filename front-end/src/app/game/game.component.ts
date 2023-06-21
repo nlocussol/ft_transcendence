@@ -2,8 +2,11 @@ import { Component, ElementRef, HostListener, Inject, OnDestroy, OnInit, ViewChi
 import { GameService } from './service/game.service';
 import { GameData, movement, Player } from './models/game.models';
 import { Socket } from 'socket.io-client';
+import { FontFaceSet } from 'css-font-loading-module'
+import { DataService } from '../services/data.service';
 
-const TICKRATE = 15;
+const TICKRATE = 15,
+BALL_SIZE = 10;
 
 @Component({
   selector: 'app-game',
@@ -18,19 +21,30 @@ export class GameComponent implements OnInit, OnDestroy {
   width: number = 858;
   height: number = 525;
   buttonSearchingGame: boolean = false;
-  myUUID: string = crypto.randomUUID();
+  myUUID!: string;
   gameData: GameData = new GameData();
   offsetFromWall: number = 50;
   interval: any;
   animationId: any;
   isMoving: boolean[] = [false, false];
+  fontSize: number = 30;
+  myFont!: FontFace;
 
-  constructor(private gameService : GameService) {
+  constructor(private gameService : GameService, private dataService: DataService) {
   }
 
   ngOnInit(): void {
+    this.myUUID = this.dataService.getLogin()
+    console.log(this.myUUID);
     this.canvas = this.myCanvas.nativeElement;
     this.context = this.canvas.getContext('2d') as CanvasRenderingContext2D;
+    this.context.font = String(this.fontSize) + "px PressStart2P";
+    this.myFont = new FontFace('PressStart2P', 'url(../../assets/PressStart2P-Regular.ttf');
+    this.myFont.load().then(function(font){
+      document.fonts.add(font);
+      console.log("Font loaded");
+    })
+ 
   }
 
   ngOnDestroy() {
@@ -47,7 +61,6 @@ export class GameComponent implements OnInit, OnDestroy {
     })
     // need to clear this.interval
     this.interval = setInterval(() => {
-      console.log(this.getUUIDAndMove());
       this.gameService.sendPlayerInfo(this.getUUIDAndMove());
     }, TICKRATE);
 
@@ -89,15 +102,33 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   draw() {
+    // Draw background
     this.context.fillStyle = 'black';
     this.context.fillRect(0, 0, this.width, this.height);
+
+    // Draw players
     this.context.fillStyle = 'white';
     this.context.fillRect(this.gameData.players[0].posX!, this.gameData.players[0].posY!, this.gameData.players[0].width!, this.gameData.players[0].height!);
     this.context.fillRect(this.gameData.players[1].posX!, this.gameData.players[1].posY!, this.gameData.players[1].width!, this.gameData.players[1].height!);
-    this.context.beginPath();
-    this.context.arc(this.gameData.ball?.posX!, this.gameData.ball?.posY!, 5, 2 * Math.PI, 0);
-    this.context.fill();
-    this.context.closePath();
+
+    // Draw ball
+    this.context.fillRect(this.gameData.ball?.posX!, this.gameData.ball?.posY!, BALL_SIZE, BALL_SIZE)
+
+    this.drawScore();
+    this.drawCenterLine();
+  }
+
+  drawScore() {
+    this.context.font = this.fontSize + "px 'PressStart2P'";
+
+    this.context.fillText(String(this.gameData.players[0].score), this.width / 2 - 100, 50);
+    this.context.fillText(String(this.gameData.players[1].score), this.width / 2 + 100, 50);
+  }
+
+  drawCenterLine() {
+    for( let i: number = 0; i < this.height; i+=30) {
+      this.context.fillRect(this.width / 2 - 10, i + 10, 15, 20);
+    }
   }
 
   getUUIDAndMove(): {} {
