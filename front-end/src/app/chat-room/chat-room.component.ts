@@ -39,7 +39,10 @@ export class ChatRoomComponent {
   }
 
   getNewRoom() {
-    this.socket.on('all-room', (data:any) => this.rooms.push(data))
+      this.socket.on('all-room', (data:any) => {
+        if (this.selectedRoom || data.owner === this.pseudo)
+          this.rooms.push(data)}
+      )
   }
 
   submitRoom() {
