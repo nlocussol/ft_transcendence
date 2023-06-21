@@ -61,7 +61,7 @@ export class ProfileComponent {
       friend: this.pseudo,
       pseudo: this.login
     }
-    if (!this.profileData.friends.find((friend:any) => friend.name === body.pseudo)) {
+    if (this.profileData.friends.find((friend:any) => friend.name === body.pseudo)) {
       console.log(body.friend, 'is already your friend!');
       return ;
     }

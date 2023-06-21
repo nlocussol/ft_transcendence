@@ -33,7 +33,7 @@ export class ChatRoomComponent {
     this.pseudo = this.dataServices.getLogin();
     if (!this.pseudo)
       return;
-    this.getAllRoom();
+    this.onCheckboxChange()
     this.getNewRoom();
     this.receiveMessage();
   }
@@ -41,8 +41,8 @@ export class ChatRoomComponent {
   getNewRoom() {
       this.socket.on('all-room', (data:any) => {
         if (this.selectedRoom || data.owner === this.pseudo)
-          this.rooms.push(data)}
-      )
+          this.rooms.push(data)
+        })
   }
 
   submitRoom() {
@@ -99,19 +99,8 @@ export class ChatRoomComponent {
   async onCheckboxChange() {
     if (this.allRoomChecked)
       this.rooms = await this.http.get('http://localhost:3000/db-writer-room/all-room/').toPromise();
-    else {
+    else
       this.rooms = await this.http.get(`http://localhost:3000/db-writer-room/all-room/${this.pseudo}`).toPromise();
-      console.log(this.rooms);
-    }
-  }
-
-  async getAllRoom() {
-    if (this.allRoomChecked)
-      this.rooms = await this.http.get('http://localhost:3000/db-writer-room/all-room/').toPromise();
-    else {
-      this.rooms = await this.http.get(`http://localhost:3000/db-writer-room/all-room/${this.pseudo}`).toPromise(); 
-      console.log(this.rooms);
-    }
   }
 
   async findRoom(roomName: string) {

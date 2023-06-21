@@ -29,15 +29,15 @@ export class MessageComponent {
   }
 
   receiveMessage() {
-    this.socket.on('receive-pm', (data:any) => {
-      console.log('NEW MESS', data);
-      this.conversation.push(data)})
+    this.socket.on('receive-pm', (data:any) => this.conversation.push(data))
   }
 
   async getUserData() {
-    const res: any = await this.http.get(`http://localhost:3000/db-writer/${this.pseudo}`).toPromise()
+    let res: any = await this.http.get(`http://localhost:3000/db-writer/${this.pseudo}`).toPromise()
     this.userData = res;
-    this.friends = res?.friends;
+    res = await this.http.get(`http://localhost:3000/db-writer/friends/${this.pseudo}`).toPromise()
+    this.friends = res;
+    console.log(this.friends);
   }
 
   async onClickFriend(friend: any){
