@@ -28,7 +28,11 @@ export class DbWriterController {
 
     @Post('change-user-pseudo')
     changeUserPseudo(@Body() obj: any, @Headers() headers){
-        let pm = this.dbWriter.changeUserPseudo(obj);
-        return pm
+        return this.dbWriter.changeUserPseudo(obj);
+    }
+
+    @Post('change-user-pp')
+    changeUserPp(@Body() obj: any, @Headers() headers){
+        return  this.dbWriter.changeUserPp(obj);
     }
 }

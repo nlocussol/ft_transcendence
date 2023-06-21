@@ -156,12 +156,28 @@ export class DbWriterService {
             pseudo: newName.currentPseudo,
          });
          if (!currentUser){
-             console.log("The room doesn't exist");
+             console.log("The user doesn't exist");
              return null;
          }
  
          //check si le user est modo
          currentUser.pseudo = newName.newPseudo;
+         await this.userRepository.save(currentUser)
+        return true;
+    }
+
+    async changeUserPp(newPp: any){
+        // check if the room exist
+        const currentUser = await this.userRepository.findOneBy({
+            pseudo: newPp.currentPseudo,
+         });
+         if (!currentUser){
+             console.log("The user doesn't exist");
+             return null;
+         }
+ 
+         //check si le user est modo
+         currentUser.pp = newPp.newPp;
          await this.userRepository.save(currentUser)
         return true;
     }
