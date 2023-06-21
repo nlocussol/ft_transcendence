@@ -25,4 +25,10 @@ export class DbWriterController {
     getDataUser(@Param('pseudo') pseudo: string){
         return this.dbWriter.getDataUser(pseudo);
     }
+
+    @Post('change-user-pseudo')
+    changeUserPseudo(@Body() obj: any, @Headers() headers){
+        let pm = this.dbWriter.changeUserPseudo(obj);
+        return pm
+    }
 }
