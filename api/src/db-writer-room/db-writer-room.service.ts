@@ -50,12 +50,9 @@ export class DbWriterRoomService {
     async getAllRoomOfUser(userName: string){
         const allRooms = await this.roomRepository.find();
 
-        for (var tmp in allRooms){
-            allRooms[tmp].membres.find(membre => {
-                if (membre.pseudo != userName){
-                    delete allRooms[tmp];
-                }
-            })
+        for (var tmp of allRooms){
+            if (!tmp.membres.find(membre => membre.pseudo === userName))
+                allRooms.splice(allRooms.indexOf(tmp, 0), 1);
         }
 
         return allRooms;

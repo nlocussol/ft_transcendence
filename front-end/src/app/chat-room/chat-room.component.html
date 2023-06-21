@@ -18,7 +18,7 @@
     <div class="room-list">
       <ul>
         <li class="room" *ngFor="let room of rooms" [class.selected]="room === selectedRoom" (click)="onClickRoom(room)">
-          <div class="name">
+          <div *ngIf="room" class="name">
             {{ room.name }}
           </div>
         </li>
@@ -35,7 +35,7 @@
               <span class="sender">{{ message.sender }}:</span> {{ message.content }}
             </div>
           </div>
-          <form >
+          <form *ngIf="userStatus === 'ADMIN'">
             <label for="lang">Room Status: </label>
             <select id="room-status">
               <option value="public">Public</option>
