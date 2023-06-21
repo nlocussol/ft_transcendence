@@ -20,9 +20,11 @@ export class ChatRoomComponent {
   conversation: any;
   newMessage!: string;
   roomSearch!: string;
+  allRoomChecked: boolean;
   socket: Socket;
 
   constructor(private http: HttpClient, private dataServices : DataService) {
+    this.allRoomChecked = false
     this.canAccess = false
     this.socket = io(environment.SOCKET_ENDPOINT);
     this.login = this.dataServices.getLogin();
@@ -74,12 +76,28 @@ export class ChatRoomComponent {
     this.newMessage = '';
   }
 
+  async onCheckboxChange() {
+    console.log(this.allRoomChecked);
+    if (this.allRoomChecked)
+      this.rooms = await this.http.get('http://localhost:3000/db-writer-room/all-room/').toPromise();
+      // else
+     //request just my room
+  }
+
   async getAllRoom() {
-    this.rooms = await this.http.get('http://localhost:3000/db-writer-room/all-room/').toPromise();
+    if (this.allRoomChecked)
+      this.rooms = await this.http.get('http://localhost:3000/db-writer-room/all-room/').toPromise();
+    // else
+     //request just my room
+    console.log(this.rooms);
+    
   }
 
   async findRoom(roomName: string) {
-    this.rooms = await this.http.get(`http://localhost:3000/db-writer-room/search-room/${roomName}`).toPromise();
+    if (this.allRoomChecked)
+      this.rooms = await this.http.get(`http://localhost:3000/db-writer-room/search-room/${roomName}`).toPromise();
+    // else
+     //just find in my room
   }
 
   verifyRoomPwd() {

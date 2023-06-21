@@ -29,7 +29,9 @@ export class MessageComponent {
   }
 
   receiveMessage() {
-    this.socket.on('receive-pm', (data:any) => this.conversation.push(data))
+    this.socket.on('receive-pm', (data:any) => {
+      console.log('NEW MESS', data);
+      this.conversation.push(data)})
   }
 
   async getUserData() {

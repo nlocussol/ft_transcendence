@@ -6,6 +6,10 @@
         <input class="input" type="text" [(ngModel)]="roomPassword" name="roomPassword" placeholder="Password" />
         <button type="submit">Submit</button>
       </form>
+      <div class="input">
+        <input type="checkbox" [(ngModel)]="allRoomChecked" (change)="onCheckboxChange()" name="all-room">
+        <label for="all-room">all room</label>
+      </div>
       <p>Search a room:</p>
       <input class="input" type="text" [(ngModel)]="roomSearch" (keyup.enter)="findRoom(roomSearch)" placeholder="Search a room ..." />
     </div>
@@ -28,12 +32,20 @@
             <span class="sender">{{ message.sender }}:</span> {{ message.content }}
           </div>
         </div>
+        <form >
+          <label for="lang">Room Status: </label>
+          <select id="room-status">
+            <option value="public">Public</option>
+            <option value="protected">Protected</option>
+            <option value="private">Private</option>
+          </select>
+        </form>
         <div class="chat-input" *ngIf="selectedRoom">
           <input type="text" [(ngModel)]="newMessage" (keyup.enter)="sendMessage(newMessage)" placeholder="Type a message..." />
           <button (click)="sendMessage(newMessage)">Send</button>
         </div>
       </div>
-      <div *ngIf="!canAccess">
+      <div *ngIf="!canAccess" class="input">
         <input type="text" [(ngModel)]="selectedRoomPwd" (keyup.enter)="verifyRoomPwd()" placeholder="Enter the Passwordof the room to get access!" />
       </div>
     </div>
