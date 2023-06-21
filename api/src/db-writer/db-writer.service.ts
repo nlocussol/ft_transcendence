@@ -15,7 +15,7 @@ export class DbWriterService {
 
         // search if the user is already inside the data base.
         const currentUser = await this.userRepository.findOneBy({
-           login: newUser.login,
+           pseudo: newUser.pseudo,
         });
         if (currentUser){
             console.log("The user already exist");
@@ -24,9 +24,8 @@ export class DbWriterService {
 
         // create an instance of user table & fill it
         const user = new User();
-        user.login = newUser.login;
         user.authCode = crypto.randomUUID();
-        user.pseudo = newUser.login;
+        user.pseudo = newUser.pseudo;
         user.email = newUser.email;
         user.pp = newUser.pp;
         user.friends = [];
@@ -149,5 +148,37 @@ export class DbWriterService {
             return null;
         }
         return user;
+    }
+
+    async changeUserPseudo(newName: any){
+        // check if the room exist
+        const currentUser = await this.userRepository.findOneBy({
+            pseudo: newName.currentPseudo,
+         });
+         if (!currentUser){
+             console.log("The user doesn't exist");
+             return null;
+         }
+ 
+         //check si le user est modo
+         currentUser.pseudo = newName.newPseudo;
+         await this.userRepository.save(currentUser)
+        return true;
+    }
+
+    async changeUserPp(newPp: any){
+        // check if the room exist
+        const currentUser = await this.userRepository.findOneBy({
+            pseudo: newPp.currentPseudo,
+         });
+         if (!currentUser){
+             console.log("The user doesn't exist");
+             return null;
+         }
+ 
+         //check si le user est modo
+         currentUser.pp = newPp.newPp;
+         await this.userRepository.save(currentUser)
+        return true;
     }
 }

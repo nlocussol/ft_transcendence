@@ -10,7 +10,7 @@ import { environment } from 'src/environment';
   styleUrls: ['./message.component.css']
 })
 export class MessageComponent {
-  login: string;
+  pseudo: string;
   friends!: any;
   selectedFriend: any;
   userData: any;
@@ -21,8 +21,8 @@ export class MessageComponent {
 
   constructor(private http: HttpClient, private dataServices : DataService) {
     this.socket = io(environment.SOCKET_ENDPOINT);
-    this.login = this.dataServices.getLogin();
-    if (!this.login)
+    this.pseudo = this.dataServices.getLogin();
+    if (!this.pseudo)
       return
     this.getUserData();
     this.receiveMessage()
@@ -35,7 +35,7 @@ export class MessageComponent {
   }
 
   async getUserData() {
-    const res: any = await this.http.get(`http://localhost:3000/db-writer/${this.login}`).toPromise()
+    const res: any = await this.http.get(`http://localhost:3000/db-writer/${this.pseudo}`).toPromise()
     this.userData = res;
     this.friends = res?.friends;
   }
@@ -43,7 +43,7 @@ export class MessageComponent {
   async onClickFriend(friend: any){
     this.selectedFriend = friend;
     const body = {
-      pseudo: this.login,
+      pseudo: this.pseudo,
       friend: this.selectedFriend.name,
       content: '',
       sender: ''
@@ -54,10 +54,10 @@ export class MessageComponent {
 
   async sendMessage(message: string) {
     const body = {
-      pseudo: this.login,
+      pseudo: this.pseudo,
       friend: this.selectedFriend.name,
       content: message,
-      sender: this.login
+      sender: this.pseudo
     }
     this.socket.emit('add-pm', body);
     this.newMessage = '';

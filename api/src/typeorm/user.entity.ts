@@ -45,11 +45,6 @@ export class User {
     @Column({
         nullable: true,
     })
-    login: string;
-    
-    @Column({
-        nullable: true,
-    })
     pseudo: string;
 
     @Column({

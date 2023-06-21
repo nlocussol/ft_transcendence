@@ -5,6 +5,16 @@ html, body {
     margin: 0;
   }
   
+  .join-button {
+    background-color: #4caf50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
   #friend-list { 
     flex: 1;
     display: block;

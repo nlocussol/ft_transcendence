@@ -10,8 +10,9 @@ import { environment } from 'src/environment';
   styleUrls: ['./chat-room.component.css']
 })
 export class ChatRoomComponent {
-  login: string;
-  canAccess: boolean;
+  pseudo: string;
+  userStatus!: string;
+  roomStatus: string;
   rooms: any;
   roomName!: string;
   roomPassword!: string;
@@ -22,13 +23,15 @@ export class ChatRoomComponent {
   roomSearch!: string;
   allRoomChecked: boolean;
   socket: Socket;
+  joined: boolean;
 
   constructor(private http: HttpClient, private dataServices : DataService) {
-    this.allRoomChecked = false
-    this.canAccess = false
+    this.joined = false;
+    this.allRoomChecked = false;
+    this.roomStatus = 'PROTECTED';
     this.socket = io(environment.SOCKET_ENDPOINT);
-    this.login = this.dataServices.getLogin();
-    if (!this.login)
+    this.pseudo = this.dataServices.getLogin();
+    if (!this.pseudo)
       return;
     this.getAllRoom();
     this.getNewRoom();
@@ -47,18 +50,22 @@ export class ChatRoomComponent {
       roomStatus = "PROTECTED"
     const body = {
       name: this.roomName,
-      owner: this.login,
+      owner: this.pseudo,
       pwd: this.roomPassword,
       status: roomStatus
     }
     this.socket.emit('create-room', body);
   }
 
-  async onClickRoom(room: any){
-    this.canAccess = false;
-    if (room.status === "PUBLIC")
-      this.canAccess = true;
+  async onClickRoom(room: any) {
+    this.joined = false;
+    const roomData: any = await this.http.get(`http://localhost:3000/db-writer-room/data-room/${room.name}`).toPromise()
+    if (roomData.members && roomData.members.find((member: any) => this.pseudo === member.pseudo)) {
+      this.joined = true;
+      this.userStatus = roomData.members.find((member: any) => this.pseudo === member.pseudo).status
+    }
     this.selectedRoom = room;
+    this.roomStatus = this.selectedRoom.status
     this.conversation = this.selectedRoom.messages;
   }
 
@@ -66,9 +73,19 @@ export class ChatRoomComponent {
     this.socket.on('receive-room-msg', (data:any) => this.conversation.push(data))
   }
 
+  joinRoom() {
+    this.joined = true;
+    const body = {
+      pseudo: this.pseudo,
+      name: this.selectedRoom.name,
+    }    
+    const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
+    this.http.post('http://localhost:3000/db-writer-room/add-user-room', body, { headers }).subscribe()
+  }
+
   async sendMessage(message: string) {
     const body = {
-      sender: this.login,
+      sender: this.pseudo,
       name: this.selectedRoom.name,
       content: message,
     }  
@@ -77,20 +94,21 @@ export class ChatRoomComponent {
   }
 
   async onCheckboxChange() {
-    console.log(this.allRoomChecked);
     if (this.allRoomChecked)
       this.rooms = await this.http.get('http://localhost:3000/db-writer-room/all-room/').toPromise();
-      // else
-     //request just my room
+    else {
+      this.rooms = await this.http.get(`http://localhost:3000/db-writer-room/all-room/${this.pseudo}`).toPromise();
+      console.log(this.rooms);
+    }
   }
 
   async getAllRoom() {
     if (this.allRoomChecked)
       this.rooms = await this.http.get('http://localhost:3000/db-writer-room/all-room/').toPromise();
-    // else
-     //request just my room
-    console.log(this.rooms);
-    
+    else {
+      this.rooms = await this.http.get(`http://localhost:3000/db-writer-room/all-room/${this.pseudo}`).toPromise(); 
+      console.log(this.rooms);
+    }
   }
 
   async findRoom(roomName: string) {
@@ -102,6 +120,7 @@ export class ChatRoomComponent {
 
   verifyRoomPwd() {
     if (this.selectedRoom.pwd === this.selectedRoomPwd)
-      this.canAccess = true;
+      this.roomStatus = 'PUBLIC'
+    this.selectedRoomPwd = ''
   }
 }
