@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { DataService } from '../services/data.service';
 import { Socket, io } from 'socket.io-client';
 import { environment } from 'src/environment';
+import * as bcrypt from 'bcryptjs';
 
 @Component({
   selector: 'app-chat-room',
@@ -54,6 +55,7 @@ export class ChatRoomComponent {
     const body = {
       name: this.roomName,
       owner: this.pseudo,
+      // pwd: bcrypt.hashSync(this.roomPassword, "Bonjour"),
       pwd: this.roomPassword,
       status: roomStatus
     }

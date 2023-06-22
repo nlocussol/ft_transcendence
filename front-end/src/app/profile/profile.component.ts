@@ -41,12 +41,14 @@ export class ProfileComponent {
   }
 
   acceptRequest(body: any) {
+    console.log(body); 
     const headers = new HttpHeaders().set('Content-type', `application/json`)
     this.http.post("http://localhost:3000/db-writer/add-friend/", body, { headers }).subscribe()
     this.requests.splice(this.requests.find(request => body === request), 1);
   }
 
   refuseRequest(body: any) {
+    console.log(body); 
     this.requests.splice(this.requests.find(request => body === request), 1);
   }
 
@@ -59,7 +61,9 @@ export class ProfileComponent {
   handleFriendSubmit() {
     const body = {
       friend: this.pseudo,
-      pseudo: this.login
+      pseudo: this.login,
+      content: '',
+      sender: ''
     }
     if (this.profileData.friends.find((friend:any) => friend.name === body.pseudo)) {
       console.log(body.friend, 'is already your friend!');

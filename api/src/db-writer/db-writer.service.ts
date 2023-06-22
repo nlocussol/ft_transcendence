@@ -162,7 +162,7 @@ export class DbWriterService {
 
         let list = user.friends;
         for (var i of list){
-            if (i.blocked == true)
+            if (i.blocked === true)
                 list.splice(list.indexOf(i, 0), 1);
         }
         return list;
