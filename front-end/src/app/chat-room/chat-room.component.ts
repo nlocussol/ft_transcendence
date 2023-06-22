@@ -50,7 +50,7 @@ export class ChatRoomComponent {
     if (!this.roomName)
       return ;
     let roomStatus = "PUBLIC"
-    if (this.roomPassword || this.roomPassword === "")
+    if (this.roomPassword && this.roomPassword !== "")
       roomStatus = "PROTECTED"
     const body = {
       name: this.roomName,

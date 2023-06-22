@@ -13,10 +13,10 @@ export interface stats {
 }
 
 export interface match {
-    OwnScore: number,
-    OpponentScore: number,
+    ownScore: number,
+    opponentScore: number,
     opponent: string,
-    winner: boolean,
+    winner: string,
 }
 
 export interface message {

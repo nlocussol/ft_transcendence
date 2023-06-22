@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from 'src/typeorm';
-import { message, pm, messageData, friend } from 'src/typeorm/user.entity';
+import { message, pm, messageData, friend, match } from 'src/typeorm/user.entity';
 
 
 @Injectable()
@@ -30,6 +30,7 @@ export class DbWriterService {
         user.pp = newUser.pp;
         user.friends = [];
         user.pm = [];
+        user.history = [];
 
         // save in database (shared volume)
         await this.userRepository.save(user)
@@ -236,4 +237,44 @@ export class DbWriterService {
         await this.userRepository.save(currentUser)
         return true;
     }
+
+    async fillMatchHistory(gameData: any){
+        // check if the user exist
+        const player1 = await this.userRepository.findOneBy({
+            pseudo: gameData.player1,
+         });
+         if (!player1){
+             console.log("The user doesn't exist");
+             return null;
+         }
+         const player2 = await this.userRepository.findOneBy({
+            pseudo: gameData.player2,
+         });
+         if (!player2){
+             console.log("The user doesn't exist");
+             return null;
+         }
+         
+         let match1 :match = {
+            ownScore: gameData.score1,
+            opponentScore: gameData.score2,
+            opponent: gameData.player2,
+            winner: gameData.winner
+         }
+
+         let match2 :match = {
+            ownScore: gameData.score2,
+            opponentScore: gameData.score1,
+            opponent: gameData.player1,
+            winner: gameData.winner
+         }
+
+         player1.history.push(match1);
+         player2.history.push(match2);
+
+        await this.userRepository.save(player1)
+        await this.userRepository.save(player2)
+        return true;
+    }
 }
+
