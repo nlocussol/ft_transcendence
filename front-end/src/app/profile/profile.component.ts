@@ -11,9 +11,8 @@ import { Socket, io } from 'socket.io-client';
   styleUrls: ['./profile.component.css']
 })
 export class ProfileComponent {
-  pseudo!: string;
   profileData: any;
-  login: string = "! Go Login to get a profile card !";
+  pseudo: string = "! Go Login to get a profile card !";
   ppUrl!: string;
   status!: string;
   socket: Socket;
@@ -24,15 +23,15 @@ export class ProfileComponent {
     const tmp: string = dataService.getLogin();
     if (!tmp)
       return ;
-    this.login = tmp;
-    console.log('My login:', this.login);
+    this.pseudo = tmp;
+    console.log('My login:', this.pseudo);
     this.getProfileData();
     this.newFriendRequest();
   }
 
   newFriendRequest() {
     this.socket.on('receive-friend-request', (data:any) => {
-      if (data.friend === this.login) {
+      if (data.friend === this.pseudo) {
         if (!this.requests)
           this.requests = [];
         this.requests.push(data);
@@ -53,7 +52,7 @@ export class ProfileComponent {
   }
 
   async getProfileData() {
-    this.profileData = await this.http.get(`http://localhost:3000/db-writer/${this.login}`).toPromise()
+    this.profileData = await this.http.get(`http://localhost:3000/db-writer/${this.pseudo}`).toPromise()
     this.ppUrl = this.profileData.pp;
     this.status = this.profileData.status;
   }
@@ -61,7 +60,7 @@ export class ProfileComponent {
   handleFriendSubmit() {
     const body = {
       friend: this.pseudo,
-      pseudo: this.login,
+      pseudo: this.pseudo,
       content: '',
       sender: ''
     }

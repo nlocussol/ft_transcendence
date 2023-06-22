@@ -218,6 +218,7 @@ export class DbWriterService {
 
     async blockFriend(blockFriend: any){
         // check if the user exist
+        
         const currentUser = await this.userRepository.findOneBy({
             pseudo: blockFriend.pseudo,
          });

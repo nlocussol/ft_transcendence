@@ -35,10 +35,11 @@ export class MessageComponent {
   blockFriend() {
     const body = {
       pseudo: this.pseudo,
-      friend: this.selectedFriend.name
+      friend: this.selectedFriend.name,
+      block: true
     }
     const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
-    this.http.post('http://localhost:3000/db-writer/block-friend/', body, { headers }).toPromise()
+    this.http.post('http://localhost:3000/db-writer/block-friend/', body, { headers }).subscribe()
     this.friends.splice(this.friends.find((friend:any) => friend === this.selectedFriend), 1)
     this.selectedFriend = null;
   }
