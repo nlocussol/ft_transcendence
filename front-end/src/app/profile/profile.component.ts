@@ -11,6 +11,9 @@ import { Socket, io } from 'socket.io-client';
   styleUrls: ['./profile.component.css']
 })
 export class ProfileComponent {
+  selectedFile!: File;
+  newPseudo!: string;
+  pseudoFriend!: string;
   profileData: any;
   pseudo: string = "! Go Login to get a profile card !";
   ppUrl!: string;
@@ -27,6 +30,30 @@ export class ProfileComponent {
     console.log('My login:', this.pseudo);
     this.getProfileData();
     this.newFriendRequest();
+  }
+
+  onFileSelected(event: any): void {
+    this.selectedFile = event.target.files[0];
+    this.updateImage();
+  }
+
+  updateImage(): void {
+    const reader = new FileReader();
+    reader.onload = (event: any) => {
+      this.ppUrl = event.target.result;
+    };
+    reader.readAsDataURL(this.selectedFile);
+  }
+
+  async changeUsername() {
+    const body = {
+      currentPseudo: this.pseudo,
+      newPseudo: this.newPseudo
+    }
+    const headers = new HttpHeaders().set('Content-type', `application/json`)
+    const res = await this.http.post("http://localhost:3000/db-writer/change-user-pseudo/", body, { headers }).toPromise()
+    if (res)
+      this.pseudo = this.newPseudo;
   }
 
   newFriendRequest() {
