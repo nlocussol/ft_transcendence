@@ -29,15 +29,26 @@ export class MessageComponent {
   }
 
   receiveMessage() {
-    this.socket.on('receive-pm', (data:any) => {
-      console.log('NEW MESS', data);
-      this.conversation.push(data)})
+    this.socket.on('receive-pm', (data:any) => this.conversation.push(data))
+  }
+
+  blockFriend() {
+    const body = {
+      pseudo: this.pseudo,
+      friend: this.selectedFriend.name
+    }
+    const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
+    this.http.post('http://localhost:3000/db-writer/block-friend/', body, { headers }).toPromise()
+    this.friends.splice(this.friends.find((friend:any) => friend === this.selectedFriend), 1)
+    this.selectedFriend = null;
   }
 
   async getUserData() {
-    const res: any = await this.http.get(`http://localhost:3000/db-writer/${this.pseudo}`).toPromise()
+    let res: any = await this.http.get(`http://localhost:3000/db-writer/${this.pseudo}`).toPromise()
     this.userData = res;
-    this.friends = res?.friends;
+    res = await this.http.get(`http://localhost:3000/db-writer/friends/${this.pseudo}`).toPromise()
+    this.friends = res;
+    console.log(this.friends);
   }
 
   async onClickFriend(friend: any){
@@ -59,6 +70,7 @@ export class MessageComponent {
       content: message,
       sender: this.pseudo
     }
+    this.conversation.push(body);
     this.socket.emit('add-pm', body);
     this.newMessage = '';
   }

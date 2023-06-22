@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { DataService } from '../services/data.service';
 import { Socket, io } from 'socket.io-client';
 import { environment } from 'src/environment';
+import * as bcrypt from 'bcryptjs';
 
 @Component({
   selector: 'app-chat-room',
@@ -33,7 +34,7 @@ export class ChatRoomComponent {
     this.pseudo = this.dataServices.getLogin();
     if (!this.pseudo)
       return;
-    this.getAllRoom();
+    this.onCheckboxChange()
     this.getNewRoom();
     this.receiveMessage();
   }
@@ -41,8 +42,8 @@ export class ChatRoomComponent {
   getNewRoom() {
       this.socket.on('all-room', (data:any) => {
         if (this.selectedRoom || data.owner === this.pseudo)
-          this.rooms.push(data)}
-      )
+          this.rooms.push(data)
+        })
   }
 
   submitRoom() {
@@ -54,6 +55,7 @@ export class ChatRoomComponent {
     const body = {
       name: this.roomName,
       owner: this.pseudo,
+      // pwd: bcrypt.hashSync(this.roomPassword, "Bonjour"),
       pwd: this.roomPassword,
       status: roomStatus
     }
@@ -99,19 +101,8 @@ export class ChatRoomComponent {
   async onCheckboxChange() {
     if (this.allRoomChecked)
       this.rooms = await this.http.get('http://localhost:3000/db-writer-room/all-room/').toPromise();
-    else {
+    else
       this.rooms = await this.http.get(`http://localhost:3000/db-writer-room/all-room/${this.pseudo}`).toPromise();
-      console.log(this.rooms);
-    }
-  }
-
-  async getAllRoom() {
-    if (this.allRoomChecked)
-      this.rooms = await this.http.get('http://localhost:3000/db-writer-room/all-room/').toPromise();
-    else {
-      this.rooms = await this.http.get(`http://localhost:3000/db-writer-room/all-room/${this.pseudo}`).toPromise(); 
-      console.log(this.rooms);
-    }
   }
 
   async findRoom(roomName: string) {
