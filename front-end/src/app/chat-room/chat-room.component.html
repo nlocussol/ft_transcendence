@@ -27,6 +27,12 @@
     <div *ngIf="selectedRoom">
       <div class="chat" *ngIf="roomStatus === 'PUBLIC'">
         <div *ngIf="joined">
+          <div>
+            <select id="user-list" [(ngModel)]="friendInviteRoom">
+              <option *ngFor="let userToAddRoom of friendsToInvite" [value]="userToAddRoom.name">{{ userToAddRoom.name }}</option>
+            </select>
+            <button (click)="sendInviteRoom(friendInviteRoom)">Send</button>
+          </div>          
           <div class="chat-header">
             Chat in {{ selectedRoom.name }} room
           </div>
