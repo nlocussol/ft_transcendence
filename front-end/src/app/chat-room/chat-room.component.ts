@@ -11,6 +11,7 @@ import * as bcrypt from 'bcryptjs';
   styleUrls: ['./chat-room.component.css']
 })
 export class ChatRoomComponent {
+  options!: string[];
   pseudo: string;
   userStatus!: string;
   roomStatus: string;
@@ -63,14 +64,17 @@ export class ChatRoomComponent {
   }
 
   async onClickRoom(room: any) {
+    this.options = ['PUBLIC', 'PROTECTED', 'PRIVATE'];
     this.joined = false;
     const roomData: any = await this.http.get(`http://localhost:3000/db-writer-room/data-room/${room.name}`).toPromise()
+    this.selectedRoom = room;
+    this.roomStatus = this.selectedRoom.status;
+    this.options.splice(this.options.findIndex(opt => opt === this.roomStatus), 1)
     if (roomData.members && roomData.members.find((member: any) => this.pseudo === member.pseudo)) {
       this.joined = true;
+      this.roomStatus = "PUBLIC"
       this.userStatus = roomData.members.find((member: any) => this.pseudo === member.pseudo).status
     }
-    this.selectedRoom = room;
-    this.roomStatus = this.selectedRoom.status
     this.conversation = this.selectedRoom.messages;
   }
 

@@ -28,6 +28,7 @@ export class DbWriterService {
         user.pseudo = newUser.pseudo;
         user.email = newUser.email;
         user.pp = newUser.pp;
+        user.doubleAuth = false;
         user.friends = [];
         user.pm = [];
         user.history = [];
@@ -185,7 +186,14 @@ export class DbWriterService {
              console.log("The user doesn't exist");
              return null;
          }
- 
+        // check if the new username is not already take
+        const newUser = await this.userRepository.findOneBy({
+            pseudo: newName.newPseudo,
+         });
+         if (newUser){
+            console.log("The new username is already taken");
+            return null;
+         }
          // change the current pseudo to the new one
          currentUser.pseudo = newName.newPseudo;
          await this.userRepository.save(currentUser)
@@ -226,6 +234,7 @@ export class DbWriterService {
 
     async blockFriend(blockFriend: any){
         // check if the user exist
+        
         const currentUser = await this.userRepository.findOneBy({
             pseudo: blockFriend.pseudo,
          });

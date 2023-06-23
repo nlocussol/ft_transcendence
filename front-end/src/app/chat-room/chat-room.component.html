@@ -3,7 +3,7 @@
       <form (ngSubmit)="submitRoom()">
         <p>Create a room:</p>
         <input class="input" type="text" [(ngModel)]="roomName" name="roomName" placeholder="Name" />
-        <input class="input" type="text" [(ngModel)]="roomPassword" name="roomPassword" placeholder="Password" />
+        <input class="input" type="password" [(ngModel)]="roomPassword" name="roomPassword" placeholder="Password" />
         <button type="submit">Submit</button>
       </form>
       <div class="input">
@@ -38,9 +38,8 @@
           <form *ngIf="userStatus === 'ADMIN'">
             <label for="lang">Room Status: </label>
             <select id="room-status">
-              <option value="public">Public</option>
-              <option value="protected">Protected</option>
-              <option value="private">Private</option>
+              <option value="">{{ selectedRoom.status }}</option>
+              <option *ngFor="let option of options" [value]="option">{{ option }}</option>
             </select>
           </form>
           <div class="chat-input" *ngIf="selectedRoom">

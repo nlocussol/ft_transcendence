@@ -10,6 +10,11 @@
   font-family: 'Baloo Paaji 2', cursive;
 }
 
+button.active {
+  background-color: green;
+  color: white;
+}
+
 .accept-button {
   background-color: #4caf50;
   color: white;
