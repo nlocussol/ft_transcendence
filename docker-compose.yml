@@ -45,7 +45,6 @@ services:
       - "5432:5432"
     volumes:
       - db:/var/lib/postgresql/data
-        # - ./sql/init.sql:/docker-entrypoint-initdb.d/create_tables.sql
     environment:
       - POSTGRES_PASSWORD=${DB_PWD}
       - POSTGRES_USER=${DB_NAME}

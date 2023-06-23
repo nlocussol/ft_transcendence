@@ -50,4 +50,9 @@ export class DbWriterController {
     blockFriend(@Body() obj: any, @Headers() headers){
         return  this.dbWriter.blockFriend(obj);
     }
+
+    @Post('match-history')
+    matchHistory(@Body() obj: any, @Headers() headers){
+        return  this.dbWriter.fillMatchHistory(obj);
+    }
 }
