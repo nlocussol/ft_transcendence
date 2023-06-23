@@ -14,10 +14,13 @@ export class DbWriterService {
     async createUser(newUser: User){
 
         // search if the user is already inside the data base.
-        const currentUser = await this.userRepository.findOneBy({
+        const currentUserPseudo = await this.userRepository.findOneBy({
            pseudo: newUser.pseudo,
         });
-        if (currentUser){
+        const currentUserLogin = await this.userRepository.findOneBy({
+            login: newUser.pseudo,
+         });
+        if (currentUserPseudo || currentUserLogin){
             console.log("The user already exist");
             return null;
         }
@@ -28,6 +31,7 @@ export class DbWriterService {
         user.pseudo = newUser.pseudo;
         user.email = newUser.email;
         user.pp = newUser.pp;
+        user.login = newUser.pseudo
         user.doubleAuth = false;
         user.friends = [];
         user.pm = [];

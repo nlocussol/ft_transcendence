@@ -50,6 +50,11 @@ export class User {
     @Column({
         nullable: true,
     })
+    login: string;
+
+    @Column({
+        nullable: true,
+    })
     email: string;
 
     @Column({
