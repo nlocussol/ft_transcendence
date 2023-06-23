@@ -11,6 +11,8 @@ import * as bcrypt from 'bcryptjs';
   styleUrls: ['./chat-room.component.css']
 })
 export class ChatRoomComponent {
+  friendsToInvite!: any;
+  friendInviteRoom!: string;
   selectedStatus!: string;
   selectedOption!: string;
   options!: string[];
@@ -42,6 +44,7 @@ export class ChatRoomComponent {
     this.getNewRoom();
     this.receiveMessage();
   }
+
 
   getNewRoom() {
       this.socket.on('all-room', (data:any) => {
@@ -79,12 +82,23 @@ export class ChatRoomComponent {
     this.socket.emit('create-room', body);
   }
 
+  sendInviteRoom(userToAddRoom: string) {
+    const body = {
+      name: this.selectedRoom.name,
+      friend: userToAddRoom,
+      content: `${this.pseudo} has invited you to join the ${this.selectedRoom.name} room!`,
+      type: "ROOM_INVITE"
+    }
+    this.socket.emit('send-notif', body);
+  }
+
   async onClickRoom(room: any) {
     this.newPwd = '';
     this.selectedStatus = '';
     this.options = ['PUBLIC', 'PROTECTED', 'PRIVATE'];
     this.joined = false;
     const roomData: any = await this.http.get(`http://localhost:3000/db-writer-room/data-room/${room.name}`).toPromise()
+    this.friendsToInvite = await this.http.get(`http://localhost:3000/db-writer/friends/${this.pseudo}`).toPromise()
     this.selectedRoom = room;
     this.roomStatus = this.selectedRoom.status;
     this.options.splice(this.options.findIndex(opt => opt === this.roomStatus), 1)
@@ -94,6 +108,7 @@ export class ChatRoomComponent {
       this.userStatus = roomData.members.find((member: any) => this.pseudo === member.pseudo).status
     }
     this.conversation = this.selectedRoom.messages;
+    console.log(this.friendsToInvite);
   }
 
   onStatusSelected(event: Event) {
@@ -143,10 +158,7 @@ export class ChatRoomComponent {
   }
 
   async findRoom(roomName: string) {
-    if (this.allRoomChecked)
-      this.rooms = await this.http.get(`http://localhost:3000/db-writer-room/search-room/${roomName}`).toPromise();
-    // else
-     //just find in my room
+    this.rooms = await this.http.get(`http://localhost:3000/db-writer-room/search-room/${roomName}`).toPromise();
   }
 
   verifyRoomPwd() {

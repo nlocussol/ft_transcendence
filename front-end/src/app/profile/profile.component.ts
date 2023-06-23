@@ -70,9 +70,25 @@ export class ProfileComponent {
   }
 
   acceptRequest(body: any) {
-    console.log(body); 
+    let bodyToSend: any;
     const headers = new HttpHeaders().set('Content-type', `application/json`)
-    this.http.post("http://localhost:3000/db-writer/add-friend/", body, { headers }).subscribe()
+    if (body.type === "REQUEST") {
+      bodyToSend = {
+        pseudo: body.pseudo,
+        friend: body.friend,
+        content: '',
+        sender: ''
+      }
+      this.http.post("http://localhost:3000/db-writer/add-friend/", bodyToSend, { headers }).subscribe()
+    }
+    else if (body.type === "ROOM_INVITE") {
+      bodyToSend = {
+        name: body.name,
+        pseudo: body.friend,
+      }
+      console.log(bodyToSend);
+      this.http.post('http://localhost:3000/db-writer-room/add-user-room', bodyToSend, { headers }).subscribe()
+    }
     this.notifs.splice(this.notifs.find(request => body === request), 1);
   }
 
