@@ -11,6 +11,7 @@ import { Socket, io } from 'socket.io-client';
   styleUrls: ['./profile.component.css']
 })
 export class ProfileComponent {
+  doubleAuth!: boolean;
   selectedFile!: File;
   newPseudo!: string;
   pseudoFriend!: string;
@@ -19,7 +20,7 @@ export class ProfileComponent {
   ppUrl!: string;
   status!: string;
   socket: Socket;
-  requests!: any[];
+  notifs!: any[];
 
   constructor(private http: HttpClient, private dataService: DataService) {
     this.socket = io(environment.SOCKET_ENDPOINT);
@@ -29,20 +30,32 @@ export class ProfileComponent {
     this.pseudo = tmp;
     console.log('My login:', this.pseudo);
     this.getProfileData();
-    this.newFriendRequest();
+    this.newNotif();
   }
 
   onFileSelected(event: any): void {
     this.selectedFile = event.target.files[0];
-    this.updateImage();
-  }
-
-  updateImage(): void {
     const reader = new FileReader();
     reader.onload = (event: any) => {
       this.ppUrl = event.target.result;
     };
     reader.readAsDataURL(this.selectedFile);
+    const body = {
+      pseudo: this.pseudo,
+      newPp: this.selectedFile
+    }
+    const headers = new HttpHeaders().set('Content-type', `application/json`)
+    this.http.post("http://localhost:3000/db-writer/change-user-pp/", body, { headers }).subscribe()
+  }
+
+  change2AF() {
+    this.doubleAuth = !this.doubleAuth;
+    const body = {
+      pseudo: this.pseudo,
+      doubleAuth: this.doubleAuth
+    }
+    const headers = new HttpHeaders().set('Content-type', `application/json`)
+    this.http.post("http://localhost:3000/db-writer/change-2fa/", body, { headers }).subscribe()
   }
 
   async changeUsername() {
@@ -56,45 +69,46 @@ export class ProfileComponent {
       this.pseudo = this.newPseudo;
   }
 
-  newFriendRequest() {
-    this.socket.on('receive-friend-request', (data:any) => {
-      if (data.friend === this.pseudo) {
-        if (!this.requests)
-          this.requests = [];
-        this.requests.push(data);
-      }
-    })
-  }
-
   acceptRequest(body: any) {
     console.log(body); 
     const headers = new HttpHeaders().set('Content-type', `application/json`)
     this.http.post("http://localhost:3000/db-writer/add-friend/", body, { headers }).subscribe()
-    this.requests.splice(this.requests.find(request => body === request), 1);
+    this.notifs.splice(this.notifs.find(request => body === request), 1);
   }
 
   refuseRequest(body: any) {
     console.log(body); 
-    this.requests.splice(this.requests.find(request => body === request), 1);
+    this.notifs.splice(this.notifs.find(request => body === request), 1);
   }
 
   async getProfileData() {
     this.profileData = await this.http.get(`http://localhost:3000/db-writer/${this.pseudo}`).toPromise()
     this.ppUrl = this.profileData.pp;
     this.status = this.profileData.status;
+    this.doubleAuth = this.profileData.doubleAuth
+  }
+
+  newNotif() {
+    this.socket.on('receive-notif', (data:any) => {
+      if (data.friend === this.pseudo) {
+        if (!this.notifs)
+          this.notifs = [];
+        this.notifs.push(data);
+      }
+    })
   }
 
   handleFriendSubmit() {
     const body = {
-      friend: this.pseudo,
+      friend: this.pseudoFriend,
       pseudo: this.pseudo,
-      content: '',
-      sender: ''
+      content: `${this.pseudo} want to be your friend!`,
+      type: "REQUEST"
     }
     if (this.profileData.friends.find((friend:any) => friend.name === body.pseudo)) {
       console.log(body.friend, 'is already your friend!');
       return ;
     }
-    this.socket.emit('send-friend-request', body);
+    this.socket.emit('send-notif', body);
   }
 }

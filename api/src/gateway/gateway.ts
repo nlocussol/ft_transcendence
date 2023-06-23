@@ -17,9 +17,9 @@ export class MyGateway implements OnModuleInit{
         this.server.on('connection', (socket) => this.clientSocket = socket)
     }
 
-    @SubscribeMessage('send-friend-request')
+    @SubscribeMessage('send-notif')
     async sendFriendRequest(client: Socket, friendToAdd: any) {
-        this.server.emit('receive-friend-request', friendToAdd)
+        this.server.emit('receive-notif', friendToAdd)
     }
 
     @SubscribeMessage('add-pm')

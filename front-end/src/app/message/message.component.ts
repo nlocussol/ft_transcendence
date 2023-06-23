@@ -41,6 +41,17 @@ export class MessageComponent {
     const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
     this.http.post('http://localhost:3000/db-writer/block-friend/', body, { headers }).subscribe()
     this.friends.splice(this.friends.find((friend:any) => friend === this.selectedFriend), 1)
+    
+    let bodyNotif = {
+      pseudo: this.pseudo,
+      friend: this.selectedFriend.name,
+      content: `${this.pseudo} as blocked you!`,
+      type: "BLOCK"
+    }
+    this.socket.emit('send-notif', bodyNotif);
+    bodyNotif.friend = this.pseudo
+    bodyNotif.content = `You blocked ${this.selectedFriend.name}`
+    this.socket.emit('send-notif', bodyNotif);
     this.selectedFriend = null;
   }
 

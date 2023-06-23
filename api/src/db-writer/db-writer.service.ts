@@ -28,6 +28,7 @@ export class DbWriterService {
         user.pseudo = newUser.pseudo;
         user.email = newUser.email;
         user.pp = newUser.pp;
+        user.doubleAuth = false;
         user.friends = [];
         user.pm = [];
         user.history = [];
