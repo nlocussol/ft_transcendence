@@ -11,6 +11,7 @@ import * as bcrypt from 'bcryptjs';
   styleUrls: ['./chat-room.component.css']
 })
 export class ChatRoomComponent {
+  selectedStatus!: string;
   selectedOption!: string;
   options!: string[];
   pseudo: string;
@@ -21,6 +22,7 @@ export class ChatRoomComponent {
   roomPassword!: string;
   selectedRoom: any;
   selectedRoomPwd!: string;
+  newPwd!: string;
   conversation: any;
   newMessage!: string;
   roomSearch!: string;
@@ -48,6 +50,19 @@ export class ChatRoomComponent {
         })
   }
 
+  newRoomPwd() {
+    console.log(this.newPwd);
+    const body = {
+      name: this.selectedRoom.name,
+      status: this.selectedStatus,
+      pwd: this.newPwd,
+    }    
+    const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
+    this.http.post('http://localhost:3000/db-writer-room/change-status/', body, { headers }).subscribe()
+    this.selectedStatus = '';
+    this.newPwd = '';
+  }
+
   submitRoom() {
     if (!this.roomName)
       return ;
@@ -65,6 +80,8 @@ export class ChatRoomComponent {
   }
 
   async onClickRoom(room: any) {
+    this.newPwd = '';
+    this.selectedStatus = '';
     this.options = ['PUBLIC', 'PROTECTED', 'PRIVATE'];
     this.joined = false;
     const roomData: any = await this.http.get(`http://localhost:3000/db-writer-room/data-room/${room.name}`).toPromise()
@@ -80,14 +97,17 @@ export class ChatRoomComponent {
   }
 
   onStatusSelected(event: Event) {
-    const selectedStatus = (event.target as HTMLSelectElement).value;
-    console.log(selectedStatus);
-    // const body = {
-    //   pseudo: this.pseudo,
-    //   name: this.selectedRoom.name,
-    // }    
-    // const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
-    // this.http.post('http://localhost:3000/db-writer-room/add-user-room', body, { headers }).subscribe()
+    this.selectedStatus = (event.target as HTMLSelectElement).value;
+    this.selectedRoom.status = this.selectedStatus;
+    console.log(this.selectedStatus);
+    if (this.selectedStatus === 'PROTECTED')
+      return ;
+    const body = {
+      name: this.selectedRoom.name,
+      status: this.selectedStatus,
+    }    
+    const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
+    this.http.post('http://localhost:3000/db-writer-room/change-status/', body, { headers }).subscribe()
   }
 
   receiveMessage() {
@@ -115,6 +135,7 @@ export class ChatRoomComponent {
   }
 
   async onCheckboxChange() {
+    this.selectedRoom = null;
     if (this.allRoomChecked)
       this.rooms = await this.http.get('http://localhost:3000/db-writer-room/all-room/').toPromise();
     else

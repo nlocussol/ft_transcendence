@@ -30,7 +30,7 @@
           <div class="chat-header">
             Chat in {{ selectedRoom.name }} room
           </div>
-          <div class="chat-messages" *ngIf="roomStatus === 'PUBLIC'">
+          <div class="chat-messages" *ngIf="roomStatus === 'PUBLIC' && conversation">
             <div *ngFor="let message of conversation.reverse()" class="message">
               <span class="sender">{{ message.sender }}:</span> {{ message.content }}
             </div>
@@ -42,17 +42,20 @@
               <option *ngFor="let option of options" [value]="option">{{ option }}</option>
             </select>
           </form>
+          <div *ngIf="selectedStatus === 'PROTECTED'" class="input">
+            <input type="text" [(ngModel)]="newPwd" (keyup.enter)="newRoomPwd()" placeholder="Enter the Password." />
+          </div>
           <div class="chat-input" *ngIf="selectedRoom">
             <input type="text" [(ngModel)]="newMessage" (keyup.enter)="sendMessage(newMessage)" placeholder="Type a message..." />
             <button (click)="sendMessage(newMessage)">Send</button>
           </div>
         </div>
-        <div *ngIf="!joined">
+        <div *ngIf="!joined && allRoomChecked">
           <button type="submit" class="join-button" (click)="joinRoom()">Join</button>
         </div>
       </div>
-      <div *ngIf="roomStatus === 'PROTECTED'" class="input">
-        <input type="text" [(ngModel)]="selectedRoomPwd" (keyup.enter)="verifyRoomPwd()" placeholder="Enter the Passwordof the room to get access!" />
+      <div *ngIf="roomStatus === 'PROTECTED' && allRoomChecked && selectedRoom" class="input">
+        <input type="text" [(ngModel)]="selectedRoomPwd" (keyup.enter)="verifyRoomPwd()" placeholder="Enter the Password of the room to get access!" />
       </div>
     </div>
   </div>
