@@ -155,4 +155,26 @@ export class DbWriterRoomService {
         can't find the user who change the room name inside the database");
         return null;
     }
+
+    async changeStatus(newStatus: any){
+        // check if the room exist
+        const currentRoom = await this.roomRepository.findOneBy({
+            name: newStatus.name,
+         });
+         if (!currentRoom){
+             console.log("The room doesn't exist");
+             return null;
+         }
+
+         //change room status and chagne pwd if protected
+         currentRoom.status = newStatus.status;
+         if (currentRoom.status === 'PROTECTED')
+            currentRoom.pwd = newStatus.pwd;
+         else
+            currentRoom.pwd = null;
+         
+         // save in database (shared volume)
+        await this.roomRepository.save(currentRoom)
+        return true ;
+    }
 }

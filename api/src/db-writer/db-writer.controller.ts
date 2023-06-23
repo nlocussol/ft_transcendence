@@ -21,7 +21,7 @@ export class DbWriterController {
         return pm
     }
 
-    @Get(':pseudo')
+    @Get('data/:pseudo')
     getDataUser(@Param('pseudo') pseudo: string){
         return this.dbWriter.getDataUser(pseudo);
     }
@@ -54,5 +54,10 @@ export class DbWriterController {
     @Post('match-history')
     matchHistory(@Body() obj: any, @Headers() headers){
         return  this.dbWriter.fillMatchHistory(obj);
+    }
+
+    @Get('leaderboard')
+    getLeaderboard(){
+        return this.dbWriter.getLeaderboard();
     }
 }

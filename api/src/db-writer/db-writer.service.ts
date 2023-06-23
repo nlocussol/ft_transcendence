@@ -303,5 +303,14 @@ export class DbWriterService {
         this.fillStats(player2, gameData, matchWinner);
         return true;
     }
+
+    async getLeaderboard(){
+        const players = await this.userRepository.find();
+
+        const sortedPlayer = players.sort(
+            (a, b) => (a.stats.win - a.stats.loose > b.stats.win - b.stats.loose ? -1 : 1)
+        )
+        return sortedPlayer
+    }
 }
 

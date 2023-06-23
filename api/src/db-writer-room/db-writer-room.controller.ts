@@ -44,4 +44,9 @@ export class DbWriterRoomController {
     changeRoomName(@Body() perm: any, @Headers() headers){
         return this.dbWriterRoom.changeRoomName(perm);
     }
+
+    @Post('change-status')
+    changeStatus(@Body() obj: any, @Headers() headers){
+        return this.dbWriterRoom.changeStatus(obj);
+    }
 }
