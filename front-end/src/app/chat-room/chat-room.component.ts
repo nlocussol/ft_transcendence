@@ -11,6 +11,7 @@ import * as bcrypt from 'bcryptjs';
   styleUrls: ['./chat-room.component.css']
 })
 export class ChatRoomComponent {
+  selectedOption!: string;
   options!: string[];
   pseudo: string;
   userStatus!: string;
@@ -76,6 +77,17 @@ export class ChatRoomComponent {
       this.userStatus = roomData.members.find((member: any) => this.pseudo === member.pseudo).status
     }
     this.conversation = this.selectedRoom.messages;
+  }
+
+  onStatusSelected(event: Event) {
+    const selectedStatus = (event.target as HTMLSelectElement).value;
+    console.log(selectedStatus);
+    // const body = {
+    //   pseudo: this.pseudo,
+    //   name: this.selectedRoom.name,
+    // }    
+    // const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
+    // this.http.post('http://localhost:3000/db-writer-room/add-user-room', body, { headers }).subscribe()
   }
 
   receiveMessage() {

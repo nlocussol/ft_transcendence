@@ -37,7 +37,7 @@
           </div>
           <form *ngIf="userStatus === 'ADMIN'">
             <label for="lang">Room Status: </label>
-            <select id="room-status">
+            <select id="room-status" (change)="onStatusSelected($event)">
               <option value="">{{ selectedRoom.status }}</option>
               <option *ngFor="let option of options" [value]="option">{{ option }}</option>
             </select>

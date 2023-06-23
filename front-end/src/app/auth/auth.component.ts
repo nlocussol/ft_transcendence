@@ -36,7 +36,7 @@ export class AuthComponent implements OnInit {
     this.dataService.setLogin(this.login)
     this.sendUserData(res)
     // check if 2fa is needed
-    this.profileData = await this.http.get(`http://localhost:3000/db-writer/${this.login}`).toPromise()
+    this.profileData = await this.http.get(`http://localhost:3000/db-writer/data/${this.login}`).toPromise()
     // if (this.profileData.doubleAuth === true){
     // }
     this.doubleFactorAuth();

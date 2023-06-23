@@ -56,7 +56,7 @@ export class MessageComponent {
   }
 
   async getUserData() {
-    let res: any = await this.http.get(`http://localhost:3000/db-writer/${this.pseudo}`).toPromise()
+    let res: any = await this.http.get(`http://localhost:3000/db-writer/data/${this.pseudo}`).toPromise()
     this.userData = res;
     res = await this.http.get(`http://localhost:3000/db-writer/friends/${this.pseudo}`).toPromise()
     this.friends = res;
