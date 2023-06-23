@@ -151,7 +151,7 @@ export class DbWriterRoomService {
                 console.log("Wrong permisson to change room name");
             }
         })
-        console.log("Werid problems, \
+        console.log("Weird problem, \
         can't find the user who change the room name inside the database");
         return null;
     }

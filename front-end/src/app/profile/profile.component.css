@@ -6,7 +6,7 @@
   grid-gap: 50px; /* Increased the gap between the columns */
   justify-content: center;
   align-items: center;
-  background-color: #f5f5f5;
+  /* background-color: #f5f5f5; */
   font-family: 'Baloo Paaji 2', cursive;
 }
 
