@@ -82,7 +82,7 @@ export class ProfileComponent {
   }
 
   async getProfileData() {
-    this.profileData = await this.http.get(`http://localhost:3000/db-writer/${this.pseudo}`).toPromise()
+    this.profileData = await this.http.get(`http://localhost:3000/db-writer/data/${this.pseudo}`).toPromise()
     this.ppUrl = this.profileData.pp;
     this.status = this.profileData.status;
     this.doubleAuth = this.profileData.doubleAuth
