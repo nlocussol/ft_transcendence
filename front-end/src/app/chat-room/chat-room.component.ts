@@ -76,27 +76,45 @@ export class ChatRoomComponent {
     this.newPwd = '';
   }
 
-  async handleMemberOption(memberToView: string, memberPseudo: string) {
+  async handleMemberOption(memberToView: string, member: any) {
+    const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
     switch (memberToView) {
       case 'watch profil':
-        this.router.navigateByUrl(`/user-page/${memberPseudo}`);
+        this.router.navigateByUrl(`/user-page/${member.pseudo}`);
         break ;
       case '1v1 match':
       case 'Friend Invite':
-        const body = {
-          friend: memberPseudo,
+        const bodyInvite = {
+          friend: member.pseudo,
           pseudo: this.pseudo,
           content: `${this.pseudo} want to be your friend!`,
           type: "REQUEST"
         }
         const profileData: any = await this.http.get(`http://localhost:3000/db-writer/data/${this.pseudo}`).toPromise()
-        if (profileData.friends.find((friend:any) => friend.name === body.pseudo)) {
-          console.log(body.friend, 'is already your friend!');
+        if (profileData.friends.find((friend:any) => friend.name === bodyInvite.pseudo)) {
+          console.log(bodyInvite.friend, 'is already your friend!');
           return ;
         }
-        this.socket.emit('send-notif', body);
+        this.socket.emit('send-notif', bodyInvite);
+        break ;
+      case 'Promote':
+        const bodyPromote = {
+          name: this.selectedRoom.name,
+          pseudo: this.pseudo,
+          status: 'ADMIN'
+        }    
+        this.http.post('http://localhost:3000/db-writer-room/change-status/', bodyPromote, { headers }).subscribe()
+        break ;
+      case 'Downgrade':
+        const bodyDowngrade = {
+          name: this.selectedRoom.name,
+          pseudo: this.pseudo,
+          status: 'NORMAL'
+        }    
+        this.http.post('http://localhost:3000/db-writer-room/change-status/', bodyDowngrade, { headers }).subscribe()
         break ;
       case 'Mute':
+      case 'Kick':
       case 'Ban':
     }
   }
@@ -155,7 +173,7 @@ export class ChatRoomComponent {
       this.roomStatus = "PUBLIC"
       this.userStatus = roomData.members.find((member: any) => this.pseudo === member.pseudo).status
       if (this.userStatus === 'ADMIN')
-        this.memberOptions = this.memberOptions.concat(['Mute','Ban'])
+        this.memberOptions = this.memberOptions.concat(['Promote', 'Downgrade', 'Mute', 'Kick', 'Ban'])
     }
     this.conversation = this.selectedRoom.messages;
     console.log(this.friendsToInvite);

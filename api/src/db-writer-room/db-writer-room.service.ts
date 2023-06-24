@@ -201,25 +201,25 @@ export class DbWriterRoomService {
     }
 
 
-    // async changeMemberStatus(newMemberStatus: any){
-    //     // check if the room exist
-    //     const currentRoom = await this.roomRepository.findOneBy({
-    //         name: newMemberStatus.name,
-    //      });
-    //      if (!currentRoom){
-    //          console.log("The room doesn't exist");
-    //          return null;
-    //      }
+    async changeMemberStatus(newMemberStatus: any){
+        // check if the room exist
+        const currentRoom = await this.roomRepository.findOneBy({
+            name: newMemberStatus.name,
+         });
+         if (!currentRoom){
+             console.log("The room doesn't exist");
+             return null;
+         }
 
-    //      currentRoom.members.find(async member => {
-    //         if (member.pseudo === newMemberStatus.pseudo && member.status !== 'ADMIN'){
-    //             member.status = newMemberStatus.status;
-    //             await this.roomRepository.save(currentRoom)
-    //             return true;
-    //         } else {
-    //             console.log("Wrong permisson to user status ");
-    //         }
-    //     })
-    //     return null;
-    // }
+         currentRoom.members.find(async member => {
+            if (member.pseudo === newMemberStatus.pseudo && member.status !== 'ADMIN'){
+                member.status = newMemberStatus.status;
+                await this.roomRepository.save(currentRoom)
+                return true;
+            } else {
+                console.log("Wrong permisson to user status ");
+            }
+        })
+        return null;
+    }
 }
