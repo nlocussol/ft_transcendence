@@ -1,14 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Room } from 'src/typeorm';
 import { member } from 'src/typeorm/room.entity';
-import { message } from 'src/typeorm/user.entity';
+import { User, message } from 'src/typeorm/user.entity';
 
 @Injectable()
 export class DbWriterRoomService {
     constructor(
-        @InjectRepository(Room) private readonly roomRepository: Repository<Room>
+        @InjectRepository(Room) private readonly roomRepository: Repository<Room>,
+        @InjectRepository(User) private readonly userRepository: Repository<User>
     ){}
 
     async createRoom(newRoom: any){
@@ -177,6 +178,44 @@ export class DbWriterRoomService {
         await this.roomRepository.save(currentRoom)
         return true ;
     }
+
+    async leaveRoom(leaveUser: any){
+        // check if the room exist
+        const currentRoom = await this.roomRepository.findOneBy({
+            name: leaveUser.name,
+        });
+        if (!currentRoom){
+             console.log("The room doesn't exist");
+             return null;
+        }
+        for (var tmp of currentRoom.members){
+            if (!tmp.pseudo === leaveUser.pseudo){
+                if (tmp.pseudo === currentRoom.owner){
+                    this.roomRepository.delete(currentRoom);
+                    console.log("The room owner leave the room, it is therefore destroyed");                  
+                }
+                currentRoom.members.splice(currentRoom.members.indexOf(tmp, 0), 1);
+            }
+        }
+        await this.roomRepository.save(currentRoom)
+
+         // check if the user exist
+         const currentUser = await this.userRepository.findOneBy({
+            pseudo: leaveUser.pseudo,
+         });
+         if (!currentUser){
+             console.log("The user doesn't exist");
+             return null;
+         }
+         for (var index of currentUser.room){
+            if (!currentUser.room[index] === leaveUser.pseudo)
+                currentUser.room.splice(currentUser.room.indexOf(index, 0), 1);
+        }
+        await this.userRepository.save(currentUser)
+
+        return true ;
+    }
+
 
     // async changeMemberStatus(newMemberStatus: any){
     //     // check if the room exist

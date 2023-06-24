@@ -1,15 +1,16 @@
 <div class="container">
-  <div class="friends-list">
-    <ul>
-      <li class="friend" *ngFor="let friend of friends" [class.selected]="friend === selectedFriend" (click)="onClickFriend(friend)">
-        <img [src]="friend.pp" />
-        <div class="name">
-          {{ friend.name }}
-        </div>
-      </li>
-    </ul>
+  <div *ngIf="!friends">
+    <h1>There is no friend inside the list</h1>
   </div>
-  <div class="chat">
+  <ul>
+    <li class="friend" *ngFor="let friend of friends" [class.selected]="friend === selectedFriend" (click)="onClickFriend(friend)">
+      <img [src]="friend.pp" />
+      <div class="name">
+        {{ friend.name }}
+      </div>
+    </li>
+  </ul>
+  <div *ngIf="friends" class="chat">
     <div class="chat-header" *ngIf="selectedFriend">
       Chatting with {{ selectedFriend.name }}
     </div>
