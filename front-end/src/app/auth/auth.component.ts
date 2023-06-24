@@ -11,7 +11,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./auth.component.css']
 })
 export class AuthComponent implements OnInit {
-  login!: string;
+  pseudo!: string;
   profileData: any;
   pin!: string;
   doubleAuthQrCode!: string;
@@ -32,11 +32,11 @@ export class AuthComponent implements OnInit {
   async getUserData(accessToken: string) {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`)
     const res: any = await this.http.get('https://api.intra.42.fr/v2/me', { headers }).toPromise()
-    this.login = await (res.login);
-    this.dataService.setLogin(this.login)
+    this.pseudo = await (res.login);
+    this.dataService.setLogin(this.pseudo)
     this.sendUserData(res)
     // check if 2fa is needed
-    this.profileData = await this.http.get(`http://localhost:3000/db-writer/data/${this.login}`).toPromise()
+    this.profileData = await this.http.get(`http://localhost:3000/db-writer/data/${this.pseudo}`).toPromise()
     // if (this.profileData.doubleAuth === true){
     // }
     this.doubleFactorAuth();
@@ -66,7 +66,7 @@ export class AuthComponent implements OnInit {
 
   doubleFactorAuth(){
     // init new qr code
-    this.doubleAuthQrCode = `https://www.authenticatorApi.com/pair.aspx?AppName=Pozo&AppInfo=${this.login}&SecretCode=${this.profileData.authCode}`;
+    this.doubleAuthQrCode = `https://www.authenticatorApi.com/pair.aspx?AppName=Pozo&AppInfo=${this.pseudo}&SecretCode=${this.profileData.authCode}`;
     if (this.doubleAuthQrCode)
       window.open(this.doubleAuthQrCode, '_blank');
   }

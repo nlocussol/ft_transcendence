@@ -5,6 +5,13 @@ html, body {
     margin: 0;
   }
   
+  #friendpp {
+    border: none;
+    cursor: pointer;
+    appearance: none;
+    background-color: inherit;
+  }
+
   #friend-list { 
     flex: 1;
     display: block;

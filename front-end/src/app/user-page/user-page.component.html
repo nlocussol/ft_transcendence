@@ -13,6 +13,7 @@
         <p> Win rate: {{ stats.win * 100 / stats.matchs }}%</p>
       </div>
       <div class="btn draw-border">
+        <h3>MATCH HISTORY</h3>
         <ul id="matchlist">
             <li class="history" *ngFor="let match of history.reverse()">
                 <h4 id="nameMatch"> <em>{{ pseudo }}</em> vs <em>{{ match.opponent }}</em></h4>

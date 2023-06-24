@@ -3,6 +3,7 @@ import { DataService } from '../services/data.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Socket, io } from 'socket.io-client';
 import { environment } from 'src/environment';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-message',
@@ -19,7 +20,7 @@ export class MessageComponent {
   socket: Socket;
   newMessageObj: any;
 
-  constructor(private http: HttpClient, private dataServices : DataService) {
+  constructor(private http: HttpClient, private dataServices : DataService, private router: Router) {
     this.socket = io(environment.SOCKET_ENDPOINT);
     this.pseudo = this.dataServices.getLogin();
     if (!this.pseudo)
@@ -85,5 +86,9 @@ export class MessageComponent {
     this.conversation.push(body);
     this.socket.emit('add-pm', body);
     this.newMessage = '';
+  }
+
+  friendProfilePage(friend: any) {
+    this.router.navigateByUrl(`/user-page/${friend.name}`);
   }
 }

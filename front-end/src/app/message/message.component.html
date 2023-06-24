@@ -4,7 +4,9 @@
   </div>
   <ul>
     <li class="friend" *ngFor="let friend of friends" [class.selected]="friend === selectedFriend" (click)="onClickFriend(friend)">
-      <img [src]="friend.pp" />
+      <button id="friendpp" type="submit" (click)=friendProfilePage(friend)>
+        <img [src]="friend.pp" />
+      </button>
       <div class="name">
         {{ friend.name }}
       </div>

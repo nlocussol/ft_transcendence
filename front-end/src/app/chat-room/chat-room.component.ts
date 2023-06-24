@@ -4,6 +4,7 @@ import { DataService } from '../services/data.service';
 import { Socket, io } from 'socket.io-client';
 import { environment } from 'src/environment';
 import * as bcrypt from 'bcryptjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-chat-room',
@@ -35,7 +36,7 @@ export class ChatRoomComponent {
   socket: Socket;
   joined: boolean;
 
-  constructor(private http: HttpClient, private dataServices : DataService) {
+  constructor(private http: HttpClient, private dataServices : DataService, private router: Router) {
     this.memberOptions = ['watch profil', '1v1 match', 'Friend Invite'];
     this.joined = false;
     this.allRoomChecked = false;
@@ -75,11 +76,26 @@ export class ChatRoomComponent {
     this.newPwd = '';
   }
 
-  handleMemberOption(memberToView: string) {
+  async handleMemberOption(memberToView: string, memberPseudo: string) {
     switch (memberToView) {
       case 'watch profil':
+        this.router.navigateByUrl(`/user-page/${memberPseudo}`);
+        break ;
       case '1v1 match':
       case 'Friend Invite':
+        const body = {
+          friend: memberPseudo,
+          pseudo: this.pseudo,
+          content: `${this.pseudo} want to be your friend!`,
+          type: "REQUEST"
+        }
+        const profileData: any = await this.http.get(`http://localhost:3000/db-writer/data/${this.pseudo}`).toPromise()
+        if (profileData.friends.find((friend:any) => friend.name === body.pseudo)) {
+          console.log(body.friend, 'is already your friend!');
+          return ;
+        }
+        this.socket.emit('send-notif', body);
+        break ;
       case 'Mute':
       case 'Ban':
     }
@@ -138,8 +154,8 @@ export class ChatRoomComponent {
       this.joined = true;
       this.roomStatus = "PUBLIC"
       this.userStatus = roomData.members.find((member: any) => this.pseudo === member.pseudo).status
-      if (this.userStatus === 'ADMIN') 
-        this.memberOptions.concat(['Mute','Ban'])   // dont work
+      if (this.userStatus === 'ADMIN')
+        this.memberOptions = this.memberOptions.concat(['Mute','Ban'])
     }
     this.conversation = this.selectedRoom.messages;
     console.log(this.friendsToInvite);

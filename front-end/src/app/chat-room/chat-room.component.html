@@ -69,11 +69,11 @@
     <div *ngIf="joined && selectedRoom">
       <div *ngFor="let member of selectedRoom.members" class="members" [class.selected]="member === selectedMember"(click)="onMemberClick(member)">
           {{ member.pseudo }}
-          <div>
+          <div *ngIf="member.pseudo !== pseudo" >
             <select [(ngModel)]="memberToView">
               <option *ngFor="let memberOptions of memberOptions" [value]="memberOptions"> {{ memberOptions }}</option>
             </select>
-            <button (click)="handleMemberOption(memberToView)">Send</button>
+            <button (click)="handleMemberOption(memberToView, member.pseudo)">Send</button>
           </div>    
       </div>
     </div>
