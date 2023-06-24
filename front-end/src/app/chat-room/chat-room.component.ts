@@ -66,6 +66,8 @@ export class ChatRoomComponent {
     this.newPwd = '';
   }
 
+  quitRoom() {}
+  
   submitRoom() {
     if (!this.roomName)
       return ;
