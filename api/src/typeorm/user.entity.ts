@@ -9,7 +9,7 @@ export interface friend {
 export interface stats {
     matchs: number,
     win: number,
-    loose: number,
+    lose: number,
 }
 
 export interface match {

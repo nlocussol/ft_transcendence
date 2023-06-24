@@ -1,0 +1,30 @@
+<div class="container">
+    <div class="card" *ngIf="found === true">
+      <img [src]="ppUrl" class="card__image">
+      <p class="card__name">{{ pseudo }}</p>
+      <div class="user-status">
+        Status: {{ status }}
+      </div>
+      <button routerLink="/message" class="btn draw-border">Message</button>
+      <div class="btn draw-border">
+        <h3>STATS</h3>
+        <p> Win: {{ stats.win }}</p>
+        <p> Lose: {{ stats.lose }}</p>
+        <p> Win rate: {{ stats.win * 100 / stats.matchs }}%</p>
+      </div>
+      <div class="btn draw-border">
+        <ul id="matchlist">
+            <li class="history" *ngFor="let match of history.reverse()">
+                <h4 id="nameMatch"> <em>{{ pseudo }}</em> vs <em>{{ match.opponent }}</em></h4>
+                <h6> {{ match.ownScore }} at {{ match.opponentScore }}</h6>
+                <h6> The winner was <em>{{ match.winner }}</em></h6>
+                <br/>
+            </li>
+          </ul>
+      </div>
+    </div>
+    <div *ngIf="found === false">
+        <h1  id="notFound">The user you are looking for cannot be found</h1>
+        <img src="https://media.tenor.com/x8v1oNUOmg4AAAAd/rickroll-roll.gif">
+    </div>
+</div>
