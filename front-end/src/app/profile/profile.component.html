@@ -1,29 +1,24 @@
 <div class="container">
     <div class="card">
       <input type="file" (change)="onFileSelected($event)" name="uploadfile" id="img" style="display:none;"/>
-      <label for="img">change pp</label>
-      <img [src]="ppUrl" class="card__image">
+      <label for="img">
+        <img [src]="ppUrl" class="card__image">
+      </label>
       <p class="card__name">{{ pseudo }}</p>
       <div class="user-status">
         Status: {{ status }}
       </div>
-      <!-- <ul class="social-icons">
-        <li><a href="#"><i class="fa fa-instagram"></i></a></li>
-        <li><a href="#"><i class="fa fa-twitter"></i></a></li>
-        <li><a href="#"><i class="fa fa-linkedin"></i></a></li>
-        <li><a href="#"><i class="fa fa-codepen"></i></a></li>
-      </ul> -->
-    <form class="btn draw-border" (ngSubmit)="changeUsername()" #profileForm="ngForm">
+      <form class="btn draw-border" (ngSubmit)="changeUsername()" #profileForm="ngForm">
         <label for="newPseudo">Change pseudo: </label><br>
         <input type="text" id="newPseudo" name="newPseudo" [(ngModel)]="newPseudo" required>
-    </form>
-    <form class="btn draw-border" (ngSubmit)="handleFriendSubmit()" #profileForm="ngForm">
+      </form>
+      <form class="btn draw-border" (ngSubmit)="handleFriendSubmit()" #profileForm="ngForm">
         <label for="pseudoFriend">Add a friend:</label><br>
         <input type="text" id="pseudoFriend" name="pseudoFriend" [(ngModel)]="pseudoFriend" required>
-    </form>
+      </form>
       <button routerLink="/message" class="btn draw-border">Message</button>
       <button routerLink="/chat-room" class="btn draw-border">Chat Room</button>
-      <button (click)="change2AF()" [class.active]="doubleAuth">2AF</button>
+      <button class="btn draw-border" (click)="change2AF()" [class.active]="doubleAuth">2AF</button>
     </div>
     <div *ngIf="notifs" class="notif-list">
       <ul>
