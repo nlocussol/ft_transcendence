@@ -66,9 +66,15 @@
         <input type="text" [(ngModel)]="selectedRoomPwd" (keyup.enter)="verifyRoomPwd()" placeholder="Enter the Password of the room to get access!" />
       </div>
     </div>
-    <div *ngIf="selectedRoom">
-      <div *ngFor="let member of selectedRoom.members" class="room" [class.selected]="member === selectedMember"(click)="onMemberClick(member)">
+    <div *ngIf="joined && selectedRoom">
+      <div *ngFor="let member of selectedRoom.members" class="members" [class.selected]="member === selectedMember"(click)="onMemberClick(member)">
           {{ member.pseudo }}
+          <div>
+            <select [(ngModel)]="memberToView">
+              <option *ngFor="let memberOptions of memberOptions" [value]="memberOptions"> {{ memberOptions }}</option>
+            </select>
+            <button (click)="handleMemberOption(memberToView)">Send</button>
+          </div>    
       </div>
     </div>
   </div>

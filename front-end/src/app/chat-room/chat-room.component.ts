@@ -11,6 +11,8 @@ import * as bcrypt from 'bcryptjs';
   styleUrls: ['./chat-room.component.css']
 })
 export class ChatRoomComponent {
+  memberToView!: string;
+  memberOptions: string[] ;
   selectedMember: any;
   friendsToInvite!: any;
   friendInviteRoom!: string;
@@ -34,6 +36,7 @@ export class ChatRoomComponent {
   joined: boolean;
 
   constructor(private http: HttpClient, private dataServices : DataService) {
+    this.memberOptions = ['watch profil', '1v1 match', 'Friend Invite'];
     this.joined = false;
     this.allRoomChecked = false;
     this.roomStatus = 'PROTECTED';
@@ -72,6 +75,16 @@ export class ChatRoomComponent {
     this.newPwd = '';
   }
 
+  handleMemberOption(memberToView: string) {
+    switch (memberToView) {
+      case 'watch profil':
+      case '1v1 match':
+      case 'Friend Invite':
+      case 'Mute':
+      case 'Ban':
+    }
+  }
+
   quitRoom() {
     const body = {
       name: this.selectedRoom.name,
@@ -82,6 +95,7 @@ export class ChatRoomComponent {
     if (!this.allRoomChecked)
       this.rooms.splice(this.rooms.findIndex((room: any) => room === this.selectedRoom), 1)
     this.joined = false;
+    this.selectedRoom = null;
   }
 
   submitRoom() {
@@ -124,6 +138,8 @@ export class ChatRoomComponent {
       this.joined = true;
       this.roomStatus = "PUBLIC"
       this.userStatus = roomData.members.find((member: any) => this.pseudo === member.pseudo).status
+      if (this.userStatus === 'ADMIN') 
+        this.memberOptions.concat(['Mute','Ban'])   // dont work
     }
     this.conversation = this.selectedRoom.messages;
     console.log(this.friendsToInvite);
