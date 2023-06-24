@@ -20,9 +20,7 @@
         <li class="room" *ngFor="let room of rooms" [class.selected]="room === selectedRoom" (click)="onClickRoom(room)">
           <div *ngIf="room" class="name">
             {{ room.name }}
-            <div *ngIf="room === selectedRoom">
-              <button type="button" class="quit-button" (click)="quitRoom()">Quit</button>
-            </div>
+            <button *ngIf="room === selectedRoom && joined" type="button" class="quit-button" (click)="quitRoom()">Quit</button>
           </div>
         </li>
       </ul>
@@ -66,6 +64,11 @@
       </div>
       <div *ngIf="roomStatus === 'PROTECTED' && allRoomChecked && selectedRoom" class="input">
         <input type="text" [(ngModel)]="selectedRoomPwd" (keyup.enter)="verifyRoomPwd()" placeholder="Enter the Password of the room to get access!" />
+      </div>
+    </div>
+    <div *ngIf="selectedRoom">
+      <div *ngFor="let member of selectedRoom.members" class="room" [class.selected]="member === selectedMember"(click)="onMemberClick(member)">
+          {{ member.pseudo }}
       </div>
     </div>
   </div>

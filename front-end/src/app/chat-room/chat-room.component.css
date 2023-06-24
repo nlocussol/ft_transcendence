@@ -7,6 +7,7 @@ html, body {
   
   .quit-button {
     background-color: #f44336;
+    margin-left: 1vw;
     color: white;
     padding: 10px 20px;
     border: none;

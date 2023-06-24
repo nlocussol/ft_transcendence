@@ -88,11 +88,6 @@ export class User {
     @Column('jsonb', {
         nullable: true,
     })
-    room: string[];
-
-    @Column('jsonb', {
-        nullable: true,
-    })
     stats: stats;
 
     @Column('jsonb', {

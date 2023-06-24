@@ -11,6 +11,7 @@ import * as bcrypt from 'bcryptjs';
   styleUrls: ['./chat-room.component.css']
 })
 export class ChatRoomComponent {
+  selectedMember: any;
   friendsToInvite!: any;
   friendInviteRoom!: string;
   selectedStatus!: string;
@@ -53,8 +54,13 @@ export class ChatRoomComponent {
         })
   }
 
+  onMemberClick(member: any) {
+    this.selectedMember = member;
+  }
+
   newRoomPwd() {
-    console.log(this.newPwd);
+    if (this.newPwd === '')
+      return ;
     const body = {
       name: this.selectedRoom.name,
       status: this.selectedStatus,
@@ -66,8 +72,18 @@ export class ChatRoomComponent {
     this.newPwd = '';
   }
 
-  quitRoom() {}
-  
+  quitRoom() {
+    const body = {
+      name: this.selectedRoom.name,
+      pseudo: this.pseudo,
+    }    
+    const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
+    this.http.post('http://localhost:3000/db-writer-room/leave-room/', body, { headers }).subscribe()
+    if (!this.allRoomChecked)
+      this.rooms.splice(this.rooms.findIndex((room: any) => room === this.selectedRoom), 1)
+    this.joined = false;
+  }
+
   submitRoom() {
     if (!this.roomName)
       return ;
