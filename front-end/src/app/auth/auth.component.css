@@ -8,16 +8,18 @@
 }
 
 #login{
-  padding: 25px 30px;
+  padding: 5vh 10vh;
   background-color: #180473;
   color: teal;
   font-weight: bold;
   border: none;
-  border-radius: 5px;
-  letter-spacing: 4px;
+  border-radius: 1vh;
+  letter-spacing: 1vh;
   overflow: hidden;
   transition: 0.5s;
   cursor: pointer;
+  font-size: 3vh;
+
 }
 
 #login:hover{
