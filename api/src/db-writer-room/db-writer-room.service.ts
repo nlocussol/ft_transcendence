@@ -52,7 +52,7 @@ export class DbWriterRoomService {
         const allRooms = await this.roomRepository.find();
 
         for (var tmp of allRooms){
-            if (!tmp.members.find(membre => membre.pseudo === userName))
+            if (!tmp.members.find(member => member.pseudo === userName))
                 allRooms.splice(allRooms.indexOf(tmp, 0), 1);
         }
 
@@ -99,7 +99,7 @@ export class DbWriterRoomService {
             console.log("The user already exist.");
             return null;
         }
-        if (currentRoom.ban.find(membre => membre === newUser.pseudo)){
+        if (currentRoom.ban.includes(newUser.pseudo)){
             console.log("The user is in the ban list :(");
             return null;
         }

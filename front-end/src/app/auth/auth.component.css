@@ -31,3 +31,7 @@
                 0 0 200px teal;
      -webkit-box-reflect:below 1px linear-gradient(transparent, #0005);
 }
+
+#pinMessage{
+  color: teal;
+}

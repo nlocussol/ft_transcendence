@@ -6,7 +6,7 @@
 </a>
 </div>
 <form  (ngSubmit)="submitPin()">
-    <label for="pin">Enter PIN:</label>
+    <label id="pinMessage">Enter PIN:</label>
     <input type="password" id="pin" name="pin" [(ngModel)]="pin" maxlength="6" minlength="6" pattern="\d{6}" required>
     <button type="submit">Submit</button>
 </form>

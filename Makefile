@@ -14,7 +14,7 @@ build_images:
 
 build:
 	sudo mkdir -p ${PATH_DATA}/db
-	@docker compose  up -d --build
+	@docker compose  up --build
 	docker ps
 
 b:
