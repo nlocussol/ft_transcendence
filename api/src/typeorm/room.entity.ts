@@ -37,6 +37,11 @@ export class Room {
     })
     status: string;
 
+    @Column({
+        nullable: true,
+    })
+    ban: string[];
+
     @Column('jsonb', {
         nullable: true,
     })

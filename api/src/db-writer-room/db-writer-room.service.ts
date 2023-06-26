@@ -29,6 +29,7 @@ export class DbWriterRoomService {
          room.pwd = newRoom.pwd;
          room.status = newRoom.status;
          room.members = [];
+         room.ban = [];
          room.messages = [];
 
          // the first user is admin
@@ -96,6 +97,10 @@ export class DbWriterRoomService {
          }
          if (currentRoom.members.find(membre => membre.pseudo === newUser.pseudo)){
             console.log("The user already exist.");
+            return null;
+        }
+        if (currentRoom.ban.find(membre => membre === newUser.pseudo)){
+            console.log("The user is in the ban list :(");
             return null;
         }
          // create an instance of membre & push back to the membre list
@@ -218,6 +223,30 @@ export class DbWriterRoomService {
                 return true;
             } else {
                 console.log("Wrong permisson to user status ");
+            }
+        })
+        return null;
+    }
+
+    async banMember(banMember: any){
+        // check if the room exist
+        const currentRoom = await this.roomRepository.findOneBy({
+            name: banMember.name,
+         });
+         if (!currentRoom){
+             console.log("The room doesn't exist");
+             return null;
+         }
+
+        currentRoom.members.find(async member => {
+            if (member.pseudo === banMember.pseudo && ((member.status === 'ADMIN' && banMember.askBanPseudo === currentRoom.owner) || (member.status !== 'ADMIN'))){
+                currentRoom.ban.push(banMember.pseudo);
+                this.leaveRoom(banMember);
+                await this.roomRepository.save(currentRoom);
+                return true;
+            } else {
+                console.log("Wrong permisson to ban this user");
+                return null;
             }
         })
         return null;
