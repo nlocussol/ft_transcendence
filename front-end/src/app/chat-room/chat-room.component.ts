@@ -12,7 +12,8 @@ import { Router } from '@angular/router';
   styleUrls: ['./chat-room.component.css']
 })
 export class ChatRoomComponent {
-  memberToView!: string;
+  muteTime: string = "10";
+  memberOption!: string;
   memberOptions: string[] ;
   selectedMember: any;
   friendsToInvite!: any;
@@ -76,12 +77,13 @@ export class ChatRoomComponent {
     this.newPwd = '';
   }
 
-  async handleMemberOption(memberToView: string, member: any) {
+  async handleMemberOption(memberOption: string, member: any) {
     const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
-    switch (memberToView) {
+    switch (memberOption) {
       case 'watch profil':
         this.router.navigateByUrl(`/user-page/${member.pseudo}`);
         break ;
+
       case '1v1 match':
       case 'Friend Invite':
         const bodyInvite = {
@@ -97,6 +99,7 @@ export class ChatRoomComponent {
         }
         this.socket.emit('send-notif', bodyInvite);
         break ;
+
       case 'Promote':
         const bodyPromote = {
           name: this.selectedRoom.name,
@@ -105,6 +108,7 @@ export class ChatRoomComponent {
         }    
         this.http.post('http://localhost:3000/db-writer-room/change-status/', bodyPromote, { headers }).subscribe()
         break ;
+
       case 'Downgrade':
         const bodyDowngrade = {
           name: this.selectedRoom.name,
@@ -113,8 +117,23 @@ export class ChatRoomComponent {
         }    
         this.http.post('http://localhost:3000/db-writer-room/change-status/', bodyDowngrade, { headers }).subscribe()
         break ;
+
       case 'Mute':
+        const muteInSecond = Number(this.muteTime)
+        if (muteInSecond < 0) {
+          console.log("Mute time can't be negative!");
+          return ;
+        }
+        console.log(muteInSecond);
+        break ;
       case 'Kick':
+        const bodyKick = { 
+          name: this.selectedRoom.name,
+          pseudo: member.pseudo
+        }
+        this.http.post(`http://localhost:3000/db-writer-room/leave-room/`, bodyKick, { headers }).subscribe()
+        break ;
+        
       case 'Ban':
     }
   }

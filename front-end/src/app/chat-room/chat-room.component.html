@@ -70,10 +70,11 @@
       <div *ngFor="let member of selectedRoom.members" class="members" [class.selected]="member === selectedMember"(click)="onMemberClick(member)">
           {{ member.pseudo }}
           <div *ngIf="member.pseudo !== pseudo" >
-            <select [(ngModel)]="memberToView">
+            <select [(ngModel)]="memberOption">
               <option *ngFor="let memberOptions of memberOptions" [value]="memberOptions"> {{ memberOptions }}</option>
             </select>
-            <button (click)="handleMemberOption(memberToView, member)">Send</button>
+            <input *ngIf="memberOption === 'Mute'" type="text" [(ngModel)]="muteTime" placeholder="Time to mute in second" />
+            <button (click)="handleMemberOption(memberOption, member)">Send</button>
           </div>    
       </div>
     </div>
