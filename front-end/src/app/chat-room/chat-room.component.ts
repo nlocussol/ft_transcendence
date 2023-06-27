@@ -56,17 +56,26 @@ export class ChatRoomComponent {
     this.socket.on('join-room', (data:any) => {
       if (data.name === this.selectedRoom.name && this.selectedRoom.ban
         && !this.selectedRoom.ban.find((ban: any) => ban.pseudo === data.pseudo))
-        console.log(data);
         this.selectedRoom.members.push({pseudo: data.pseudo, status: 'NORMAL'})
+        this.conversation.push({content: `${data.pseudo} as joined the room!`, sender: 'BOT'})
       })
-}
+  }
 
-  getNewRoom() {
+   getNewRoom() {
       this.socket.on('all-room', (data:any) => {
         if (this.selectedRoom || data.owner === this.pseudo)
-          this.rooms.push(data)
+          if (this.allRoomChecked)
+            this.http.get('http://localhost:3000/db-writer-room/all-room/').subscribe(rep => this.rooms = rep);
+          else
+            this.http.get(`http://localhost:3000/db-writer-room/all-room/${this.pseudo}`).subscribe(rep => this.rooms = rep);
         })
+
       this.socket.on('leave-room', (data:any) => {
+        if (this.selectedRoom.owner === data.pseudo) {          
+         this.rooms.splice(this.rooms.findIndex((room: any) => room === this.selectedRoom), 1)
+         this.joined = false;
+         this.selectedRoom = null;
+        }
         if (this.selectedRoom.name === data.name)
           this.selectedRoom.members.splice(this.selectedRoom.members.findIndex((roomMember: any) => roomMember.pseudo === data.pseudo), 1)
         })
@@ -195,10 +204,6 @@ export class ChatRoomComponent {
       status: roomStatus
     }
     this.socket.emit('create-room', body);
-    if (this.allRoomChecked)
-      this.rooms = await this.http.get('http://localhost:3000/db-writer-room/all-room/').toPromise();
-    else
-      this.rooms = await this.http.get(`http://localhost:3000/db-writer-room/all-room/${this.pseudo}`).toPromise();
   }
 
   sendInviteRoom(userToAddRoom: string) {
