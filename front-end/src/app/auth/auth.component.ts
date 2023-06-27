@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { DataService } from '../services/data.service';
 import { Router } from '@angular/router';
+import { Emitters } from '../emitters/emitters';
 // import { totp } from 'otplib';
 
 
@@ -17,6 +18,13 @@ export class AuthComponent implements OnInit {
   doubleAuthQrCode!: string;
 
 	constructor(private http: HttpClient, private dataService: DataService, private router: Router) {}
+
+  ngOnInit() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code: string | null= urlParams.get('code');
+    if (code)
+      this.getAccessToken(code);
+  }
   
   async sendUserData(data: any) {
     const body = {
@@ -25,7 +33,7 @@ export class AuthComponent implements OnInit {
       pp: data.image.versions.medium
     }    
     const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
-    await this.http.post('http://localhost:3000/db-writer/create-user/', body, { headers }).subscribe()
+    this.http.post('http://localhost:3000/db-writer/create-user/', body, { headers }).subscribe()
     // this.router.navigateByUrl("/profile");
 }
 
@@ -35,11 +43,19 @@ export class AuthComponent implements OnInit {
     this.login = await (res.login);
     this.dataService.setLogin(this.login)
     this.sendUserData(res)
+    console.log(this.login)
     // check if 2fa is needed
     this.profileData = await this.http.get(`http://localhost:3000/db-writer/data/${this.login}`).toPromise()
+
+    // Send user info to API and redirect user to homepage once he received jwt cookie
+    this.http.post('http://localhost:3000/auth/login', {pseudo: this.login}, {withCredentials: true}).subscribe(() => {
+      Emitters.authEmitter.emit(true);
+      this.router.navigate(['/']);
+    });
+
     // if (this.profileData.doubleAuth === true){
     // }
-    this.doubleFactorAuth();
+    // this.doubleFactorAuth();
   }
 
   async getAccessToken(code: string) {
@@ -56,19 +72,12 @@ export class AuthComponent implements OnInit {
     this.getUserData(res.access_token)
    }
 
-  ngOnInit() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const code: string | null= urlParams.get('code');
-    if (code)
-      this.getAccessToken(code);
-   
-  }
 
   doubleFactorAuth(){
     // init new qr code
-    this.doubleAuthQrCode = `https://www.authenticatorApi.com/pair.aspx?AppName=Pozo&AppInfo=${this.login}&SecretCode=${this.profileData.authCode}`;
-    if (this.doubleAuthQrCode)
-      window.open(this.doubleAuthQrCode, '_blank');
+    // this.doubleAuthQrCode = `https://www.authenticatorApi.com/pair.aspx?AppName=Pozo&AppInfo=${this.login}&SecretCode=${this.profileData.authCode}`;
+    // if (this.doubleAuthQrCode)
+    //   window.open(this.doubleAuthQrCode, '_blank');
   }
 
   async submitPin(){

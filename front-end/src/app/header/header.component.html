@@ -1,16 +1,23 @@
 <header>
     <div class="container">
       <nav>
+
         <ul class="nav-links">
           <li><a routerLink="/">HOME</a></li>
         </ul>
         <div class="heading">
           <h4>POZO GAME!</h4>
         </div>
-        <ul class="nav-links">
-          <li><a routerLink="/game">GAME</a></li>
+
+        <ul class="nav-links" *ngIf="!authenticated">
           <li><a routerLink="/auth">LOGIN</a></li>
+        </ul>
+
+        <ul class="nav-links" *ngIf="authenticated">
+          <li><a routerLink="/game">GAME</a></li>
           <li><a routerLink="/profile">PROFILE</a></li>
+          <li><a routerLink="/auth" (click)="logout()">LOGOUT</a></li>
+
         </ul>
       </nav>
     </div>

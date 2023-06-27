@@ -5,8 +5,10 @@ html{
     width: 100%;
     height: 100%;
     background-color: black;
-    background-image: url(https://media.tenor.com/rV8mpdXgZpAAAAAd/i-show-speed-speed.gif) ; 
-    /* background-image: url(https://cdna.artstation.com/p/assets/images/images/047/160/908/original/pxsprite-space.gif?1646911392) ;  */
+    background-image: url(https://cdna.artstation.com/p/assets/images/images/047/160/908/original/pxsprite-space.gif?1646911392) ; 
     background-repeat: no-repeat;
     background-size: cover;
 }
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

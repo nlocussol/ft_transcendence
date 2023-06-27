@@ -13,7 +13,7 @@ export class Ball {
 
 export class Player {
     side?: number;
-    UUID?: string;
+    pseudo?: string;
     socketID?: string;
     posX?: number;
     posY?: number;

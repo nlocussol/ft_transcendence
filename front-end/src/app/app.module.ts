@@ -1,7 +1,8 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms'
+import { MatDialogModule } from '@angular/material/dialog';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -12,6 +13,8 @@ import { ProfileComponent } from './profile/profile.component';
 import { GameComponent } from './game/game.component';
 import { MessageComponent } from './message/message.component';
 import { ChatRoomComponent } from './chat-room/chat-room.component';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { DialogNotLoguedComponent } from './dialog-not-logued/dialog-not-logued.component';
 
 @NgModule({
   declarations: [
@@ -23,12 +26,15 @@ import { ChatRoomComponent } from './chat-room/chat-room.component';
     ProfileComponent,
     MessageComponent,
     ChatRoomComponent,
+    DialogNotLoguedComponent,
   ],
   imports: [
     FormsModule,
     HttpClientModule,
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    NoopAnimationsModule,
+    MatDialogModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

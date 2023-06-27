@@ -1,55 +1,69 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { io, Socket } from 'socket.io-client';
-import { GameData, Player } from '../models/game.models';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { io} from 'socket.io-client';
+import { GameData} from '../models/game.models';
+import { BehaviorSubject, Observable, map, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
-export class GameService{
+export class GameService {
   private readonly API_ENDPOINT = 'http://localhost:3000/game'
   socket: any;
   payload$: BehaviorSubject<GameData> = new BehaviorSubject<GameData>(new GameData())
   constructor(private http: HttpClient) { }
 
-  enterQueue(playerUUID: string) {
-    console.log("angular:" + playerUUID);
-    return this.http.post<any>(this.API_ENDPOINT, { UUID: playerUUID });
+  enterQueue(pseudo: string) {
+    return this.http.post<any>(this.API_ENDPOINT + "/" + pseudo, {});
   }
 
-  exitQueue(playerUUID: string) {
-    const headers = { 'Player-To-Remove': `${playerUUID}` };
-    return this.http.delete<any>(this.API_ENDPOINT, { headers });
+  exitQueue(pseudo: string) {
+    return this.http.delete<any>(this.API_ENDPOINT + "/" + pseudo);
   }
 
   // Returns the player's match UUID if one is started or undefined
-  refreshQueue(playerUUID: string): Observable<GameData> {
-    const headers = { 'PlayerUUID': `${playerUUID}` }
-    return this.http.get<GameData>(this.API_ENDPOINT, { headers });
+  refreshQueue(pseudo: string): Observable<string> {
+    return this.http.get<any>(this.API_ENDPOINT + "/" + pseudo).pipe(
+      map(data => data.matchUUID)
+    );
   }
 
-  connectToSocket() {
-    this.socket = io(this.API_ENDPOINT + "/inprogress");
-    this.socket.on('joinGameRoom', (gamedata: any) => {
-      console.log("ici")
+  connectToSocket(pseudo: string) {
+    this.socket = io(this.API_ENDPOINT, {
+      query: {
+        pseudo: pseudo
+      }
+    })
+    this.socket.on('updatePlayers', (payload: any) => {
+      console.log(payload)
     });
   }
 
-  joinGameRoom(payload: any) {
-    this.socket.emit('joinGameRoom', payload);
-  }
+  // connectToSocket() {
+  //   this.socket = io(this.API_ENDPOINT + "/inprogress");
+  //   this.socket.on('joinGameRoom', (gamedata: any) => {
+  //     console.log("ici")
+  //   });
+  // }
 
-  updateGame = () => {
-    this.socket.on('updatePlayers', (payload: GameData) => {
-      this.payload$.next(payload);
-    })
-    return this.payload$.asObservable();
-    // return this.socket.on('updatePlayers', GameData);
-  }
+  // joinGameRoom(payload: any) {
+  //   this.socket.emit('joinGameRoom', payload);
+  // }
 
-  sendPlayerInfo(payload: any) {
-    this.socket.emit('keydown', payload);
+  // updateGame = () => {
+  //   this.socket.on('updatePlayers', (payload: GameData) => {
+  //     this.payload$.next(payload);
+  //   })
+  //   return this.payload$.asObservable();
+  //   // return this.socket.on('updatePlayers', GameData);
+  // }
+
+  // sendPlayerInfo(payload: any) {
+  //   this.socket.emit('keydown', payload);
+  // }
+
+  getUser() {
+    return this.http.get<any>('http://localhost:3000/auth/user', {withCredentials: true});
   }
 
   // Ask API for game info 

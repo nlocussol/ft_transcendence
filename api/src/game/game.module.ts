@@ -4,8 +4,8 @@ import { GameService } from './game.service';
 import { GameController } from './game.controller';
 
 @Module({
-  providers: [GameGateway, GameService, GameController],
+  providers: [GameGateway, GameService],
   controllers: [GameController],
-  exports: [GameGateway, GameService]
+  exports: [GameGateway, GameService],
 })
 export class GameModule {}

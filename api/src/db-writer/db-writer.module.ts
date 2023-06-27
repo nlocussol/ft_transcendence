@@ -7,7 +7,8 @@ import { User } from 'src/typeorm';
 @Module({
   imports: [TypeOrmModule.forFeature([User])],
   controllers: [DbWriterController],
-  providers: [DbWriterService]
+  providers: [DbWriterService],
+  exports: [DbWriterService]
 })
 
 export class DbWriterModule {}

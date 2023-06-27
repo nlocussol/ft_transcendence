@@ -4,6 +4,9 @@ import { GameData, movement, Player } from './models/game.models';
 import { Socket } from 'socket.io-client';
 import { FontFaceSet } from 'css-font-loading-module'
 import { DataService } from '../services/data.service';
+import { MatDialog } from '@angular/material/dialog'
+import { Dialog } from '@angular/cdk/dialog';
+import { DialogNotLoguedComponent } from '../dialog-not-logued/dialog-not-logued.component';
 
 const TICKRATE = 15,
 BALL_SIZE = 10;
@@ -20,7 +23,6 @@ export class GameComponent implements OnInit, OnDestroy {
   context!: CanvasRenderingContext2D;
   width: number = 858;
   height: number = 525;
-  buttonSearchingGame: boolean = false;
   myUUID!: string;
   gameData: GameData = new GameData();
   offsetFromWall: number = 50;
@@ -29,40 +31,71 @@ export class GameComponent implements OnInit, OnDestroy {
   isMoving: boolean[] = [false, false];
   fontSize: number = 30;
   myFont!: FontFace;
+  messageButton: string = "FIND A GAME";
+  searchingGame: boolean = false;
+  inGame: boolean = false;
+  pseudo?: string;
+  loguedIn: boolean = false;
+  queueTimeElapsed!: number;
+  queueInterval: any;
+  refreshQueueInterval: any;
+  gameID!: string;
 
-  constructor(private gameService : GameService, private dataService: DataService) {
+  constructor(private gameService : GameService, private dataService: DataService, public dialog: MatDialog) {
   }
 
   ngOnInit(): void {
-    this.myUUID = this.dataService.getLogin()
-    console.log(this.myUUID);
+    // Need to check if the user is already in game
+    this.gameService.getUser().subscribe({
+      next: (res) => {
+        this.pseudo = res.pseudo;
+        this.loguedIn = true;
+        // this.myUUID = this.dataService.getLogin();
+    },
+      error: () => {
+        this.dialog.open(DialogNotLoguedComponent, {
+          width: '250px',
+        });
+      }
+    })
+
     this.canvas = this.myCanvas.nativeElement;
     this.context = this.canvas.getContext('2d') as CanvasRenderingContext2D;
     this.context.font = String(this.fontSize) + "px PressStart2P";
     this.myFont = new FontFace('PressStart2P', 'url(../../assets/PressStart2P-Regular.ttf');
     this.myFont.load().then(function(font){
       document.fonts.add(font);
-      console.log("Font loaded");
+  // console.log("Font loaded");
     })
- 
   }
 
   ngOnDestroy() {
+    clearInterval(this.queueInterval);
+    clearInterval(this.refreshQueueInterval);
+
+    if (this.searchingGame) {
+      this.gameService.exitQueue(this.pseudo!);
+    }
   }
 
   enterQueue(element: any) {
-    this.animate();
-    this.gameService.connectToSocket();
-    this.gameService.joinGameRoom(this.myUUID);
-    this.gameService.updateGame().subscribe((payload: GameData) => {
-      if (payload.players[0] && payload.players[1]) {
-        this.gameData = payload;
-    }
-    })
-    // need to clear this.interval
-    this.interval = setInterval(() => {
-      this.gameService.sendPlayerInfo(this.getUUIDAndMove());
-    }, TICKRATE);
+    this.gameService.enterQueue(this.pseudo!).subscribe();
+    this.searchingGame = true;
+    element.textContent = "In queue..."
+    this.startTimer();
+    this.refreshQueue();
+    // this.animate();
+    // this.gameService.connectToSocket();
+    // this.gameService.joinGameRoom(this.myUUID);
+    // this.gameService.updateGame().subscribe((payload: GameData) => {
+    //   if (payload.players[0] && payload.players[1]) {
+    //     this.gameData = payload;
+    // }
+    // })
+    // // need to clear this.interval
+    // this.interval = setInterval(() => {
+    //   this.gameService.sendPlayerInfo(this.getUUIDAndMove());
+    // }, TICKRATE);
 
 
     // if (!this.buttonSearchingGame) {
@@ -90,7 +123,45 @@ export class GameComponent implements OnInit, OnDestroy {
     //   this.gameService.exitQueue(this.myUUID).subscribe();
     // }
   }
-  
+
+  // Queue timer
+  startTimer() {
+    if (this.searchingGame) {
+      const startTime = Date.now() - (this.queueTimeElapsed || 0);
+      this.queueInterval = setInterval(() => {
+        this.queueTimeElapsed = (Date.now() - startTime) / 1000;
+        this.queueTimeElapsed = Math.trunc(this.queueTimeElapsed);
+      }, 1000);
+    }
+  }
+
+  // Send a get request with pseudo to API, expect a matchID in return
+  refreshQueue() {
+    this.refreshQueueInterval = setInterval(() => {
+      this.gameService.refreshQueue(this.pseudo!).subscribe({
+        next: res => {
+          this.gameID = res;
+          console.log(this.gameID);
+          this.startGame();
+          clearInterval(this.refreshQueueInterval);
+        },
+        error: err => console.log(err),
+      });
+    }, 1000);
+  }
+
+
+  leaveQueue() {
+    this.gameService.exitQueue(this.pseudo!).subscribe();
+    this.searchingGame = false;
+    clearInterval(this.queueInterval);
+    clearInterval(this.refreshQueueInterval);
+  }
+
+  startGame() {
+    this.gameService.connectToSocket(this.pseudo!);
+  }
+
   animate() {
     requestAnimationFrame(this.animate.bind(this));
     if (this.gameData.players[0] && this.gameData.players[1]) {

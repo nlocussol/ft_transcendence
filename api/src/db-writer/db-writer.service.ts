@@ -149,11 +149,14 @@ export class DbWriterService {
 
     async getDataUser(pseudo: string){
         // check if user exist inside db
+        if (pseudo == undefined) {
+            return undefined
+        }
         const user = await this.userRepository.findOneBy({
             pseudo: pseudo,
         });
         if (!user){
-            console.log("getDataUser: The user didn't exist.");
+            console.log("getDataUser: The user does not exist.");
             return null;
         }
         return user;
@@ -165,7 +168,7 @@ export class DbWriterService {
             pseudo: pseudo,
         });
         if (!user){
-            console.log("getDataUser: The user didn't exist.");
+            console.log("getFriends: The user does not exist.");
             return null;
         }
 
@@ -183,7 +186,7 @@ export class DbWriterService {
             pseudo: newName.currentPseudo,
          });
          if (!currentUser){
-             console.log("The user doesn't exist");
+             console.log("changeUserPseudo: The user does not exist");
              return null;
          }
         // check if the new username is not already take
@@ -191,7 +194,7 @@ export class DbWriterService {
             pseudo: newName.newPseudo,
          });
          if (newUser){
-            console.log("The new username is already taken");
+            console.log("changeUserPseudo: The new username is already taken");
             return null;
          }
          // change the current pseudo to the new one
@@ -206,7 +209,7 @@ export class DbWriterService {
             pseudo: newPp.pseudo,
          });
          if (!currentUser){
-             console.log("The user doesn't exist");
+             console.log("changeUserPp: The user does not exist");
              return null;
          }
  
@@ -222,7 +225,7 @@ export class DbWriterService {
             pseudo: change2fa.pseudo,
          });
          if (!currentUser){
-             console.log("The user doesn't exist");
+             console.log("change2fa: The user does not exist");
              return null;
          }
  
@@ -239,7 +242,7 @@ export class DbWriterService {
             pseudo: blockFriend.pseudo,
          });
          if (!currentUser){
-             console.log("The user doesn't exist");
+             console.log("blockFriend: The user doesn't exist");
              return null;
          }
  
@@ -270,14 +273,14 @@ export class DbWriterService {
             pseudo: gameData.player1,
          });
          if (!player1){
-             console.log("The user doesn't exist");
+             console.log("fillMatchHistory: The user doesn't exist");
              return null;
          }
          const player2 = await this.userRepository.findOneBy({
             pseudo: gameData.player2,
          });
          if (!player2){
-             console.log("The user doesn't exist");
+             console.log("fillMatchHistory: The user doesn't exist");
              return null;
         }
 

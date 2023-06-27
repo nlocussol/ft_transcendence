@@ -8,7 +8,7 @@ WORKDIR /usr/src/app
 COPY package.json package-lock.json ./
 
 # install dependences inside container
-RUN npm ci
+RUN npm install
 
 # copy the all front end data
 COPY . .
