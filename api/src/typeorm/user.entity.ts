@@ -1,3 +1,4 @@
+import { IsArray, IsBoolean, IsEmpty, IsNotEmpty, IsString } from 'class-validator';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 export interface friend {
@@ -42,11 +43,15 @@ export class User {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @IsString()
+    @IsNotEmpty()
     @Column({
         nullable: true,
     })
     pseudo: string;
 
+    @IsString()
+    @IsNotEmpty()
     @Column({
         nullable: true,
     })
@@ -57,44 +62,55 @@ export class User {
     })
     email: string;
 
+    @IsString()
     @Column({
         nullable: false,
         default: '',
     })
     pp: string;
 
+    @IsBoolean()
     @Column({
         nullable: false,
         default: false,
     })
     doubleAuth: boolean;
 
+    @IsString()
     @Column({
         nullable: true,
     })
     authCode: string;
 
+    @IsString()
+    @IsNotEmpty()
     @Column({
         nullable: false,
         default: 'ONLINE',
     })
     status: string;
 
+    @IsArray()
     @Column('jsonb', {
         nullable: true,
     })
     friends: friend[];
 
+    @IsEmpty()
     @Column('jsonb', {
         nullable: true,
     })
     stats: stats;
 
+    @IsEmpty()
+    @IsArray()
     @Column('jsonb', {
         nullable: true,
     })
     history: match[];
 
+    @IsEmpty()
+    @IsArray()
     @Column('jsonb', {
         nullable: true,
     })

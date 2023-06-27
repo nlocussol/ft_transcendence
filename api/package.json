@@ -28,6 +28,7 @@
     "@nestjs/platform-socket.io": "^10.0.2",
     "@nestjs/typeorm": "10.0.0",
     "@nestjs/websockets": "^10.0.2",
+    "class-validator": "^0.14.0",
     "cookie-parser": "^1.4.6",
     "pg": "^8.11.0",
     "reflect-metadata": "^0.1.13",

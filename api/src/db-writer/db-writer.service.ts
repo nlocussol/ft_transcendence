@@ -288,7 +288,7 @@ export class DbWriterService {
              return null;
         }
 
-        let matchWinner;
+        let matchWinner: string;
         if (gameData.score1 == 10)
             matchWinner = gameData.player1;
         else
@@ -326,4 +326,3 @@ export class DbWriterService {
         return sortedPlayer
     }
 }
-

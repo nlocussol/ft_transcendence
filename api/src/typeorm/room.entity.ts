@@ -4,6 +4,7 @@ import { message } from "./user.entity"
 export interface member {
     pseudo: string,
     status: string,
+    mute: number,
 }
 
 @Entity()
