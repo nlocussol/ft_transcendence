@@ -138,21 +138,22 @@ export class ChatRoomComponent {
         break ;
 
       case 'Promote':
+        console.log(member.pseudo);
         const bodyPromote = {
           name: this.selectedRoom.name,
-          pseudo: this.pseudo,
+          pseudo: member.pseudo,
           status: 'ADMIN'
         }    
-        this.http.post('http://localhost:3000/db-writer-room/change-status/', bodyPromote, { headers }).subscribe()
+        this.http.post('http://localhost:3000/db-writer-room/change-member-status/', bodyPromote, { headers }).subscribe()
         break ;
 
       case 'Downgrade':
         const bodyDowngrade = {
           name: this.selectedRoom.name,
-          pseudo: this.pseudo,
+          pseudo: member.pseudo,
           status: 'NORMAL'
         }    
-        this.http.post('http://localhost:3000/db-writer-room/change-status/', bodyDowngrade, { headers }).subscribe()
+        this.http.post('http://localhost:3000/db-writer-room/change-member-status/', bodyDowngrade, { headers }).subscribe()
         break ;
 
       case 'Mute':
@@ -246,8 +247,10 @@ export class ChatRoomComponent {
       this.joined = true;
       this.roomStatus = "PUBLIC"
       this.userStatus = roomData.members.find((member: any) => this.pseudo === member.pseudo).status
-      if (this.userStatus === 'ADMIN')
+      if (this.selectedRoom.owner === this.pseudo)
         this.memberOptions = this.memberOptions.concat(['Promote', 'Downgrade', 'Mute', 'Kick', 'Ban'])
+      else if (this.userStatus === 'ADMIN')
+        this.memberOptions = this.memberOptions.concat(['Promote', 'Mute', 'Kick', 'Ban'])
     }
     this.conversation = this.selectedRoom.messages;
   }
