@@ -40,10 +40,9 @@ export class AuthComponent implements OnInit {
   async getUserData(accessToken: string) {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`)
     const res: any = await this.http.get('https://api.intra.42.fr/v2/me', { headers }).toPromise()
-    this.pseudo = await (res.pseudo);
+    this.pseudo = await res.login;
     this.dataService.setLogin(this.pseudo)
     this.sendUserData(res)
-    console.log(this.pseudo)
     // check if 2fa is needed
     this.profileData = await this.http.get(`http://localhost:3000/db-writer/data/${this.pseudo}`).toPromise()
 

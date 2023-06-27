@@ -5,14 +5,14 @@ import { BehaviorSubject } from 'rxjs';
   providedIn: 'root'
 })
 export class DataService {
-  login!: string;
+  pseudo!: string;
   constructor() {}
 
-  setLogin(login: string) {
-    this.login = login;
+  setLogin(pseudo: string) {
+    this.pseudo = pseudo;
   }
 
   getLogin(): string {
-    return this.login;
+    return this.pseudo;
   }
 }
