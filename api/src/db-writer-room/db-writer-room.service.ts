@@ -41,7 +41,8 @@ export class DbWriterRoomService {
          
          // save in database (shared volume)
          await this.roomRepository.save(room)
-    }
+         return true ;
+}
 
     async getAllRoom(){
         const allRooms = await this.roomRepository.find();
@@ -50,13 +51,14 @@ export class DbWriterRoomService {
 
     async getAllRoomOfUser(userName: string){
         const allRooms = await this.roomRepository.find();
+        const allRoomsCp = await this.roomRepository.find();
 
         for (var tmp of allRooms){
-            if (!tmp.members.find(member => member.pseudo === userName))
-                allRooms.splice(allRooms.indexOf(tmp, 0), 1);
+            if (!tmp.members.find(member => member.pseudo === userName)) {
+                allRoomsCp.splice(allRoomsCp.indexOf(tmp), 1);
+            }
         }
-
-        return allRooms;
+        return allRoomsCp;
     }
 
     async dataRoom(roomName: string){
@@ -112,7 +114,8 @@ export class DbWriterRoomService {
  
          // save in database (shared volume)
          await this.roomRepository.save(currentRoom)
-    }
+         return true ;
+}
 
     async addMessage(newMessage: any){
         // check if the room exist
@@ -195,7 +198,8 @@ export class DbWriterRoomService {
         for (var tmp of currentRoom.members){
             if (tmp.pseudo === leaveUser.pseudo){
                 if (tmp.pseudo === currentRoom.owner){
-                    this.roomRepository.remove(currentRoom);
+                    // this.roomRepository.remove(currentRoom);
+                    this.roomRepository.delete(currentRoom.id);
                     console.log("The room owner leave the room, it is therefore destroyed");                  
                 }
                 currentRoom.members.splice(currentRoom.members.indexOf(tmp, 0), 1);

@@ -54,23 +54,23 @@ export class ChatRoomComponent {
 
   getNewMember() {
     this.socket.on('join-room', (data:any) => {
-      if (data.name === this.selectedRoom.name && this.selectedRoom.ban
+      this.onCheckboxChange();
+      if (this.selectedRoom && data.name === this.selectedRoom.name && this.selectedRoom.ban
         && !this.selectedRoom.ban.find((ban: any) => ban.pseudo === data.pseudo))
-        this.selectedRoom.members.push({pseudo: data.pseudo, status: 'NORMAL'})
-        this.conversation.push({content: `${data.pseudo} as joined the room!`, sender: 'BOT'})
+        this.selectedRoom.messages.push({content: `${data.pseudo} as joined the room!`, sender: 'BOT'})
+        this.conversation = this.selectedRoom.messages
       })
   }
 
    getNewRoom() {
-      this.socket.on('all-room', (data:any) => {
-        if (this.selectedRoom || data.owner === this.pseudo)
-          if (this.allRoomChecked)
-            this.http.get('http://localhost:3000/db-writer-room/all-room/').subscribe(rep => this.rooms = rep);
-          else
-            this.http.get(`http://localhost:3000/db-writer-room/all-room/${this.pseudo}`).subscribe(rep => this.rooms = rep);
+      this.socket.on('all-room', async (data:any) => {
+        if (this.allRoomChecked || data.owner === this.pseudo) {
+          const room = await this.http.get(`http://localhost:3000/db-writer-room/data-room/${data.name}`).toPromise()
+          this.rooms.push(room);
+        }
         })
 
-      this.socket.on('leave-room', (data:any) => {
+      this.socket.on('has-leave-room', (data:any) => {
         if (this.selectedRoom.owner === data.pseudo) {          
          this.rooms.splice(this.rooms.findIndex((room: any) => room === this.selectedRoom), 1)
          this.joined = false;
@@ -204,6 +204,8 @@ export class ChatRoomComponent {
       status: roomStatus
     }
     this.socket.emit('create-room', body);
+    this.roomName = ''
+    this.roomPassword = ''
   }
 
   sendInviteRoom(userToAddRoom: string) {
@@ -261,7 +263,7 @@ export class ChatRoomComponent {
       pseudo: this.pseudo,
       name: this.selectedRoom.name,
     }    
-    this.socket.emit('join-room', body)
+    this.socket.emit('request-join-room', body)
   }
 
   async sendMessage(message: string) {
@@ -275,11 +277,10 @@ export class ChatRoomComponent {
   }
 
   async onCheckboxChange() {
-    this.selectedRoom = null;
     if (this.allRoomChecked)
-      this.rooms = await this.http.get('http://localhost:3000/db-writer-room/all-room/').toPromise();
+      this.rooms = await this.http.get(`http://localhost:3000/db-writer-room/all-room/`).toPromise()
     else
-      this.rooms = await this.http.get(`http://localhost:3000/db-writer-room/all-room/${this.pseudo}`).toPromise();
+      this.rooms = await this.http.get(`http://localhost:3000/db-writer-room/all-room/${this.pseudo}`).toPromise()
   }
 
   async findRoom(roomName: string) {
