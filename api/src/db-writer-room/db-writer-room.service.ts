@@ -36,12 +36,14 @@ export class DbWriterRoomService {
          const admin: member = {
             pseudo: newRoom.owner,
             status: 'ADMIN',
+            mute: 0,
          }
          room.members.push(admin);
          
          // save in database (shared volume)
          await this.roomRepository.save(room)
-    }
+         return true ;
+}
 
     async getAllRoom(){
         const allRooms = await this.roomRepository.find();
@@ -50,13 +52,14 @@ export class DbWriterRoomService {
 
     async getAllRoomOfUser(userName: string){
         const allRooms = await this.roomRepository.find();
+        const allRoomsCp = await this.roomRepository.find();
 
         for (var tmp of allRooms){
-            if (!tmp.members.find(member => member.pseudo === userName))
-                allRooms.splice(allRooms.indexOf(tmp, 0), 1);
+            if (!tmp.members.find(member => member.pseudo === userName)) {
+                allRoomsCp.splice(allRoomsCp.indexOf(tmp), 1);
+            }
         }
-
-        return allRooms;
+        return allRoomsCp;
     }
 
     async dataRoom(roomName: string){
@@ -107,12 +110,14 @@ export class DbWriterRoomService {
          const newMembre: member = {
             pseudo: newUser.pseudo,
             status: 'NORMAL',
+            mute: 0,
          }
          currentRoom.members.push(newMembre);
  
          // save in database (shared volume)
          await this.roomRepository.save(currentRoom)
-    }
+         return true ;
+}
 
     async addMessage(newMessage: any){
         // check if the room exist
@@ -124,6 +129,16 @@ export class DbWriterRoomService {
              return null;
          }
  
+         var date=new Date();
+         currentRoom.members.find(async member => {
+            if (member.pseudo === newMessage.sender
+                && member.mute !== 0
+                && member.mute > date.getTime()){
+                console.log("You are currently muted")
+                console.log(`You need to wait ${member.mute} seconds`);
+                return null;
+            }
+        })
          // create an instance of membre & push back to the membre list
          const message: message = {
             sender: newMessage.sender,
@@ -195,7 +210,8 @@ export class DbWriterRoomService {
         for (var tmp of currentRoom.members){
             if (tmp.pseudo === leaveUser.pseudo){
                 if (tmp.pseudo === currentRoom.owner){
-                    this.roomRepository.remove(currentRoom);
+                    // this.roomRepository.remove(currentRoom);
+                    this.roomRepository.delete(currentRoom.id);
                     console.log("The room owner leave the room, it is therefore destroyed");                  
                 }
                 currentRoom.members.splice(currentRoom.members.indexOf(tmp, 0), 1);
@@ -216,15 +232,15 @@ export class DbWriterRoomService {
              return null;
          }
 
-         currentRoom.members.find(async member => {
-            if (member.pseudo === newMemberStatus.pseudo && member.status !== 'ADMIN'){
-                member.status = newMemberStatus.status;
+        for (let i in currentRoom.members) {
+            if (currentRoom.members[i].pseudo === newMemberStatus.pseudo) {
+                currentRoom.members[i].status = newMemberStatus.status;
                 await this.roomRepository.save(currentRoom)
                 return true;
-            } else {
-                console.log("Wrong permisson to user status ");
             }
-        })
+        }   
+
+        console.log("Wrong permisson to user status ");
         return null;
     }
 
@@ -249,6 +265,31 @@ export class DbWriterRoomService {
                 return null;
             }
         })
+        return null;
+    }
+
+    async muteMember(mutedMember){
+        // check if the room exist
+        const currentRoom = await this.roomRepository.findOneBy({
+            name: mutedMember.name,
+         });
+         if (!currentRoom){
+             console.log("The room doesn't exist");
+             return null;
+         }
+
+        var date = new Date();
+        currentRoom.members.find(async member => {
+            if (member.pseudo === mutedMember.pseudo && member.status !== 'ADMIN'){
+                member.mute = date.getTime() + (mutedMember.time * 1000);
+                await this.roomRepository.save(currentRoom);
+                return true;
+            } else {
+                console.log("Wrong permisson to mute this user");
+                return null;
+            }
+        })
+        console.log("The user doesn't exist");
         return null;
     }
 }

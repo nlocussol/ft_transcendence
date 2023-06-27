@@ -289,7 +289,7 @@ export class DbWriterService {
              return null;
         }
 
-        let matchWinner;
+        let matchWinner: string;
         if (gameData.players[0].score == 1)
             matchWinner = gameData.players[0].pseudo;
         else
@@ -329,4 +329,3 @@ export class DbWriterService {
         return sortedPlayer
     }
 }
-

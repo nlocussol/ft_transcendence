@@ -50,6 +50,11 @@ export class DbWriterRoomController {
         return this.dbWriterRoom.changeStatus(obj);
     }
 
+    @Post('change-member-status')
+    changeMemberStatus(@Body() obj: any, @Headers() headers){
+        return this.dbWriterRoom.changeMemberStatus(obj);
+    }
+
     @Post('leave-room')
     leaveRoom(@Body() obj: any, @Headers() headers){
         return this.dbWriterRoom.leaveRoom(obj);
@@ -58,5 +63,10 @@ export class DbWriterRoomController {
     @Post('ban-member')
     banMember(@Body() obj: any, @Headers() headers){
         return this.dbWriterRoom.banMember(obj);
+    }
+
+    @Post('mute-member')
+    muteMember(@Body() obj: any, @Headers() headers){
+        return this.dbWriterRoom.muteMember(obj);
     }
 }

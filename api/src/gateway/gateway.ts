@@ -42,20 +42,26 @@ export class MyGateway implements OnModuleInit{
     }
 
     @SubscribeMessage('create-room')
-    createRoom(client: Socket, messageData: messageData) {
-        this.dbWriterRoom.createRoom(messageData);
+    async createRoom(client: Socket, messageData: messageData) {
+        const res = await this.dbWriterRoom.createRoom(messageData)
+        if (res == null)
+            return ;
         this.server.emit('all-room', messageData);
     }
 
-    @SubscribeMessage('join-room')
-    joinRoom(client: Socket, messageData: messageData) {
-        this.dbWriterRoom.addUserToRoom(messageData);
+    @SubscribeMessage('request-join-room')
+    async joinRoom(client: Socket, messageData: messageData) {
+        const res = await this.dbWriterRoom.addUserToRoom(messageData);
+        if (res == null)
+            return ;
         this.server.emit('join-room', messageData);
     }
 
     @SubscribeMessage('leave-room')
-    quitRoom(client: Socket, messageData: messageData) {
-        this.dbWriterRoom.leaveRoom(messageData);
-        this.server.emit('leave-room', messageData);
+    async quitRoom(client: Socket, messageData: messageData) {
+        const res = await this.dbWriterRoom.leaveRoom(messageData);
+        if (res == null)
+            return ;
+        this.server.emit('has-leave-room', messageData);
     }
 }
