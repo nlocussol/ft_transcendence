@@ -129,8 +129,11 @@ export class DbWriterRoomService {
              return null;
          }
  
+         var date=new Date();
          currentRoom.members.find(async member => {
-            if (member.pseudo === newMessage.sender && member.mute !== 0){
+            if (member.pseudo === newMessage.sender
+                && member.mute !== 0
+                && member.mute > date.getTime()){
                 console.log("You are currently muted")
                 console.log(`You need to wait ${member.mute} seconds`);
                 return null;
@@ -275,13 +278,14 @@ export class DbWriterRoomService {
              return null;
          }
 
+        var date = new Date();
         currentRoom.members.find(async member => {
             if (member.pseudo === mutedMember.pseudo && member.status !== 'ADMIN'){
-                member.mute = mutedMember.time;
+                member.mute = date.getTime() + (mutedMember.time * 1000);
                 await this.roomRepository.save(currentRoom);
                 return true;
             } else {
-                console.log("Wrong permisson to ban this user");
+                console.log("Wrong permisson to mute this user");
                 return null;
             }
         })
