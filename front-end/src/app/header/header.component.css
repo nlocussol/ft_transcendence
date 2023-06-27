@@ -27,7 +27,7 @@ nav {
   color: white;
   text-transform: uppercase;
   letter-spacing: 5px;
-  font-size: 20px;
+  font-size: 5vh;
 }
 
 .nav-links {
@@ -44,10 +44,10 @@ nav {
 .nav-links a {
   color: white;
   text-decoration: none;
-  letter-spacing: 3px;
+  letter-spacing: 1vh;
   font-weight: bold;
-  font-size: 14px;
-  padding: 14px 16px;
+  font-size: 2vh;
+  padding: 5% 5%;
 
 }
 

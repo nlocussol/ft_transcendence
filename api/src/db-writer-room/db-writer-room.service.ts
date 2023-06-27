@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Room } from 'src/typeorm';
 import { member } from 'src/typeorm/room.entity';
 import { message } from 'src/typeorm/user.entity';
@@ -8,7 +8,7 @@ import { message } from 'src/typeorm/user.entity';
 @Injectable()
 export class DbWriterRoomService {
     constructor(
-        @InjectRepository(Room) private readonly roomRepository: Repository<Room>
+        @InjectRepository(Room) private readonly roomRepository: Repository<Room>,
     ){}
 
     async createRoom(newRoom: any){
@@ -29,6 +29,7 @@ export class DbWriterRoomService {
          room.pwd = newRoom.pwd;
          room.status = newRoom.status;
          room.members = [];
+         room.ban = [];
          room.messages = [];
 
          // the first user is admin
@@ -51,7 +52,7 @@ export class DbWriterRoomService {
         const allRooms = await this.roomRepository.find();
 
         for (var tmp of allRooms){
-            if (!tmp.members.find(membre => membre.pseudo === userName))
+            if (!tmp.members.find(member => member.pseudo === userName))
                 allRooms.splice(allRooms.indexOf(tmp, 0), 1);
         }
 
@@ -96,6 +97,10 @@ export class DbWriterRoomService {
          }
          if (currentRoom.members.find(membre => membre.pseudo === newUser.pseudo)){
             console.log("The user already exist.");
+            return null;
+        }
+        if (currentRoom.ban.includes(newUser.pseudo)){
+            console.log("The user is in the ban list :(");
             return null;
         }
          // create an instance of membre & push back to the membre list
@@ -176,5 +181,74 @@ export class DbWriterRoomService {
          // save in database (shared volume)
         await this.roomRepository.save(currentRoom)
         return true ;
+    }
+
+    async leaveRoom(leaveUser: any){
+        // check if the room exist
+        const currentRoom = await this.roomRepository.findOneBy({
+            name: leaveUser.name,
+        });
+        if (!currentRoom){
+             console.log("The room doesn't exist");
+             return null;
+        }
+        for (var tmp of currentRoom.members){
+            if (tmp.pseudo === leaveUser.pseudo){
+                if (tmp.pseudo === currentRoom.owner){
+                    this.roomRepository.remove(currentRoom);
+                    console.log("The room owner leave the room, it is therefore destroyed");                  
+                }
+                currentRoom.members.splice(currentRoom.members.indexOf(tmp, 0), 1);
+            }
+        }
+        await this.roomRepository.save(currentRoom)
+        return true ;
+    }
+
+
+    async changeMemberStatus(newMemberStatus: any){
+        // check if the room exist
+        const currentRoom = await this.roomRepository.findOneBy({
+            name: newMemberStatus.name,
+         });
+         if (!currentRoom){
+             console.log("The room doesn't exist");
+             return null;
+         }
+
+         currentRoom.members.find(async member => {
+            if (member.pseudo === newMemberStatus.pseudo && member.status !== 'ADMIN'){
+                member.status = newMemberStatus.status;
+                await this.roomRepository.save(currentRoom)
+                return true;
+            } else {
+                console.log("Wrong permisson to user status ");
+            }
+        })
+        return null;
+    }
+
+    async banMember(banMember: any){
+        // check if the room exist
+        const currentRoom = await this.roomRepository.findOneBy({
+            name: banMember.name,
+         });
+         if (!currentRoom){
+             console.log("The room doesn't exist");
+             return null;
+         }
+
+        currentRoom.members.find(async member => {
+            if (member.pseudo === banMember.pseudo && ((member.status === 'ADMIN' && banMember.askBanPseudo === currentRoom.owner) || (member.status !== 'ADMIN'))){
+                currentRoom.ban.push(banMember.pseudo);
+                this.leaveRoom(banMember);
+                await this.roomRepository.save(currentRoom);
+                return true;
+            } else {
+                console.log("Wrong permisson to ban this user");
+                return null;
+            }
+        })
+        return null;
     }
 }

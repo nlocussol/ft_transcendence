@@ -18,7 +18,7 @@ export class MyGateway implements OnModuleInit{
     }
 
     @SubscribeMessage('send-notif')
-    async sendFriendRequest(client: Socket, friendToAdd: any) {
+    async sendFriendRequest(client: Socket, friendToAdd: messageData) {
         this.server.emit('receive-notif', friendToAdd)
     }
 
@@ -32,7 +32,7 @@ export class MyGateway implements OnModuleInit{
     }
 
     @SubscribeMessage('add-room-msg')
-    async addRoomMessage(client: Socket, messageData: any) {
+    async addRoomMessage(client: Socket, messageData: messageData) {
         const uuid = await this.dbWriterRoom.addMessage(messageData);
         if (uuid == null)
             return ;
@@ -42,8 +42,20 @@ export class MyGateway implements OnModuleInit{
     }
 
     @SubscribeMessage('create-room')
-    createRoom(client: Socket, messageData: any) {
+    createRoom(client: Socket, messageData: messageData) {
         this.dbWriterRoom.createRoom(messageData);
         this.server.emit('all-room', messageData);
+    }
+
+    @SubscribeMessage('join-room')
+    joinRoom(client: Socket, messageData: messageData) {
+        this.dbWriterRoom.addUserToRoom(messageData);
+        this.server.emit('join-room', messageData);
+    }
+
+    @SubscribeMessage('leave-room')
+    quitRoom(client: Socket, messageData: messageData) {
+        this.dbWriterRoom.leaveRoom(messageData);
+        this.server.emit('leave-room', messageData);
     }
 }

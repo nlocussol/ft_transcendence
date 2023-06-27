@@ -49,4 +49,14 @@ export class DbWriterRoomController {
     changeStatus(@Body() obj: any, @Headers() headers){
         return this.dbWriterRoom.changeStatus(obj);
     }
+
+    @Post('leave-room')
+    leaveRoom(@Body() obj: any, @Headers() headers){
+        return this.dbWriterRoom.leaveRoom(obj);
+    }
+
+    @Post('ban-member')
+    banMember(@Body() obj: any, @Headers() headers){
+        return this.dbWriterRoom.banMember(obj);
+    }
 }

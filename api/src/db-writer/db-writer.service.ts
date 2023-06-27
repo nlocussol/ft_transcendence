@@ -14,10 +14,13 @@ export class DbWriterService {
     async createUser(newUser: User){
 
         // search if the user is already inside the data base.
-        const currentUser = await this.userRepository.findOneBy({
+        const currentUserPseudo = await this.userRepository.findOneBy({
            pseudo: newUser.pseudo,
         });
-        if (currentUser){
+        const currentUserLogin = await this.userRepository.findOneBy({
+            login: newUser.pseudo,
+         });
+        if (currentUserPseudo || currentUserLogin){
             console.log("The user already exist");
             return null;
         }
@@ -28,13 +31,14 @@ export class DbWriterService {
         user.pseudo = newUser.pseudo;
         user.email = newUser.email;
         user.pp = newUser.pp;
+        user.login = newUser.pseudo
         user.doubleAuth = false;
         user.friends = [];
         user.pm = [];
         user.history = [];
 
         let statsInit : stats = {
-            loose: 0,
+            lose: 0,
             win: 0,
             matchs: 0
         }
@@ -262,7 +266,7 @@ export class DbWriterService {
         if (matchWinner === player.pseudo){
             player.stats.win += 1;
         } else {
-            player.stats.loose += 1;
+            player.stats.lose += 1;
         }
         await this.userRepository.save(player)
     }
@@ -284,7 +288,13 @@ export class DbWriterService {
              return null;
         }
 
-        let matchWinner = gameData.score1 === 10 ? gameData.player2 : gameData.player1;
+        let matchWinner;
+        if (gameData.score1 == 10)
+            matchWinner = gameData.player1;
+        else
+            matchWinner = gameData.player2
+        
+        console.log(matchWinner);
 
         let match1 :match = {
             ownScore: gameData.score1,
@@ -311,7 +321,7 @@ export class DbWriterService {
         const players = await this.userRepository.find();
 
         const sortedPlayer = players.sort(
-            (a, b) => (a.stats.win - a.stats.loose > b.stats.win - b.stats.loose ? -1 : 1)
+            (a, b) => (a.stats.win - a.stats.lose > b.stats.win - b.stats.lose ? -1 : 1)
         )
         return sortedPlayer
     }

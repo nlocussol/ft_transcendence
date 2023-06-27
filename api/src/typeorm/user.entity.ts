@@ -9,7 +9,7 @@ export interface friend {
 export interface stats {
     matchs: number,
     win: number,
-    loose: number,
+    lose: number,
 }
 
 export interface match {
@@ -50,6 +50,11 @@ export class User {
     @Column({
         nullable: true,
     })
+    login: string;
+
+    @Column({
+        nullable: true,
+    })
     email: string;
 
     @Column({
@@ -79,11 +84,6 @@ export class User {
         nullable: true,
     })
     friends: friend[];
-
-    @Column('jsonb', {
-        nullable: true,
-    })
-    room: string[];
 
     @Column('jsonb', {
         nullable: true,

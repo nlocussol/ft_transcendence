@@ -1,0 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap');
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 65vh; /* Adjust this as needed to center vertically */
+}
+
+#login{
+  padding: 5vh 10vh;
+  background-color: #180473;
+  color: teal;
+  font-weight: bold;
+  border: none;
+  border-radius: 1vh;
+  letter-spacing: 1vh;
+  overflow: hidden;
+  transition: 0.5s;
+  cursor: pointer;
+  font-size: 3vh;
+
+}
+
+#login:hover{
+    background: teal;
+    color: #050801;
+    box-shadow: 0 0 5px teal,
+                0 0 25px teal,
+                0 0 50px teal,
+                0 0 200px teal;
+     -webkit-box-reflect:below 1px linear-gradient(transparent, #0005);
+}
+
+#pinMessage{
+  color: teal;
+}

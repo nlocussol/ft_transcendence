@@ -20,7 +20,7 @@ export class Room {
         nullable: true,
     })
     name: string;
-    
+
     @Column({
         nullable: true,
     })
@@ -36,6 +36,11 @@ export class Room {
         default: 'PUBLIC'
     })
     status: string;
+
+    @Column('jsonb', {
+        nullable: true,
+    })
+    ban: string[];
 
     @Column('jsonb', {
         nullable: true,
