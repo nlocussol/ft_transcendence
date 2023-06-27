@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { io} from 'socket.io-client';
 import { GameData} from '../models/game.models';
-import { BehaviorSubject, Observable, map, tap } from 'rxjs';
+import { Subject, BehaviorSubject, Observable, map, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +11,7 @@ export class GameService {
   private readonly API_ENDPOINT = 'http://localhost:3000/game'
   socket: any;
   payload$: BehaviorSubject<GameData> = new BehaviorSubject<GameData>(new GameData())
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   enterQueue(pseudo: string) {
     return this.http.post<any>(this.API_ENDPOINT + "/" + pseudo, {});
@@ -34,9 +34,22 @@ export class GameService {
         pseudo: pseudo
       }
     })
-    this.socket.on('updatePlayers', (payload: any) => {
-      console.log(payload)
+  }
+
+  connectToRoom(room: string) {
+    this.socket.emit('updatePlayers', room);
+    this.socket.on('updatePlayers',room, (payload: any) => {
+      console.log(payload);
     });
+  }
+
+  getGameUpdate = (room: string) => {
+    // this.socket.emit('updatePlayers', room);
+    // return this.socket.on('updatePlayers');
+    this.socket.on('updatePlayers', (payload: GameData) => {
+      this.payload$.next(payload);
+    })
+    return this.payload$.asObservable();
   }
 
   // connectToSocket() {
@@ -50,13 +63,7 @@ export class GameService {
   //   this.socket.emit('joinGameRoom', payload);
   // }
 
-  // updateGame = () => {
-  //   this.socket.on('updatePlayers', (payload: GameData) => {
-  //     this.payload$.next(payload);
-  //   })
-  //   return this.payload$.asObservable();
-  //   // return this.socket.on('updatePlayers', GameData);
-  // }
+
 
   // sendPlayerInfo(payload: any) {
   //   this.socket.emit('keydown', payload);

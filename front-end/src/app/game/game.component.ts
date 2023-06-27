@@ -7,6 +7,7 @@ import { DataService } from '../services/data.service';
 import { MatDialog } from '@angular/material/dialog'
 import { Dialog } from '@angular/cdk/dialog';
 import { DialogNotLoguedComponent } from '../dialog-not-logued/dialog-not-logued.component';
+import { Subject, map } from 'rxjs';
 
 const TICKRATE = 15,
 BALL_SIZE = 10;
@@ -141,11 +142,12 @@ export class GameComponent implements OnInit, OnDestroy {
       this.gameService.refreshQueue(this.pseudo!).subscribe({
         next: res => {
           this.gameID = res;
-          console.log(this.gameID);
-          this.startGame();
+          console.log(res);
           clearInterval(this.refreshQueueInterval);
+          clearInterval(this.queueTimeElapsed);
         },
         error: err => console.log(err),
+        complete: () => this.startGame(),
       });
     }, 1000);
   }
@@ -160,6 +162,19 @@ export class GameComponent implements OnInit, OnDestroy {
 
   startGame() {
     this.gameService.connectToSocket(this.pseudo!);
+    // this.gameService.connectToRoom(this.gameID);
+    // this.gameService.getGameUpdate(this.gameID).subscribe();
+    this.gameService.getGameUpdate(this.gameID).subscribe((payload: GameData) => {
+        this.gameData = payload;
+     });
+     let waitDataInterval = setInterval(() => {
+      if (this.gameData.players[0] != undefined) {
+        console.log(this.gameData)
+        this.animate();
+        clearInterval(waitDataInterval);
+      }
+     }, 100);
+    //  this.draw();
   }
 
   animate() {
@@ -204,17 +219,17 @@ export class GameComponent implements OnInit, OnDestroy {
 
   getUUIDAndMove(): {} {
     const players: Player[] = this.gameData.players;
-    if (players[0].UUID == this.myUUID) {
+    if (players[0].pseudo == this.myUUID) {
       const player: Player = this.gameData.players[0];
       return {
-        UUID: player.UUID,
+        UUID: player.pseudo,
         isMovingUp: this.isMoving[movement.UP],
         isMovingDown: this.isMoving[movement.DOWN]
       }
     } else {
       const player: Player = this.gameData.players[1];
       return {
-        UUID: player.UUID,
+        UUID: player.pseudo,
         isMovingUp: this.isMoving[movement.UP],
         isMovingDown: this.isMoving[movement.DOWN]
       }
