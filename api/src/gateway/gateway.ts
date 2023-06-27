@@ -46,4 +46,16 @@ export class MyGateway implements OnModuleInit{
         this.dbWriterRoom.createRoom(messageData);
         this.server.emit('all-room', messageData);
     }
+
+    @SubscribeMessage('join-room')
+    joinRoom(client: Socket, messageData: messageData) {
+        this.dbWriterRoom.addUserToRoom(messageData);
+        this.server.emit('join-room', messageData);
+    }
+
+    @SubscribeMessage('leave-room')
+    quitRoom(client: Socket, messageData: messageData) {
+        this.dbWriterRoom.leaveRoom(messageData);
+        this.server.emit('leave-room', messageData);
+    }
 }

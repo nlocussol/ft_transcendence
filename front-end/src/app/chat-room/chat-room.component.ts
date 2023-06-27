@@ -49,13 +49,26 @@ export class ChatRoomComponent {
     this.onCheckboxChange()
     this.getNewRoom();
     this.receiveMessage();
+    this.getNewMember();
   }
 
+  getNewMember() {
+    this.socket.on('join-room', (data:any) => {
+      if (data.name === this.selectedRoom.name && this.selectedRoom.ban
+        && !this.selectedRoom.ban.find((ban: any) => ban.pseudo === data.pseudo))
+        console.log(data);
+        this.selectedRoom.members.push({pseudo: data.pseudo, status: 'NORMAL'})
+      })
+}
 
   getNewRoom() {
       this.socket.on('all-room', (data:any) => {
         if (this.selectedRoom || data.owner === this.pseudo)
           this.rooms.push(data)
+        })
+      this.socket.on('leave-room', (data:any) => {
+        if (this.selectedRoom.name === data.name)
+          this.selectedRoom.members.splice(this.selectedRoom.members.findIndex((roomMember: any) => roomMember.pseudo === data.pseudo), 1)
         })
   }
 
@@ -151,6 +164,7 @@ export class ChatRoomComponent {
           askBanMember: member.pseudo
         }
         this.http.post(`http://localhost:3000/db-writer-room/ban-member/`, bodyBan, { headers }).subscribe()
+        this.selectedRoom.members.splice(this.selectedRoom.members.findIndex((roomMember: any) => roomMember.pseudo === member.pseudo), 1)
         break ;
     }
   }
@@ -160,15 +174,14 @@ export class ChatRoomComponent {
       name: this.selectedRoom.name,
       pseudo: this.pseudo,
     }    
-    const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
-    this.http.post('http://localhost:3000/db-writer-room/leave-room/', body, { headers }).subscribe()
+    this.socket.emit('leave-room', body)
     if (!this.allRoomChecked)
       this.rooms.splice(this.rooms.findIndex((room: any) => room === this.selectedRoom), 1)
     this.joined = false;
     this.selectedRoom = null;
   }
 
-  submitRoom() {
+  async submitRoom() {
     if (!this.roomName)
       return ;
     let roomStatus = "PUBLIC"
@@ -182,6 +195,10 @@ export class ChatRoomComponent {
       status: roomStatus
     }
     this.socket.emit('create-room', body);
+    if (this.allRoomChecked)
+      this.rooms = await this.http.get('http://localhost:3000/db-writer-room/all-room/').toPromise();
+    else
+      this.rooms = await this.http.get(`http://localhost:3000/db-writer-room/all-room/${this.pseudo}`).toPromise();
   }
 
   sendInviteRoom(userToAddRoom: string) {
@@ -198,6 +215,7 @@ export class ChatRoomComponent {
     this.newPwd = '';
     this.selectedStatus = '';
     this.options = ['PUBLIC', 'PROTECTED', 'PRIVATE'];
+    this.memberOptions = ['watch profil', '1v1 match', 'Friend Invite'];
     this.joined = false;
     const roomData: any = await this.http.get(`http://localhost:3000/db-writer-room/data-room/${room.name}`).toPromise()
     this.friendsToInvite = await this.http.get(`http://localhost:3000/db-writer/friends/${this.pseudo}`).toPromise()
@@ -212,7 +230,6 @@ export class ChatRoomComponent {
         this.memberOptions = this.memberOptions.concat(['Promote', 'Downgrade', 'Mute', 'Kick', 'Ban'])
     }
     this.conversation = this.selectedRoom.messages;
-    console.log(this.friendsToInvite);
   }
 
   onStatusSelected(event: Event) {
@@ -239,8 +256,7 @@ export class ChatRoomComponent {
       pseudo: this.pseudo,
       name: this.selectedRoom.name,
     }    
-    const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
-    this.http.post('http://localhost:3000/db-writer-room/add-user-room', body, { headers }).subscribe()
+    this.socket.emit('join-room', body)
   }
 
   async sendMessage(message: string) {
