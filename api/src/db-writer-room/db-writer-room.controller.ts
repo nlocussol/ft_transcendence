@@ -54,4 +54,9 @@ export class DbWriterRoomController {
     leaveRoom(@Body() obj: any, @Headers() headers){
         return this.dbWriterRoom.leaveRoom(obj);
     }
+
+    @Post('ban-member')
+    banMember(@Body() obj: any, @Headers() headers){
+        return this.dbWriterRoom.banMember(obj);
+    }
 }

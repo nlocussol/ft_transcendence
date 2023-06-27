@@ -37,6 +37,13 @@ html, body {
     align-items: center;
   }
   
+  #friendpp {
+    border: none;
+    cursor: pointer;
+    appearance: none;
+    background-color: inherit;
+  }
+  
   .friend img {
     width: 45px;
     height: 45px;

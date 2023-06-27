@@ -85,12 +85,21 @@ export class ChatRoomComponent {
         break ;
 
       case '1v1 match':
+        const bodyInviteMatch = {
+          friend: member.pseudo,
+          pseudo: this.pseudo,
+          content: `${this.pseudo} challenges you to a pong duel!`,
+          type: 'REQUEST_MATCH'
+        }
+        this.socket.emit('send-notif', bodyInviteMatch);
+        break ;
+
       case 'Friend Invite':
         const bodyInvite = {
           friend: member.pseudo,
           pseudo: this.pseudo,
           content: `${this.pseudo} want to be your friend!`,
-          type: "REQUEST"
+          type: 'REQUEST_FRIEND'
         }
         const profileData: any = await this.http.get(`http://localhost:3000/db-writer/data/${this.pseudo}`).toPromise()
         if (profileData.friends.find((friend:any) => friend.name === bodyInvite.pseudo)) {
@@ -126,15 +135,23 @@ export class ChatRoomComponent {
         }
         console.log(muteInSecond);
         break ;
+
       case 'Kick':
         const bodyKick = { 
           name: this.selectedRoom.name,
           pseudo: member.pseudo
         }
         this.http.post(`http://localhost:3000/db-writer-room/leave-room/`, bodyKick, { headers }).subscribe()
+        this.selectedRoom.members.splice(this.selectedRoom.members.findIndex((roomMember: any) => roomMember.pseudo === member.pseudo), 1)
         break ;
-        
+
       case 'Ban':
+        const bodyBan = {
+          pseudo: this.pseudo,
+          askBanMember: member.pseudo
+        }
+        this.http.post(`http://localhost:3000/db-writer-room/ban-member/`, bodyBan, { headers }).subscribe()
+        break ;
     }
   }
 

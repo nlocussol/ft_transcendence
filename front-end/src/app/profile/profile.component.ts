@@ -72,22 +72,27 @@ export class ProfileComponent {
   acceptRequest(body: any) {
     let bodyToSend: any;
     const headers = new HttpHeaders().set('Content-type', `application/json`)
-    if (body.type === "REQUEST") {
-      bodyToSend = {
-        pseudo: body.pseudo,
-        friend: body.friend,
-        content: '',
-        sender: ''
-      }
-      this.http.post("http://localhost:3000/db-writer/add-friend/", bodyToSend, { headers }).subscribe()
-    }
-    else if (body.type === "ROOM_INVITE") {
-      bodyToSend = {
-        name: body.name,
-        pseudo: body.friend,
-      }
-      console.log(bodyToSend);
-      this.http.post('http://localhost:3000/db-writer-room/add-user-room', bodyToSend, { headers }).subscribe()
+    switch (body.type) {
+      case 'REQUEST_FRIEND':
+        bodyToSend = {
+          pseudo: body.pseudo,
+          friend: body.friend,
+          content: '',
+          sender: ''
+        }
+        this.http.post("http://localhost:3000/db-writer/add-friend/", bodyToSend, { headers }).subscribe()
+        break;
+
+      case 'REQUEST_MATCH':
+        
+      case 'ROOM_INVITE':
+        bodyToSend = {
+          name: body.name,
+          pseudo: body.friend,
+        }
+        console.log(bodyToSend);
+        this.http.post('http://localhost:3000/db-writer-room/add-user-room', bodyToSend, { headers }).subscribe()
+        break;
     }
     this.notifs.splice(this.notifs.find(request => body === request), 1);
   }
@@ -119,7 +124,7 @@ export class ProfileComponent {
       friend: this.pseudoFriend,
       pseudo: this.pseudo,
       content: `${this.pseudo} want to be your friend!`,
-      type: "REQUEST"
+      type: "REQUEST_FRIEND"
     }
     if (this.profileData.friends.find((friend:any) => friend.name === body.pseudo)) {
       console.log(body.friend, 'is already your friend!');
