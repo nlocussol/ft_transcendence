@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from 'src/typeorm';
 import { message, pm, messageData, friend, match, stats } from 'src/typeorm/user.entity';
+import { GameData } from 'src/game/models/game.models';
 
 
 @Injectable()
@@ -260,7 +261,7 @@ export class DbWriterService {
         return true;
     }
 
-    async fillStats(player: User, gameData:any, matchWinner:string){
+    async fillStats(player: User, matchWinner:string){
         
         player.stats.matchs += 1;
         if (matchWinner === player.pseudo){
@@ -271,17 +272,17 @@ export class DbWriterService {
         await this.userRepository.save(player)
     }
 
-    async fillMatchHistory(gameData: any){
+    async fillMatchHistory(gameData: GameData) {
         // check if the user exist
         const player1 = await this.userRepository.findOneBy({
-            pseudo: gameData.player1,
+            pseudo: gameData.players[0].pseudo,
          });
          if (!player1){
              console.log("fillMatchHistory: The user doesn't exist");
              return null;
          }
          const player2 = await this.userRepository.findOneBy({
-            pseudo: gameData.player2,
+            pseudo: gameData.players[1].pseudo,
          });
          if (!player2){
              console.log("fillMatchHistory: The user doesn't exist");
@@ -289,31 +290,33 @@ export class DbWriterService {
         }
 
         let matchWinner: string;
-        if (gameData.score1 == 10)
-            matchWinner = gameData.player1;
+        if (gameData.players[0].score == 1)
+            matchWinner = gameData.players[0].pseudo;
         else
-            matchWinner = gameData.player2
+            matchWinner = gameData.players[1].pseudo;
         
         console.log(matchWinner);
 
-        let match1 :match = {
-            ownScore: gameData.score1,
-            opponentScore: gameData.score2,
-            opponent: gameData.player2,
+        let match1: match = {
+            ownScore: gameData.players[0].score,
+            opponentScore: gameData.players[1].score,
+            opponent: gameData.players[1].pseudo,
             winner: matchWinner
         }
+        console.log("payer1: ", player1);
+        console.log("payer2: ", player2);
         player1.history.push(match1);
 
         let match2 :match = {
-            ownScore: gameData.score2,
-            opponentScore: gameData.score1,
-            opponent: gameData.player1,
+            ownScore: gameData.players[1].score,
+            opponentScore: gameData.players[0].score,
+            opponent: gameData.players[0].pseudo,
             winner: matchWinner
         }
         player2.history.push(match2);
 
-        this.fillStats(player1, gameData, matchWinner);
-        this.fillStats(player2, gameData, matchWinner);
+        this.fillStats(player1, matchWinner);
+        this.fillStats(player2, matchWinner);
         return true;
     }
 

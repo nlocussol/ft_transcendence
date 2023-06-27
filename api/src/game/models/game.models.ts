@@ -9,17 +9,19 @@ export class Ball {
     velX: number;
     velY: number;
     radius: number;
+    canMove: boolean = false;
 }
 
 export class Player {
     side?: number;
     pseudo?: string;
-    socketID?: string;
     posX?: number;
     posY?: number;
+    velY?: number;
     height?: number;
     width?: number;
     score?: number;
+    canMove: boolean = false;
 }
 
 export class GameData {

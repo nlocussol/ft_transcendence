@@ -6,15 +6,16 @@ import { DbWriterService } from 'src/db-writer/db-writer.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/typeorm';
 
+
 // Change secret to be in env file ///
 @Module({
   imports: [
     JwtModule.register({
       global: true,
-      secret: "grosfdp",
+      secret: process.env.JWT_KEY,
       signOptions: { expiresIn: '3600s' },
     }),
-    TypeOrmModule.forFeature([User])
+    TypeOrmModule.forFeature([User]),
   ],
   controllers: [AuthController],
   providers: [AuthService, AuthController, DbWriterService],

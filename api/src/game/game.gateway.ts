@@ -2,47 +2,57 @@ import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessa
 import { Namespace, Socket } from 'socket.io'
 import { GameService } from './game.service';
 import { GameData, side } from './models/game.models';
-import { OnModuleInit } from '@nestjs/common';
-
-const SERVER_TICK = 15;
+import { OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { SERVER_TICKRATE } from './environment';
 
 @WebSocketGateway({
   cors: true,
   namespace: 'game'
 })
-export class GameGateway implements OnModuleInit {
+export class GameGateway implements OnModuleInit, OnModuleDestroy {
   @WebSocketServer()
   io: Namespace;
   socket: Socket;
+  intervalId: any;
 
   constructor(private gameService: GameService) {}
 
   onModuleInit() {
-    let interval = setInterval(() => {
+    this.intervalId = setInterval(() => {
       this.gameService.gameInProgress.forEach((game) => {
-        console.log(game.matchUUID);
+        delete game.intervalID
+        // this.io.to(game.matchUUID).emit('updatePlayers', game)
+        this.io.to(game.matchUUID).emit('updatePlayers', game)
+        // this.io.to(game.matchUUID)
       })
-    }, 100);
+    }, SERVER_TICKRATE);
+  }
+
+  onModuleDestroy() {
+    clearInterval(this.intervalId);
   }
 
   afterInit(server: any) {
     this.io.on('connection', (socket) => {
       // If player try to connect without passing its unique pseudo
       if (socket.handshake.query.pseudo == undefined) {
-        socket.disconnect()
+        socket.disconnect();
       } else {
         var playerMatchUUID = this.gameService.findGameByPlayer(socket.handshake.query.pseudo as string);
-        socket.join(playerMatchUUID);
-      }
-      this.io.to(playerMatchUUID).emit('updatePlayers', "tgfdp")
-    });
-  }
+        if (!playerMatchUUID) {
+          console.log(socket.handshake.query.pseudo + ": Tried to connect withouth being in a room")
+          socket.disconnect();
+        } else {
+            socket.join(playerMatchUUID);
+          }
+        }
+      })
+    }
 
-  @SubscribeMessage('updatePlayers')
-  updatePlayers()
-  {
-    console.log("test")
-  }
+  // @SubscribeMessage('updatePlayers')
+  // updatePlayers()
+  // {
+  // }
 
   gameLoops() {
   }
@@ -70,29 +80,6 @@ export class GameGateway implements OnModuleInit {
 
   // }
 
-  // // Payload is playerUUID
-  // @SubscribeMessage('joinGameRoom')
-  // joinGameRoom(client: Socket, payload: string) {
-  //   console.log(payload)
-  //   console.log("Player joined room");
-  //   for (let gameId in this.gameService.gameInProgress) {
-  //     if (this.gameService.gameInProgress[gameId].players[0] && this.gameService.gameInProgress[gameId].players[0].pseudo == payload ||
-  //       this.gameService.gameInProgress[gameId].players[1] && this.gameService.gameInProgress[gameId].players[1].pseudo == payload) {
-  //         console.log("Already in game")
-  //         continue;
-  //       }
-  //     if (this.gameService.gameInProgress[gameId].players[0] === undefined) {
-  //       this.gameService.gameInProgress[gameId].matchUUID = crypto.randomUUID();
-  //       this.gameService.gameInProgress[gameId].players[0] = this.gameService.newPlayer(side.LEFT, payload);
-  //       console.log("Found one player")
-  //     } else if (this.gameService.gameInProgress[gameId].players[1] === undefined) {
-  //       this.gameService.gameInProgress[gameId].players[1] = this.gameService.newPlayer(side.RIGHT, payload);
-  //       console.log("Found second player, starting game")
-  //       this.gameService.startGame(this.gameService.gameInProgress[gameId].matchUUID);
-  //     } else {
-  //       console.log("Creating new game")
-  //       this.gameService.gameInProgress.push(new GameData());
-  //     }
   //   }
   // }
 

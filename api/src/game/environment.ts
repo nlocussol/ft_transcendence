@@ -1,0 +1,1 @@
+export const SERVER_TICKRATE = 15;
