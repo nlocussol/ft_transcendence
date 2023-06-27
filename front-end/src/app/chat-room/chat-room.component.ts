@@ -13,6 +13,7 @@ import { Router } from '@angular/router';
 })
 export class ChatRoomComponent {
   muteTime: string = "10";
+  members: any;
   memberOption!: string;
   memberOptions: string[] ;
   selectedMember: any;
@@ -54,7 +55,8 @@ export class ChatRoomComponent {
 
   getNewMember() {
     this.socket.on('join-room', (data:any) => {
-      this.onCheckboxChange();
+      if (this.selectedRoom.name === data.name)
+        this.members.push({pseudo: data.pseudo, status: 'NORMAL'})
       if (this.selectedRoom && data.name === this.selectedRoom.name && this.selectedRoom.ban
         && !this.selectedRoom.ban.find((ban: any) => ban.pseudo === data.pseudo))
         this.selectedRoom.messages.push({content: `${data.pseudo} as joined the room!`, sender: 'BOT'})
@@ -68,17 +70,21 @@ export class ChatRoomComponent {
           const room = await this.http.get(`http://localhost:3000/db-writer-room/data-room/${data.name}`).toPromise()
           this.rooms.push(room);
         }
-        })
+      })
 
-      this.socket.on('has-leave-room', (data:any) => {
-        if (this.selectedRoom.owner === data.pseudo) {          
-         this.rooms.splice(this.rooms.findIndex((room: any) => room === this.selectedRoom), 1)
-         this.joined = false;
-         this.selectedRoom = null;
-        }
+      this.socket.on('has-leave-room', (data: any) => {
         if (this.selectedRoom.name === data.name)
-          this.selectedRoom.members.splice(this.selectedRoom.members.findIndex((roomMember: any) => roomMember.pseudo === data.pseudo), 1)
-        })
+          this.members.splice(this.members.findIndex((roomMember: any) => roomMember.pseudo === data.pseudo), 1)
+        if (data.pseudo === this.pseudo && !this.allRoomChecked) {
+          this.rooms.splice(this.rooms.findIndex((room: any) => room.name === data.name), 1)
+          this.joined = false;
+          this.selectedRoom = null;
+        }
+        if (this.allRoomChecked && this.selectedRoom.name === data.name && data.pseudo === this.pseudo) {
+          this.joined = false;
+          this.selectedRoom = null;
+        }
+      })
   }
 
   onMemberClick(member: any) {
@@ -163,8 +169,8 @@ export class ChatRoomComponent {
           name: this.selectedRoom.name,
           pseudo: member.pseudo
         }
-        this.http.post(`http://localhost:3000/db-writer-room/leave-room/`, bodyKick, { headers }).subscribe()
-        this.selectedRoom.members.splice(this.selectedRoom.members.findIndex((roomMember: any) => roomMember.pseudo === member.pseudo), 1)
+        this.socket.emit('leave-room', bodyKick)
+        this.members.splice(this.members.findIndex((roomMember: any) => roomMember.pseudo === member.pseudo), 1)
         break ;
 
       case 'Ban':
@@ -173,7 +179,7 @@ export class ChatRoomComponent {
           askBanMember: member.pseudo
         }
         this.http.post(`http://localhost:3000/db-writer-room/ban-member/`, bodyBan, { headers }).subscribe()
-        this.selectedRoom.members.splice(this.selectedRoom.members.findIndex((roomMember: any) => roomMember.pseudo === member.pseudo), 1)
+        this.members.splice(this.members.findIndex((roomMember: any) => roomMember.pseudo === member.pseudo), 1)
         break ;
     }
   }
@@ -227,6 +233,7 @@ export class ChatRoomComponent {
     const roomData: any = await this.http.get(`http://localhost:3000/db-writer-room/data-room/${room.name}`).toPromise()
     this.friendsToInvite = await this.http.get(`http://localhost:3000/db-writer/friends/${this.pseudo}`).toPromise()
     this.selectedRoom = room;
+    this.members = roomData.members;
     this.roomStatus = this.selectedRoom.status;
     this.options.splice(this.options.findIndex(opt => opt === this.roomStatus), 1)
     if (roomData.members && roomData.members.find((member: any) => this.pseudo === member.pseudo)) {
@@ -277,6 +284,7 @@ export class ChatRoomComponent {
   }
 
   async onCheckboxChange() {
+    this.selectedRoom = null;
     if (this.allRoomChecked)
       this.rooms = await this.http.get(`http://localhost:3000/db-writer-room/all-room/`).toPromise()
     else
