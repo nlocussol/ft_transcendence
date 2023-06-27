@@ -161,7 +161,13 @@ export class ChatRoomComponent {
           console.log("Mute time can't be negative!");
           return ;
         }
+        const bodyMute = { 
+          name: this.selectedRoom.name,
+          pseudo: member.pseudo,
+          time: muteInSecond,
+        }
         console.log(muteInSecond);
+        this.http.post(`http://localhost:3000/db-writer-room/mute-member/`, bodyMute, { headers }).subscribe()
         break ;
 
       case 'Kick':

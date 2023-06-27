@@ -36,6 +36,7 @@ export class DbWriterRoomService {
          const admin: member = {
             pseudo: newRoom.owner,
             status: 'ADMIN',
+            mute: 0,
          }
          room.members.push(admin);
          
@@ -109,6 +110,7 @@ export class DbWriterRoomService {
          const newMembre: member = {
             pseudo: newUser.pseudo,
             status: 'NORMAL',
+            mute: 0,
          }
          currentRoom.members.push(newMembre);
  
@@ -127,6 +129,16 @@ export class DbWriterRoomService {
              return null;
          }
  
+         var date=new Date();
+         currentRoom.members.find(async member => {
+            if (member.pseudo === newMessage.sender
+                && member.mute !== 0
+                && member.mute > date.getTime()){
+                console.log("You are currently muted")
+                console.log(`You need to wait ${member.mute} seconds`);
+                return null;
+            }
+        })
          // create an instance of membre & push back to the membre list
          const message: message = {
             sender: newMessage.sender,
@@ -253,6 +265,31 @@ export class DbWriterRoomService {
                 return null;
             }
         })
+        return null;
+    }
+
+    async muteMember(mutedMember){
+        // check if the room exist
+        const currentRoom = await this.roomRepository.findOneBy({
+            name: mutedMember.name,
+         });
+         if (!currentRoom){
+             console.log("The room doesn't exist");
+             return null;
+         }
+
+        var date = new Date();
+        currentRoom.members.find(async member => {
+            if (member.pseudo === mutedMember.pseudo && member.status !== 'ADMIN'){
+                member.mute = date.getTime() + (mutedMember.time * 1000);
+                await this.roomRepository.save(currentRoom);
+                return true;
+            } else {
+                console.log("Wrong permisson to mute this user");
+                return null;
+            }
+        })
+        console.log("The user doesn't exist");
         return null;
     }
 }

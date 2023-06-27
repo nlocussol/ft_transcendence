@@ -59,4 +59,9 @@ export class DbWriterRoomController {
     banMember(@Body() obj: any, @Headers() headers){
         return this.dbWriterRoom.banMember(obj);
     }
+
+    @Post('mute-member')
+    muteMember(@Body() obj: any, @Headers() headers){
+        return this.dbWriterRoom.muteMember(obj);
+    }
 }
