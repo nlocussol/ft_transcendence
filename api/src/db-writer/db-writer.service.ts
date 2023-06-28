@@ -342,6 +342,9 @@ export class DbWriterService {
             type: newNotif.type,
             content: newNotif.content,
         }
+        currentUser.notif.push(notif);
+        await this.userRepository.save(currentUser)
+        return true;
          // change the current 2fa setting to the new one
      
     }
