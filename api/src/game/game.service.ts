@@ -267,7 +267,6 @@ export class GameService implements OnModuleInit {
                 this.handleGameFinish(game);
                 clearInterval(timeoutInterval);
             }
-            console.log(game.players[playerIndex].AFKTimer);
         }, 200)
     }
 

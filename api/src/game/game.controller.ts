@@ -1,5 +1,6 @@
-import { Controller, Post, Delete, Param, Get} from '@nestjs/common';
+import { Controller, Post, Delete, Param, Get, UseGuards} from '@nestjs/common';
 import { GameService } from './game.service';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('game')
 export class GameController {
@@ -20,9 +21,4 @@ export class GameController {
     refreshQueue(@Param() params: any) {
         return this.gameService.refreshQueue(params.login);
     }
-
-    // @Get()
-    // matchmaking(@Req() req: Request){
-    //     return this.gameService.checkQueue(req.headers['playeruuid']);
-    // }
 }
