@@ -6,6 +6,7 @@ import { IsArray, IsEmpty, IsNotEmpty, IsString, IsStrongPassword } from 'class-
 
 export interface member {
     login: string,
+    pseudo: string,
     status: string,
     mute: number,
 }
@@ -19,6 +20,7 @@ export interface ChangeStatus {
 export interface UserInRoom {
     name: string,
     login: string,
+    pseudo: string,
 }
 
 export interface NewMessage {

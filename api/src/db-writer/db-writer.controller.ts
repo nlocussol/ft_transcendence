@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Headers, Param, Post, Patch } from '@nestjs/common';
 import { DbWriterService } from 'src/db-writer/db-writer.service';
 import { GameData } from 'src/game/models/game.models';
-import { changeBlockStatus, changeContent, messageData, modify2fa } from 'src/typeorm/user.entity';
+import { addFriend, changeBlockStatus, changePseudo, messageData, modify2fa, newPp } from 'src/typeorm/user.entity';
 
 @Controller('db-writer')
 export class DbWriterController {
@@ -12,7 +12,7 @@ export class DbWriterController {
     }
 
     @Post('add-friend')
-    addFriend(@Body() newFriend: changeContent, @Headers() headers){
+    addFriend(@Body() newFriend: addFriend, @Headers() headers){
         return this.dbWriter.addFriend(newFriend);
     }
 
@@ -33,12 +33,12 @@ export class DbWriterController {
     }
 
     @Post('change-user-pseudo')
-    changeUserPseudo(@Body() obj: changeContent, @Headers() headers){
+    changeUserPseudo(@Body() obj: changePseudo, @Headers() headers){
         return this.dbWriter.changeUserPseudo(obj);
     }
 
     @Post('change-user-pp')
-    changeUserPp(@Body() obj: changeContent, @Headers() headers){
+    changeUserPp(@Body() obj: newPp, @Headers() headers){
         return  this.dbWriter.changeUserPp(obj);
     }
 

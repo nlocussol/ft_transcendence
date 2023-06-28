@@ -42,6 +42,7 @@ export class DbWriterRoomService {
          // the first user is admin
          const admin: member = {
             login: newRoom.owner,
+            pseudo: newRoom.ownerPseudo,
             status: 'ADMIN',
             mute: 0,
          }
@@ -116,6 +117,7 @@ export class DbWriterRoomService {
          // create an instance of membre & push back to the membre list
          const newMembre: member = {
             login: newUser.login,
+            pseudo: newUser.pseudo,
             status: 'NORMAL',
             mute: 0,
          }

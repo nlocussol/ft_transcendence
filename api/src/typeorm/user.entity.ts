@@ -38,14 +38,24 @@ export interface messageData {
     sender: string,
 }
 
-export interface changeContent {
+export interface changePseudo {
+    currentLogin: string,
+    newPseudo: string,
+}
+
+export interface addFriend {
     login: string,
-    newContent: string,
+    friend: string,
 }
 
 export interface modify2fa {
     login: string,
     doubleAuth: boolean,
+}
+
+export interface newPp {
+    login: string,
+    newPp: string,
 }
 
 export interface changeBlockStatus {
