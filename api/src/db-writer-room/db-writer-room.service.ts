@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { Room } from 'src/typeorm';
 import { member } from 'src/typeorm/room.entity';
 import { message } from 'src/typeorm/user.entity';
-import { hash } from 'bcrypt';
+import { compare, hash } from 'bcrypt';
 
 
 @Injectable()
@@ -301,5 +301,10 @@ export class DbWriterRoomService {
         }
         console.log("The user doesn't exist");
         return null;
+    }
+
+    async checkPassword (pass: any){
+        const result = await compare(pass.inputPassword, pass.roomPassword);
+        return (result)
     }
 }

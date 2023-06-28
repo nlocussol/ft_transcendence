@@ -10,6 +10,11 @@ export interface Friend {
     blocked: boolean,
 }
 
+export interface Passwords {
+    roomPassword:string,
+    inputPassword: string,
+}
+
 export interface NewRoom {
     name: string,
     owner: string,
