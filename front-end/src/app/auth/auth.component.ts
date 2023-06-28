@@ -12,7 +12,7 @@ import { Emitters } from '../emitters/emitters';
   styleUrls: ['./auth.component.css']
 })
 export class AuthComponent implements OnInit {
-  pseudo!: string;
+  login!: string;
   profileData: any;
   pin!: string;
   doubleAuthQrCode!: string;
@@ -28,7 +28,7 @@ export class AuthComponent implements OnInit {
   
   async sendUserData(data: any) {
     const body = {
-      pseudo: data.login,
+      login: data.login,
       email: data.email,
       pp: data.image.versions.medium
     }    
@@ -40,14 +40,14 @@ export class AuthComponent implements OnInit {
   async getUserData(accessToken: string) {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`)
     const res: any = await this.http.get('https://api.intra.42.fr/v2/me', { headers }).toPromise()
-    this.pseudo = await res.login;
-    this.dataService.setLogin(this.pseudo)
+    this.login = await res.login;
+    this.dataService.setLoginPseudo(this.login, this.login)
     this.sendUserData(res)
     // check if 2fa is needed
-    this.profileData = await this.http.get(`http://localhost:3000/db-writer/data/${this.pseudo}`).toPromise()
+    this.profileData = await this.http.get(`http://localhost:3000/db-writer/data/${this.login}`).toPromise()
 
     // Send user info to API and redirect user to homepage once he received jwt cookie
-    this.http.post('http://localhost:3000/auth/login', {pseudo: this.pseudo}, {withCredentials: true}).subscribe(() => {
+    this.http.post('http://localhost:3000/auth/login', {login: this.login}, {withCredentials: true}).subscribe(() => {
       Emitters.authEmitter.emit(true);
       this.router.navigate(['/']);
     });

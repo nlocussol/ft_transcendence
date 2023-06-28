@@ -19,6 +19,7 @@ export class ProfileComponent {
   pseudoFriend!: string;
   profileData!: UserData;
   pseudo: string = "! Go Login to get a profile card !";
+  login!: string;
   ppUrl!: string;
   status!: string;
   socket: Socket;
@@ -27,10 +28,12 @@ export class ProfileComponent {
   constructor(private http: HttpClient, private dataService: DataService) {
     this.socket = io(environment.SOCKET_ENDPOINT);
     const tmp: string = dataService.getLogin();
-    if (!tmp)
+    const temp: string = dataService.getPseudo();
+    if (!tmp || !temp)
       return ;
-    this.pseudo = tmp;
-    console.log('My login:', this.pseudo);
+    this.pseudo = temp;
+    this.login = tmp;
+    console.log('My pseudo:', this.pseudo);
     this.getProfileData();
     this.newNotif();
   }
@@ -43,7 +46,7 @@ export class ProfileComponent {
     };
     reader.readAsDataURL(this.selectedFile);
     const body = {
-      pseudo: this.pseudo,
+      login: this.login,
       newPp: this.selectedFile
     }
     const headers = new HttpHeaders().set('Content-type', `application/json`)
@@ -53,7 +56,7 @@ export class ProfileComponent {
   change2AF() {
     this.doubleAuth = !this.doubleAuth;
     const body = {
-      pseudo: this.pseudo,
+      login: this.login,
       doubleAuth: this.doubleAuth
     }
     const headers = new HttpHeaders().set('Content-type', `application/json`)
@@ -77,7 +80,7 @@ export class ProfileComponent {
     switch (body.type) {
       case 'REQUEST_FRIEND':
         bodyToSend = {
-          pseudo: body.pseudo,
+          login: body.login,
           friend: body.friend,
           content: '',
           sender: ''
@@ -90,7 +93,7 @@ export class ProfileComponent {
       case 'ROOM_INVITE':
         bodyToSend = {
           name: body.name,
-          pseudo: body.friend,
+          login: body.friend,
         }
         console.log(bodyToSend);
         this.http.post('http://localhost:3000/db-writer-room/add-user-room', bodyToSend, { headers }).subscribe()
@@ -105,7 +108,7 @@ export class ProfileComponent {
   }
 
   async getProfileData() {
-    this.profileData = await this.http.get(`http://localhost:3000/db-writer/data/${this.pseudo}`).toPromise() as UserData
+    this.profileData = await this.http.get(`http://localhost:3000/db-writer/data/${this.login}`).toPromise() as UserData
     this.ppUrl = this.profileData.pp;
     this.status = this.profileData.status;
     this.doubleAuth = this.profileData.doubleAuth
@@ -122,13 +125,15 @@ export class ProfileComponent {
   }
 
   handleFriendSubmit() {
+    console.log(this.pseudoFriend);
+    console.log(this.login);
     const body = {
       friend: this.pseudoFriend,
-      pseudo: this.pseudo,
+      login: this.login,
       content: `${this.pseudo} want to be your friend!`,
       type: "REQUEST_FRIEND"
     }
-    if (this.profileData.friends.find((friend: Friend) => friend.name === body.pseudo)) {
+    if (this.profileData.friends.find((friend: Friend) => friend.name === body.login)) {
       console.log(body.friend, 'is already your friend!');
       return ;
     }

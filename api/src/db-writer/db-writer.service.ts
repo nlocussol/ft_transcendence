@@ -54,7 +54,7 @@ export class DbWriterService {
         }
         // check if the friend is not already inside friend list
         if (user.friends && user.friends.find(friend => friend.name === friendLogin)){
-            console.log("The friend already exist.");
+            console.log("addFriend: The friend already exist.");
             return null;
         }
         user.friends.push(dataFriend);
@@ -79,11 +79,11 @@ export class DbWriterService {
             login: newFriend.newContent,
         });
         if (user === friend){
-            console.log("The user and friend's name are the same.");
+            console.log("addFriend: The user and friend's name are the same.");
             return null;
         }
         if (!user || !friend){
-            console.log("The user doesn't exist.");
+            console.log("addFriend:The user doesn't exist.");
             return null;
         }
         // add new friend to both users list
@@ -98,7 +98,7 @@ export class DbWriterService {
             login: obj.login,
         });
         if (!user){
-            console.log("The user didn't exist.");
+            console.log("GetPm: The user didn't exist.");
             return null;
         }
         // return the conversation with the match friend
@@ -107,7 +107,7 @@ export class DbWriterService {
                 return conversation.messages;
             }
         }
-        console.log("There is no conversation with ", obj.friend);
+        console.log("GetPm: There is no conversation with ", obj.friend);
     }
 
     async addMessage(user: User, friendName:string, newMessage: message){
