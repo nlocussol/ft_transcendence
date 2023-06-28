@@ -65,7 +65,7 @@ export interface changeBlockStatus {
 }
 
 export interface notif {
-    friend: string,
+    login: string,
     type: string,
     content: string,
 }

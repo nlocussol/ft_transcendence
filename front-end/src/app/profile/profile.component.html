@@ -26,7 +26,7 @@
           <div class="name">
             {{ notif.content }}
           </div>
-          <div *ngIf="notif.type !== 'BLOCK'">
+          <div *ngIf="notif.type !== 'BLOCK' && notif.type !== 'MATCH_ACCEPTED'">
             <button type="submit" class="accept-button" (click)="acceptRequest(notif)">Accept</button>
             <button type="button" class="refuse-button" (click)="refuseRequest(notif)">Refuse</button>
           </div>

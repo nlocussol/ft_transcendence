@@ -4,7 +4,7 @@ import { DataService } from '../services/data.service';
 import { environment } from 'src/environment';
 import { Socket, io } from 'socket.io-client';
 import { Friend, UserData } from '../chat-room/interfaces/interfaces';
-import { Notif } from './interfaces/interfaces';
+import { Notif, addFriend } from './interfaces/interfaces';
 
 @Component({
   selector: 'app-profile',
@@ -84,20 +84,32 @@ export class ProfileComponent {
     switch (body.type) {
       case 'REQUEST_FRIEND':
         bodyToSend = {
-          login: body.login,
-          friend: body.friend,
-          content: '',
-          sender: ''
+          login: this.login,
+          friend: body.login,
         }
-        this.http.post("http://localhost:3000/db-writer/add-friend/", bodyToSend, { headers }).subscribe()
+        this.http.post("http://localhost:3000/db-writer/add-friend/", bodyToSend as addFriend, { headers }).subscribe()
         break;
 
       case 'REQUEST_MATCH':
-        
+        bodyToSend = {
+          uuid: crypto.randomUUID(),
+          payer1: this.login,
+          player2: bodyToDelete.login
+        }
+        const notifBody = {
+          friend: body.login,
+          login: this.login,
+          content: `${this.pseudo} has accepted your match request so go in the game page!`,
+          type: 'MATCH_ACCEPTED'
+        }
+        this.socket.emit('send-notif', notifBody);
+        break ;
+
       case 'ROOM_INVITE':
         bodyToSend = {
           name: body.name,
-          login: body.friend,
+          login: this.login,
+          pseudo: this.pseudo,
         }
         this.http.post('http://localhost:3000/db-writer-room/add-user-room', bodyToSend, { headers }).subscribe()
         break;
@@ -129,7 +141,9 @@ export class ProfileComponent {
       if (data.friend === this.pseudo) {
         if (!this.notifs)
           this.notifs = [];
-        this.notifs.push(data);
+        if (data.login)
+          // this.notifs.push({friend: data.login, content: data.content, type: data.type});
+          this.notifs.push(data);
       }
     })
   }
