@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Headers, Param, Post, Patch } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Param, Post, Patch, Delete } from '@nestjs/common';
 import { DbWriterService } from 'src/db-writer/db-writer.service';
 import { GameData } from 'src/game/models/game.models';
-import { addFriend, changeBlockStatus, changePseudo, messageData, modify2fa, newPp } from 'src/typeorm/user.entity';
+import { addFriend, changeBlockStatus, changePseudo, deleteNotif, messageData, modify2fa, newNotif, newPp } from 'src/typeorm/user.entity';
 
 @Controller('db-writer')
 export class DbWriterController {
@@ -60,5 +60,15 @@ export class DbWriterController {
     @Get('leaderboard')
     getLeaderboard(){
         return this.dbWriter.getLeaderboard();
+    }
+
+    @Post('add-notif')
+    addNotif(@Body() obj: newNotif, @Headers() headers){
+        return  this.dbWriter.addNotif(obj);
+    }
+
+    @Post('delete-notif')
+    deleteNotif(@Body() obj: deleteNotif, @Headers() headers){
+        return  this.dbWriter.deleteNotif(obj);
     }
 }

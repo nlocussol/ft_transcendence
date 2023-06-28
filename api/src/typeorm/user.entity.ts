@@ -64,6 +64,24 @@ export interface changeBlockStatus {
     block: boolean,
 }
 
+export interface notif {
+    friend: string,
+    type: string,
+    content: string,
+}
+
+export interface newNotif {
+    friend: string,
+    type: string,
+    content: string,
+    login: string,
+}
+
+export interface deleteNotif {
+    index: string,
+    login: string,
+}
+
 @Entity()
 export class User {
     @PrimaryGeneratedColumn()
@@ -135,4 +153,10 @@ export class User {
         nullable: true,
     })
     pm: pm[];
+
+    @IsArray()
+    @Column('jsonb', {
+        nullable: true,
+    })
+    notif: notif[];
 }

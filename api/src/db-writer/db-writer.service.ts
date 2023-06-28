@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from 'src/typeorm';
-import { message, pm, messageData, friend, match, stats, modify2fa, changeBlockStatus, changePseudo, addFriend, newPp } from 'src/typeorm/user.entity';
+import { message, pm, messageData, friend, match, stats, modify2fa, changeBlockStatus, changePseudo, addFriend, newPp, notif, deleteNotif } from 'src/typeorm/user.entity';
 import { GameData } from 'src/game/models/game.models';
 
 
@@ -33,6 +33,7 @@ export class DbWriterService {
         user.friends = [];
         user.pm = [];
         user.history = [];
+        user.notif = [];
 
         let statsInit : stats = {
             lose: 0,
@@ -323,5 +324,40 @@ export class DbWriterService {
             (a, b) => (a.stats.win - a.stats.lose > b.stats.win - b.stats.lose ? -1 : 1)
         )
         return sortedPlayer
+    }
+
+    async addNotif(newNotif:any){
+        // check if the user exist
+        const currentUser = await this.userRepository.findOneBy({
+            login: newNotif.login,
+         });
+         if (!currentUser){
+             console.log("addNotif: The user does not exist");
+             return null;
+         }
+         let notif: notif =  {
+            friend: newNotif.friend,
+            type: newNotif.type,
+            content: newNotif.content,
+        }
+         // change the current 2fa setting to the new one
+     
+    }
+
+    async deleteNotif(deleteNotif: deleteNotif) {
+        const currentUser = await this.userRepository.findOneBy({
+            login: deleteNotif.login,
+         });
+         if (!currentUser){
+             console.log("addNotif: The user does not exist");
+             return null;
+         }
+        let i = parseInt(deleteNotif.index);
+
+        if (i > -1) {
+            currentUser.notif.splice(i, 1);
+        }
+        await this.userRepository.save(currentUser)
+        return true;
     }
 }

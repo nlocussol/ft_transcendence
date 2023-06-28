@@ -20,6 +20,7 @@ export class MyGateway implements OnModuleInit{
 
     @SubscribeMessage('send-notif')
     async sendFriendRequest(client: Socket, friendToAdd: messageData) {
+        this.dbWriter.addNotif(friendToAdd);
         this.server.emit('receive-notif', friendToAdd)
     }
 

@@ -58,7 +58,6 @@ export class AuthComponent implements OnInit {
   }
 
   async getAccessToken(code: string) {
-    
     const body = new URLSearchParams({
           grant_type: "authorization_code",
           client_id: "u-s4t2ud-d4f9852c6392f3a567c8fb78fac0ffaa6a248187093e5a84ba0a0b1e507c8f01",
