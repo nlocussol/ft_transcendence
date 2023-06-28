@@ -1,5 +1,6 @@
 export interface MemberStatus {
-    pseudo: string,
+    login: string,
+    pseudo?: string,
     status: string,
     mute?: number
 }
@@ -23,7 +24,7 @@ export interface NewRoom {
 }
 export interface JoinLeaveRoom {
     name: string,
-    pseudo: string
+    login: string
 }
 
 export interface Message {

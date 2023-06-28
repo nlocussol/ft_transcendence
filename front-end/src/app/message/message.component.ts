@@ -12,7 +12,7 @@ import { Message, UserData, Friend } from '../chat-room/interfaces/interfaces';
   styleUrls: ['./message.component.css']
 })
 export class MessageComponent {
-  pseudo: string;
+  login: string;
   friends!: Friend[];
   selectedFriend!: Friend | null;
   userData!: UserData;
@@ -23,8 +23,8 @@ export class MessageComponent {
 
   constructor(private http: HttpClient, private dataServices : DataService, private router: Router) {
     this.socket = io(environment.SOCKET_ENDPOINT);
-    this.pseudo = this.dataServices.getLogin();
-    if (!this.pseudo)
+    this.login = this.dataServices.getLogin();
+    if (!this.login)
       return
     this.getUserData();
     this.receiveMessage()
@@ -36,7 +36,7 @@ export class MessageComponent {
 
   blockFriend() {
     const body = {
-      pseudo: this.pseudo,
+      login: this.login,
       friend: this.selectedFriend?.name,
       block: true
     }
@@ -45,22 +45,22 @@ export class MessageComponent {
     this.friends.splice(this.friends.findIndex((friend: Friend) => friend === this.selectedFriend), 1)
     
     let bodyNotif = {
-      pseudo: this.pseudo,
+      login: this.login,
       friend: this.selectedFriend?.name,
-      content: `${this.pseudo} as blocked you!`,
+      content: `${this.login} as blocked you!`,
       type: "BLOCK"
     }
     this.socket.emit('send-notif', bodyNotif);
-    bodyNotif.friend = this.pseudo
+    bodyNotif.friend = this.login
     bodyNotif.content = `You blocked ${this.selectedFriend?.name}`
     this.socket.emit('send-notif', bodyNotif);
     this.selectedFriend = null;
   }
 
   async getUserData() {
-    const res: UserData = await this.http.get(`http://localhost:3000/db-writer/data/${this.pseudo}`).toPromise() as UserData
+    const res: UserData = await this.http.get(`http://localhost:3000/db-writer/data/${this.login}`).toPromise() as UserData
     this.userData = res;
-    const resBis: Friend[] = await this.http.get(`http://localhost:3000/db-writer/friends/${this.pseudo}`).toPromise() as Friend[]
+    const resBis: Friend[] = await this.http.get(`http://localhost:3000/db-writer/friends/${this.login}`).toPromise() as Friend[]
     this.friends = resBis;
     console.log(this.friends);
   }
@@ -68,7 +68,7 @@ export class MessageComponent {
   async onClickFriend(friend: Friend){
     this.selectedFriend = friend;
     const body = {
-      pseudo: this.pseudo,
+      login: this.login,
       friend: this.selectedFriend?.name,
       content: '',
       sender: ''
@@ -79,10 +79,10 @@ export class MessageComponent {
 
   async sendMessage(message: string) {
     const body = {
-      pseudo: this.pseudo,
+      login: this.login,
       friend: this.selectedFriend?.name,
       content: message,
-      sender: this.pseudo
+      sender: this.login
     }
     this.conversation.push(body);
     this.socket.emit('add-pm', body);
