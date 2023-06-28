@@ -13,25 +13,25 @@ export class GameService {
   payload$: BehaviorSubject<GameData> = new BehaviorSubject<GameData>(new GameData())
   constructor(private http: HttpClient) {}
 
-  enterQueue(pseudo: string) {
-    return this.http.post<any>(this.API_ENDPOINT + "/" + pseudo, {});
+  enterQueue(login: string) {
+    return this.http.post<any>(this.API_ENDPOINT + "/" + login, {});
   }
 
-  exitQueue(pseudo: string) {
-    return this.http.delete<any>(this.API_ENDPOINT + "/" + pseudo);
+  exitQueue(login: string) {
+    return this.http.delete<any>(this.API_ENDPOINT + "/" + login);
   }
 
   // Returns the player's match UUID if one is started or undefined
-  refreshQueue(pseudo: string): Observable<string> {
-    return this.http.get<any>(this.API_ENDPOINT + "/" + pseudo).pipe(
+  refreshQueue(login: string): Observable<string> {
+    return this.http.get<any>(this.API_ENDPOINT + "/" + login).pipe(
       map(data => data.matchUUID)
     );
   }
 
-  connectToSocket(pseudo: string) {
+  connectToSocket(login: string) {
     this.socket = io(this.API_ENDPOINT, {
       query: {
-        pseudo: pseudo
+        login: login
       }
     })
   }
@@ -44,8 +44,6 @@ export class GameService {
   }
 
   getGameUpdate = (room: string) => {
-    // this.socket.emit('updatePlayers', room);
-    // return this.socket.on('updatePlayers');
     this.socket.on('updatePlayers', (payload: GameData) => {
       this.payload$.next(payload);
     })
@@ -56,37 +54,7 @@ export class GameService {
     this.socket.emit('updatePlayers', payload);
   }
 
-  // connectToSocket() {
-  //   this.socket = io(this.API_ENDPOINT + "/inprogress");
-  //   this.socket.on('joinGameRoom', (gamedata: any) => {
-  //     console.log("ici")
-  //   });
-  // }
-
-  // joinGameRoom(payload: any) {
-  //   this.socket.emit('joinGameRoom', payload);
-  // }
-
-
-
-  // sendPlayerInfo(payload: any) {
-  //   this.socket.emit('keydown', payload);
-  // }
-
   getUser() {
-    return this.http.get<any>('http://localhost:3000/auth/user', {withCredentials: true});
+    return this.http.get<any>('http://localhost:3000/auth/user');
   }
-
-  // Ask API for game info 
-  // getCurrentGameData(gameUUID: string | undefined): Observable<GameData> {
-  //   return this.http.get<GameData>(this.API_URL + "/" + gameUUID)
-  // }
-
-  // patchPlayerData(gameUUID: string | undefined, playerData: Player | undefined, playerUUID: string) {
-  //   return this.http.patch(this.API_URL + "/" + gameUUID, { 
-  //     side: playerData?.side,
-  //     UUID: playerData?.UUID,
-  //     pos: playerData?.posY
-  //    });
-  // }
 }

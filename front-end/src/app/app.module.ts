@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms'
 import { MatDialogModule } from '@angular/material/dialog';
 
@@ -17,6 +17,8 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { DialogNotLoguedComponent } from './dialog-not-logued/dialog-not-logued.component';
 import { UserPageComponent } from './user-page/user-page.component';
 import { LeaderboardComponent } from './leaderboard/leaderboard.component';
+import { CredentialsInterceptor } from './interceptors/credentials.interceptor';
+import { AuthGuardService } from './auth/auth-guard.service';
 
 @NgModule({
   declarations: [
@@ -40,7 +42,13 @@ import { LeaderboardComponent } from './leaderboard/leaderboard.component';
     NoopAnimationsModule,
     MatDialogModule,
   ],
-  providers: [],
+  providers: [ {
+    provide: HTTP_INTERCEPTORS,
+    useClass: CredentialsInterceptor,
+    multi: true
+    },
+    AuthGuardService,
+    ],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule{ }

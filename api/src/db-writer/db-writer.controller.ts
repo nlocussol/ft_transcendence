@@ -1,11 +1,14 @@
 import { Body, Controller, Get, Headers, Param, Post, Patch, Delete } from '@nestjs/common';
 import { DbWriterService } from 'src/db-writer/db-writer.service';
+import { SkipAuth } from 'src/utils/decorators';
 import { GameData } from 'src/game/models/game.models';
 import { addFriend, changeBlockStatus, changePseudo, deleteNotif, messageData, modify2fa, newNotif, newPp } from 'src/typeorm/user.entity';
 
 @Controller('db-writer')
 export class DbWriterController {
     constructor(private readonly dbWriter: DbWriterService) {}
+
+    @SkipAuth()
     @Post('create-user')
     initNewUser(@Body() newUser: any, @Headers() headers){
         return this.dbWriter.createUser(newUser);
@@ -22,6 +25,7 @@ export class DbWriterController {
         return pm
     }
 
+    @SkipAuth()
     @Get('data/:login')
     getDataUser(@Param('login') login: string){
         return this.dbWriter.getDataUser(login);

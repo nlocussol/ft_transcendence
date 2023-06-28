@@ -3,7 +3,6 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { DataService } from '../services/data.service';
 import { Router } from '@angular/router';
 import { Emitters } from '../emitters/emitters';
-// import { totp } from 'otplib';
 
 
 @Component({
@@ -47,7 +46,7 @@ export class AuthComponent implements OnInit {
     this.profileData = await this.http.get(`http://localhost:3000/db-writer/data/${this.login}`).toPromise()
 
     // Send user info to API and redirect user to homepage once he received jwt cookie
-    this.http.post('http://localhost:3000/auth/login', {login: this.login}, {withCredentials: true}).subscribe(() => {
+    this.http.post('http://localhost:3000/auth/login', {login: this.login}).subscribe(() => {
       Emitters.authEmitter.emit(true);
       this.router.navigate(['/']);
     });
