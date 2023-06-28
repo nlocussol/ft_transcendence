@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { DataService } from '../services/data.service';
 import { Socket, io } from 'socket.io-client';
 import { environment } from 'src/environment';
-import * as bcrypt from 'bcryptjs';
+// import * as bcrypt from 'bcrypt';
 import { Router } from '@angular/router';
 
 @Component({
@@ -293,9 +293,15 @@ export class ChatRoomComponent {
     this.rooms = await this.http.get(`http://localhost:3000/db-writer-room/search-room/${roomName}`).toPromise();
   }
 
-  verifyRoomPwd() {
-    if (this.selectedRoom.pwd === this.selectedRoomPwd)
-      this.roomStatus = 'PUBLIC'
-    this.selectedRoomPwd = ''
+  async verifyRoomPwd() {
+    // const result = await bcrypt.compare(this.selectedRoom.pwd, this.selectedRoomPwd)
+    // if (result == true){
+    //   this.roomStatus = 'PUBLIC'
+    //   return true;
+    // }
+    // else {
+    //   this.selectedRoomPwd = ''
+    //   return null;
+    // }
   }
 }
