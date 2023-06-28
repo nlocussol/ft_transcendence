@@ -28,7 +28,8 @@ export class DbWriterRoomService {
          room.uuid = crypto.randomUUID();
          room.name = newRoom.name;
          room.owner = newRoom.owner;
-         if (newRoom.pwd !== null){
+         console.log(newRoom.pwd);
+         if (newRoom.pwd && newRoom.pwd !== ''){
             const hashPassword = await hash(newRoom.pwd, 10);
             newRoom.pwd = hashPassword;
          }
