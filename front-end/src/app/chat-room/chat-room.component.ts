@@ -205,8 +205,10 @@ export class ChatRoomComponent {
   }
 
   async submitRoom() {
+    console.log(this.roomName);
     if (!this.roomName)
       return ;
+    console.log('ITS ME MARIO!!');
     let roomStatus = "PUBLIC"
     if (this.roomPassword && this.roomPassword !== "")
       roomStatus = "PROTECTED"
