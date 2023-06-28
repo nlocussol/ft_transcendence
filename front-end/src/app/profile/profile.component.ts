@@ -138,7 +138,7 @@ export class ProfileComponent {
 
   newNotif() {
     this.socket.on('receive-notif', (data: Notif) => {
-      if (data.friend === this.pseudo) {
+      if (data.friend === this.login) {
         if (!this.notifs)
           this.notifs = [];
         if (data.login)

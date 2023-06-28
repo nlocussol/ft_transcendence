@@ -47,7 +47,7 @@ export class MessageComponent {
     let bodyNotif = {
       login: this.login,
       friend: this.selectedFriend?.name,
-      content: `${this.login} as blocked you!`,
+      content: `${this.login} blocked you!`,
       type: "BLOCK"
     }
     this.socket.emit('send-notif', bodyNotif);
