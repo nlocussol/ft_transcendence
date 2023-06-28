@@ -38,6 +38,22 @@ export interface messageData {
     sender: string,
 }
 
+export interface changeContent {
+    login: string,
+    newContent: string,
+}
+
+export interface modify2fa {
+    login: string,
+    doubleAuth: boolean,
+}
+
+export interface changeBlockStatus {
+    login: string,
+    friend: string,
+    block: boolean,
+}
+
 @Entity()
 export class User {
     @PrimaryGeneratedColumn()

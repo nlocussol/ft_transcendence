@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from 'src/typeorm';
-import { message, pm, messageData, friend, match, stats } from 'src/typeorm/user.entity';
+import { message, pm, messageData, friend, match, stats, changeContent, modify2fa, changeBlockStatus } from 'src/typeorm/user.entity';
 import { GameData } from 'src/game/models/game.models';
 
 
@@ -68,7 +68,7 @@ export class DbWriterService {
         await this.userRepository.save(user);
     }
 
-    async addFriend(newFriend: messageData){
+    async addFriend(newFriend: changeContent){
 
         // check if user & friend exist inside db
         let uuid: string = crypto.randomUUID()
@@ -76,7 +76,7 @@ export class DbWriterService {
             login: newFriend.login,
         });
         const friend = await this.userRepository.findOneBy({
-            login: newFriend.friend,
+            login: newFriend.newContent,
         });
         if (user === friend){
             console.log("The user and friend's name are the same.");
@@ -87,7 +87,7 @@ export class DbWriterService {
             return null;
         }
         // add new friend to both users list
-        this.addFriendToDb(user, friend, newFriend.friend, uuid);
+        this.addFriendToDb(user, friend, newFriend.newContent, uuid);
         this.addFriendToDb(friend, user, user.login, uuid);
         return uuid;
     }
@@ -181,10 +181,10 @@ export class DbWriterService {
         return list;
     }   
 
-    async changeUserPseudo(newName: any){
+    async changeUserPseudo(newName: changeContent){
         // check if the user exist
         const currentUser = await this.userRepository.findOneBy({
-            login: newName.currentLogin,
+            login: newName.newContent,
          });
          if (!currentUser){
              console.log("changeUserPseudo: The user does not exist");
@@ -192,22 +192,22 @@ export class DbWriterService {
          }
         // check if the new username is not already take
         const newUserByLogin = await this.userRepository.findOneBy({
-            login: newName.newPseudo,
+            login: newName.newContent,
          });
         const newUserByPseudo = await this.userRepository.findOneBy({
-            pseudo: newName.newPseudo,
+            pseudo: newName.newContent,
          });
          if (newUserByLogin || newUserByPseudo){
             console.log("changeUserPseudo: The new username is already taken");
-            return null;
+            return null
          }
          // change the current pseudo to the new one
-         currentUser.pseudo = newName.newPseudo;
+         currentUser.pseudo = newName.newContent;
          await this.userRepository.save(currentUser)
         return true;
     }
 
-    async changeUserPp(newPp: any){
+    async changeUserPp(newPp: changeContent){
         // check if the user exist
         const currentUser = await this.userRepository.findOneBy({
             login: newPp.login,
@@ -218,12 +218,12 @@ export class DbWriterService {
          }
  
          // change the current pp to the new one
-         currentUser.pp = newPp.newPp;
+         currentUser.pp = newPp.newContent;
          await this.userRepository.save(currentUser)
         return true;
     }
 
-    async change2fa(change2fa: any){
+    async change2fa(change2fa: modify2fa){
         // check if the user exist
         const currentUser = await this.userRepository.findOneBy({
             login: change2fa.login,
@@ -239,7 +239,7 @@ export class DbWriterService {
         return true;
     }
 
-    async blockFriend(blockFriend: any){
+    async blockFriend(blockFriend: changeBlockStatus){
         // check if the user exist
         
         const currentUser = await this.userRepository.findOneBy({
