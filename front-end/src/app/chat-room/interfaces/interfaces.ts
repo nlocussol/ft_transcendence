@@ -23,6 +23,7 @@ export interface NewRoom {
     status: string
 }
 export interface JoinLeaveRoom {
+    pseudo?: string,
     name: string,
     login: string
 }
@@ -63,6 +64,15 @@ export interface History {
     winner: string
 }
 
+export interface Notif {
+    name?: string,
+    pseudo?: string,
+    login: string
+    friend: string,
+    content: string,
+    type: string,
+}
+
 export interface UserData {
     authCode: string,
     status: string,
@@ -75,6 +85,7 @@ export interface UserData {
     pm: Message[]
     history: History[],
     stats: Stat[],
+    notif: Notif[]
 }
 
 export interface RoomMessage {

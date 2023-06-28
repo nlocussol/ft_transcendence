@@ -327,6 +327,8 @@ export class DbWriterService {
     }
 
     async addNotif(newNotif:any){
+        console.log(newNotif);
+        
         // check if the user exist
         const currentUser = await this.userRepository.findOneBy({
             login: newNotif.login,

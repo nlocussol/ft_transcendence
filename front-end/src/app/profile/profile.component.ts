@@ -75,6 +75,10 @@ export class ProfileComponent {
   }
 
   acceptRequest(body: Notif) {
+    const bodyToDelete = {
+      login: this.login,
+      index: this.notifs.findIndex(notif => notif === body)
+    }
     let bodyToSend: any;
     const headers = new HttpHeaders().set('Content-type', `application/json`)
     switch (body.type) {
@@ -95,21 +99,27 @@ export class ProfileComponent {
           name: body.name,
           login: body.friend,
         }
-        console.log(bodyToSend);
         this.http.post('http://localhost:3000/db-writer-room/add-user-room', bodyToSend, { headers }).subscribe()
         break;
     }
     this.notifs.splice(this.notifs.findIndex(request => body === request), 1);
+    this.http.post('http://localhost:3000/db-writer/delete-notif/', bodyToDelete, { headers }).subscribe()
   }
 
   refuseRequest(body: Notif) {
-    console.log(body); 
+    const bodyToDelete = {
+      login: this.login,
+      index: this.notifs.findIndex(notif => notif === body)
+    }
+    const headers = new HttpHeaders().set('Content-type', `application/json`)
     this.notifs.splice(this.notifs.findIndex(request => body === request), 1);
+    this.http.post('http://localhost:3000/db-writer/delete-notif/', bodyToDelete, { headers }).subscribe()
   }
 
   async getProfileData() {
     this.profileData = await this.http.get(`http://localhost:3000/db-writer/data/${this.login}`).toPromise() as UserData
     this.ppUrl = this.profileData.pp;
+    this.notifs = this.profileData.notif
     this.status = this.profileData.status;
     this.doubleAuth = this.profileData.doubleAuth
   }
@@ -125,8 +135,6 @@ export class ProfileComponent {
   }
 
   handleFriendSubmit() {
-    console.log(this.pseudoFriend);
-    console.log(this.login);
     const body = {
       friend: this.pseudoFriend,
       login: this.login,

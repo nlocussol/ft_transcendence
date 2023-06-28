@@ -24,6 +24,7 @@ export class ChatRoomComponent {
   selectedOption!: string;
   options!: string[];
   login: string;
+  pseudo: string;
   userStatus!: string;
   roomStatus: string;
   rooms!: Room[];
@@ -46,6 +47,7 @@ export class ChatRoomComponent {
     this.roomStatus = 'PROTECTED';
     this.socket = io(environment.SOCKET_ENDPOINT);
     this.login = this.dataServices.getLogin();
+    this.pseudo = dataServices.getPseudo()
     if (!this.login)
       return;
     this.onCheckboxChange()
@@ -57,7 +59,7 @@ export class ChatRoomComponent {
   getNewMember() {
     this.socket.on('join-room', (data: JoinLeaveRoom) => {
       if (this.selectedRoom?.name === data.name)
-        this.members.push({login: data.login, status: 'NORMAL'})
+        this.members.push({pseudo: data.pseudo, login: data.login, status: 'NORMAL'})
       if (this.selectedRoom && data.name === this.selectedRoom.name && this.selectedRoom.ban
         && !this.selectedRoom.ban.find((ban: any) => ban.login === data.login))
         this.selectedRoom.messages.push({content: `${data.login} as joined the room!`, sender: 'BOT'})
@@ -117,7 +119,7 @@ export class ChatRoomComponent {
         const bodyInviteMatch = {
           friend: member.login,
           login: this.login,
-          content: `${this.login} challenges you to a pong duel!`,
+          content: `${this.pseudo} challenges you to a pong duel!`,
           type: 'REQUEST_MATCH'
         }
         this.socket.emit('send-notif', bodyInviteMatch);
@@ -205,15 +207,14 @@ export class ChatRoomComponent {
   }
 
   async submitRoom() {
-    console.log(this.roomName);
     if (!this.roomName)
       return ;
-    console.log('ITS ME MARIO!!');
     let roomStatus = "PUBLIC"
     if (this.roomPassword && this.roomPassword !== "")
       roomStatus = "PROTECTED"
     const body = {
       name: this.roomName,
+      ownerPseudo: this.pseudo,
       owner: this.login,
       pwd: this.roomPassword,
       status: roomStatus
@@ -261,6 +262,8 @@ export class ChatRoomComponent {
 
   onStatusSelected(event: Event) {
     this.selectedStatus = (event.target as HTMLSelectElement).value;
+    this.options = ['PUBLIC', 'PROTECTED', 'PRIVATE'];
+    this.options.splice(this.options.findIndex(opt => opt === this.selectedStatus), 1)
     if (this.selectedRoom)
       this.selectedRoom.status = this.selectedStatus;
     console.log(this.selectedStatus);
@@ -282,6 +285,7 @@ export class ChatRoomComponent {
     if (this.selectedRoom) {
       this.joined = true;
       const body: JoinLeaveRoom = {
+        pseudo: this.login,
         login: this.login,
         name: this.selectedRoom?.name,
       }    
