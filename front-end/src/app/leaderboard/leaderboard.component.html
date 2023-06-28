@@ -1,0 +1,5 @@
+<div class="leaderboard" *ngFor="let user of topUser; let i = index">
+  <h4 id="rank">rank {{i + 1}}: <em>{{user.pseudo}}</em> </h4>
+  <h5>{{ user.stats.matchs }} matchs</h5>
+  <h5>{{ user.stats.win }} win - {{user.stats.lose}} lose</h5>
+</div>

@@ -1,0 +1,29 @@
+.leaderboard{
+    margin-bottom: 1vh;
+    background-color: peru;
+    width: 25%;
+    height: 20%;
+    margin-left: 36%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    border-radius: 5%;
+}
+
+ h5{
+    font-size: 2vh;
+    width: 100%;
+    text-align: center;
+    margin: 2px 0;
+}
+
+em{
+    color: white;
+}
+
+#rank{
+    font-size: 2vh;
+    width: 100%;
+    text-align: center;
+}

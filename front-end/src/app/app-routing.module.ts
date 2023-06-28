@@ -7,6 +7,7 @@ import { GameComponent } from './game/game.component';
 import { MessageComponent } from './message/message.component';
 import { ChatRoomComponent } from './chat-room/chat-room.component';
 import { UserPageComponent } from './user-page/user-page.component';
+import { LeaderboardComponent } from './leaderboard/leaderboard.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -16,6 +17,7 @@ const routes: Routes = [
   { path: 'message', component: MessageComponent },
   { path: 'chat-room', component: ChatRoomComponent },
   { path: 'user-page/:pseudo', component: UserPageComponent },
+  { path: 'leaderboard', component: LeaderboardComponent },
 ];
 
 @NgModule({
