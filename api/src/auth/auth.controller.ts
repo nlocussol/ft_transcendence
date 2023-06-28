@@ -2,6 +2,7 @@ import { BadRequestException, Body, Controller, Get, Post, Req, Res, Unauthorize
 import { Response, Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { DbWriterService } from 'src/db-writer/db-writer.service';
+import { SkipAuth } from 'src/utils/decorators';
 
 
 @Controller('auth')
@@ -12,6 +13,7 @@ export class AuthController {
         private dbWriterService: DbWriterService,
         ) {}
     
+    @SkipAuth()
     @Post('login')
     async login(
         @Body () pseudo: any,
@@ -26,13 +28,14 @@ export class AuthController {
         }
 
         const jwt = await this.jwtService.signAsync( {pseudo: user.pseudo} );
-        response.cookie('jwt', jwt, {httpOnly: true, sameSite: 'lax'});
+        response.cookie('jwt', jwt, {httpOnly: false, sameSite: 'lax'});
 
         return {
             message: "User logued"
         };
     }
 
+    @SkipAuth()
     @Get('user')
     async user(@Req() request: Request) {
         try {

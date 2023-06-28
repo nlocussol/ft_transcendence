@@ -17,6 +17,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { DialogNotLoguedComponent } from './dialog-not-logued/dialog-not-logued.component';
 import { UserPageComponent } from './user-page/user-page.component';
 import { CredentialsInterceptor } from './interceptors/credentials.interceptor';
+import { AuthGuardService } from './auth/auth-guard.service';
 
 @NgModule({
   declarations: [
@@ -43,7 +44,8 @@ import { CredentialsInterceptor } from './interceptors/credentials.interceptor';
     provide: HTTP_INTERCEPTORS,
     useClass: CredentialsInterceptor,
     multi: true
-  }],
+    },
+    AuthGuardService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
