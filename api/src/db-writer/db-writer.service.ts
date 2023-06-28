@@ -326,19 +326,17 @@ export class DbWriterService {
         return sortedPlayer
     }
 
-    async addNotif(newNotif:any){
-        console.log(newNotif);
-        
+    async addNotif(newNotif:any){        
         // check if the user exist
         const currentUser = await this.userRepository.findOneBy({
-            login: newNotif.login,
+            login: newNotif.friend,
          });
          if (!currentUser){
              console.log("addNotif: The user does not exist");
              return null;
          }
          let notif: notif =  {
-            friend: newNotif.friend,
+            friend: newNotif.login,
             type: newNotif.type,
             content: newNotif.content,
         }
