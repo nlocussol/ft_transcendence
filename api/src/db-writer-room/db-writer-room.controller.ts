@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Headers, Param, Post, Patch } from '@nestjs/common';
 import { DbWriterRoomService } from './db-writer-room.service';
+import { BanUser, ChangeStatus, MuteUser, NewMessage, Passwords, UserInRoom, UserStatus } from 'src/typeorm/room.entity';
 
 @Controller('db-writer-room')
 export class DbWriterRoomController {
@@ -31,47 +32,42 @@ export class DbWriterRoomController {
     }
 
     @Post('add-user-room')
-    addUserToRoom(@Body() newUser: any, @Headers() headers){
+    addUserToRoom(@Body() newUser: UserInRoom, @Headers() headers){
         return this.dbWriterRoom.addUserToRoom(newUser);
     }
 
     @Post('add-message')
-    addMessage(@Body() obj: any, @Headers() headers){
+    addMessage(@Body() obj: NewMessage, @Headers() headers){
         return this.dbWriterRoom.addMessage(obj);
     }
 
-    @Patch('change-room-name')
-    changeRoomName(@Body() perm: any, @Headers() headers){
-        return this.dbWriterRoom.changeRoomName(perm);
-    }
-
     @Post('change-status')
-    changeStatus(@Body() obj: any, @Headers() headers){
+    changeStatus(@Body() obj: ChangeStatus, @Headers() headers){
         return this.dbWriterRoom.changeStatus(obj);
     }
 
     @Post('change-member-status')
-    changeMemberStatus(@Body() obj: any, @Headers() headers){
+    changeMemberStatus(@Body() obj: UserStatus, @Headers() headers){
         return this.dbWriterRoom.changeMemberStatus(obj);
     }
 
     @Post('leave-room')
-    leaveRoom(@Body() obj: any, @Headers() headers){
+    leaveRoom(@Body() obj: UserInRoom, @Headers() headers){
         return this.dbWriterRoom.leaveRoom(obj);
     }
 
     @Post('ban-member')
-    banMember(@Body() obj: any, @Headers() headers){
+    banMember(@Body() obj: BanUser, @Headers() headers){
         return this.dbWriterRoom.banMember(obj);
     }
 
     @Post('mute-member')
-    muteMember(@Body() obj: any, @Headers() headers){
+    muteMember(@Body() obj: MuteUser, @Headers() headers){
         return this.dbWriterRoom.muteMember(obj);
     }
 
     @Post('check-password')
-    CheckPassword(@Body() obj: any, @Headers() headers){
+    CheckPassword(@Body() obj: Passwords, @Headers() headers){
         return this.dbWriterRoom.checkPassword(obj);
     }
 }

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Room } from 'src/typeorm';
-import { member } from 'src/typeorm/room.entity';
+import { Passwords, ChangeStatus, member, MuteUser, NewMessage, UserInRoom, UserStatus, BanUser } from 'src/typeorm/room.entity';
 import { message } from 'src/typeorm/user.entity';
 import { compare, hash } from 'bcrypt';
 
@@ -29,11 +29,9 @@ export class DbWriterRoomService {
          room.name = newRoom.name;
          room.owner = newRoom.owner;
          if (newRoom.pwd !== null){
-            // ConfigModule.forRoot();
             const hashPassword = await hash(newRoom.pwd, 10);
             newRoom.pwd = hashPassword;
          }
-         console.log("recu:", newRoom.pwd)
          room.pwd = newRoom.pwd;
          room.status = newRoom.status;
          room.members = [];
@@ -97,7 +95,7 @@ export class DbWriterRoomService {
         return roomList;
     }
 
-    async addUserToRoom(newUser: any){
+    async addUserToRoom(newUser: UserInRoom){
         // check if the room exist
         const currentRoom = await this.roomRepository.findOneBy({
             name: newUser.name,
@@ -127,7 +125,7 @@ export class DbWriterRoomService {
          return true ;
 }
 
-    async addMessage(newMessage: any){
+    async addMessage(newMessage: NewMessage) {
         // check if the room exist
         const currentRoom = await this.roomRepository.findOneBy({
             name: newMessage.name,
@@ -145,6 +143,8 @@ export class DbWriterRoomService {
                 console.log("You are currently muted")
                 console.log(`You need to wait ${member.mute} seconds`);
                 return null;
+            } else if (member.pseudo === newMessage.sender && member.mute !== 0){
+                member.mute = 0;
             }
         })
          // create an instance of membre & push back to the membre list
@@ -158,33 +158,8 @@ export class DbWriterRoomService {
          await this.roomRepository.save(currentRoom)
          return currentRoom.uuid;
     }
-    
-    async changeRoomName(newName: any){
-        // check if the room exist
-        const currentRoom = await this.roomRepository.findOneBy({
-            name: newName.name,
-         });
-         if (!currentRoom){
-             console.log("The room doesn't exist");
-             return null;
-         }
- 
-         //check si le user est modo
-        currentRoom.members.find(async member => {
-            if (member.status === 'ADMIN'){
-                currentRoom.name = newName.new;
-                await this.roomRepository.save(currentRoom)
-                return true;
-            } else {
-                console.log("Wrong permisson to change room name");
-            }
-        })
-        console.log("Weird problem, \
-        can't find the user who change the room name inside the database");
-        return null;
-    }
 
-    async changeStatus(newStatus: any){
+    async changeStatus(newStatus: ChangeStatus){
         // check if the room exist
         const currentRoom = await this.roomRepository.findOneBy({
             name: newStatus.name,
@@ -232,7 +207,7 @@ export class DbWriterRoomService {
     }
 
 
-    async changeMemberStatus(newMemberStatus: any){
+    async changeMemberStatus(newMemberStatus: UserStatus){
         // check if the room exist
         const currentRoom = await this.roomRepository.findOneBy({
             name: newMemberStatus.name,
@@ -254,7 +229,7 @@ export class DbWriterRoomService {
         return null;
     }
 
-    async banMember(banMember: any){
+    async banMember(banMember: BanUser){
         // check if the room exist
         const currentRoom = await this.roomRepository.findOneBy({
             name: banMember.name,
@@ -278,7 +253,7 @@ export class DbWriterRoomService {
         return null;
     }
 
-    async muteMember(mutedMember){
+    async muteMember(mutedMember: MuteUser){
         // check if the room exist
         const currentRoom = await this.roomRepository.findOneBy({
             name: mutedMember.name,
@@ -303,7 +278,7 @@ export class DbWriterRoomService {
         return null;
     }
 
-    async checkPassword (pass: any){
+    async checkPassword (pass: Passwords){
         const result = await compare(pass.inputPassword, pass.roomPassword);
         return (result)
     }
