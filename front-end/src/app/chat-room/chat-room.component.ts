@@ -5,7 +5,7 @@ import { Socket, io } from 'socket.io-client';
 import { environment } from 'src/environment';
 // import * as bcrypt from 'bcryptjs';
 import { Router, RouterOutlet } from '@angular/router';
-import { Friend, JoinLeaveRoom, MemberStatus, NewRoom, Room, Message, UserData, RoomMessage } from './interfaces/interfaces';
+import { Friend, JoinLeaveRoom, MemberStatus, NewRoom, Room, Message, UserData, RoomMessage, Passwords } from './interfaces/interfaces';
 
 @Component({
   selector: 'app-chat-room',
@@ -213,7 +213,6 @@ export class ChatRoomComponent {
     const body = {
       name: this.roomName,
       owner: this.pseudo,
-      // pwd: bcrypt.hashSync(this.roomPassword, "Bonjour"),
       pwd: this.roomPassword,
       status: roomStatus
     }
@@ -313,17 +312,21 @@ export class ChatRoomComponent {
   }
 
   async verifyRoomPwd() {
-    // const result = await bcrypt.compare(this.selectedRoom.pwd, this.selectedRoomPwd)
-    // if (result == true){
+    if (this.selectedRoom == undefined)
+      return ;
+    const body: Passwords = {
+      roomPassword: this.selectedRoom.pwd,
+      inputPassword: this.selectedRoomPwd,
+    }
+    const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
+    this.http.post('http://localhost:3000/db-writer-room/check-password/', body, { headers }).subscribe((res) => {
+      if (res == true){
+        this.roomStatus = 'PUBLIC'
+      this.selectedRoomPwd = ''
+      }
+    })
+    // if (this.selectedRoom?.pwd === this.selectedRoomPwd)
     //   this.roomStatus = 'PUBLIC'
-    //   return true;
-    // }
-    // else {
-    //   this.selectedRoomPwd = ''
-    //   return null;
-    // }
-    if (this.selectedRoom?.pwd === this.selectedRoomPwd)
-      this.roomStatus = 'PUBLIC'
-    this.selectedRoomPwd = ''
+    // this.selectedRoomPwd = ''
   }
 }

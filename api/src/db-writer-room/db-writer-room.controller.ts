@@ -69,4 +69,9 @@ export class DbWriterRoomController {
     muteMember(@Body() obj: any, @Headers() headers){
         return this.dbWriterRoom.muteMember(obj);
     }
+
+    @Post('check-password')
+    CheckPassword(@Body() obj: any, @Headers() headers){
+        return this.dbWriterRoom.checkPassword(obj);
+    }
 }

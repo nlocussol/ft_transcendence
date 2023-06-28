@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { Room } from 'src/typeorm';
 import { member } from 'src/typeorm/room.entity';
 import { message } from 'src/typeorm/user.entity';
-import { hash } from 'bcrypt';
+import { compare, hash } from 'bcrypt';
 
 
 @Injectable()
@@ -264,8 +264,8 @@ export class DbWriterRoomService {
              return null;
          }
 
-        currentRoom.members.find(async member => {
-            if (member.pseudo === banMember.pseudo && ((member.status === 'ADMIN' && banMember.askBanPseudo === currentRoom.owner) || (member.status !== 'ADMIN'))){
+        for (let i in currentRoom.members) {
+            if (currentRoom.members[i].pseudo === banMember.pseudo && ((currentRoom.members[i].status === 'ADMIN' && banMember.askBanPseudo === currentRoom.owner) || (currentRoom.members[i].status !== 'ADMIN'))){
                 currentRoom.ban.push(banMember.pseudo);
                 this.leaveRoom(banMember);
                 await this.roomRepository.save(currentRoom);
@@ -274,7 +274,7 @@ export class DbWriterRoomService {
                 console.log("Wrong permisson to ban this user");
                 return null;
             }
-        })
+        }
         return null;
     }
 
@@ -289,17 +289,22 @@ export class DbWriterRoomService {
          }
 
         var date = new Date();
-        currentRoom.members.find(async member => {
-            if (member.pseudo === mutedMember.pseudo && member.status !== 'ADMIN'){
-                member.mute = date.getTime() + (mutedMember.time * 1000);
+        for (let i in currentRoom.members) {
+            if (currentRoom.members[i].pseudo === mutedMember.pseudo && currentRoom.members[i].status !== 'ADMIN'){
+                currentRoom.members[i].mute = date.getTime() + (mutedMember.time * 1000);
                 await this.roomRepository.save(currentRoom);
                 return true;
             } else {
                 console.log("Wrong permisson to mute this user");
                 return null;
             }
-        })
+        }
         console.log("The user doesn't exist");
         return null;
+    }
+
+    async checkPassword (pass: any){
+        const result = await compare(pass.inputPassword, pass.roomPassword);
+        return (result)
     }
 }
