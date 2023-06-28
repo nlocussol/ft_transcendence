@@ -13,7 +13,6 @@ import { Emitters } from '../emitters/emitters';
 })
 export class AuthComponent implements OnInit {
   login!: string;
-  pseudo!: string;
   profileData: any;
   pin!: string;
   doubleAuthQrCode!: string;
@@ -42,8 +41,7 @@ export class AuthComponent implements OnInit {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`)
     const res: any = await this.http.get('https://api.intra.42.fr/v2/me', { headers }).toPromise()
     this.login = await res.login;
-    this.pseudo = await res.pseudo;
-    this.dataService.setLoginPseudo(this.pseudo, this.login)
+    this.dataService.setLoginPseudo(this.login, this.login)
     this.sendUserData(res)
     // check if 2fa is needed
     this.profileData = await this.http.get(`http://localhost:3000/db-writer/data/${this.login}`).toPromise()

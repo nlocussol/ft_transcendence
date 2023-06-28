@@ -104,7 +104,6 @@ export class User {
     })
     history: match[];
 
-    @IsEmpty()
     @IsArray()
     @Column('jsonb', {
         nullable: true,

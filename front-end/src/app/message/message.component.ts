@@ -84,7 +84,7 @@ export class MessageComponent {
       content: message,
       sender: this.login
     }
-    this.conversation.push(body);
+    // this.conversation.push(body);
     this.socket.emit('add-pm', body);
     this.newMessage = '';
   }

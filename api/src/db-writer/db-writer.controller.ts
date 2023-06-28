@@ -30,7 +30,7 @@ export class DbWriterController {
         return this.dbWriter.getFriends(login);
     }
 
-    @Post('change-user-login')
+    @Post('change-user-pseudo')
     changeUserPseudo(@Body() obj: any, @Headers() headers){
         return this.dbWriter.changeUserPseudo(obj);
     }

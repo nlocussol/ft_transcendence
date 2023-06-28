@@ -17,7 +17,7 @@ export class HomeComponent implements OnInit {
   ngOnInit(): void {
     this.homeService.getUser().subscribe({
       next: (res) => {
-        this.message = `HELLO ${res.pseudo}`;
+        this.message = `HELLO ${res.login}`;
         Emitters.authEmitter.emit(true);
     },
       error: () => {

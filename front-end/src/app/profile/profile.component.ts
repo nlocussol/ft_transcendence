@@ -28,7 +28,7 @@ export class ProfileComponent {
   constructor(private http: HttpClient, private dataService: DataService) {
     this.socket = io(environment.SOCKET_ENDPOINT);
     const tmp: string = dataService.getLogin();
-    const temp: string = dataService.getPseudo()
+    const temp: string = dataService.getPseudo();
     if (!tmp || !temp)
       return ;
     this.pseudo = temp;
@@ -116,7 +116,7 @@ export class ProfileComponent {
 
   newNotif() {
     this.socket.on('receive-notif', (data: Notif) => {
-      if (data.friend === this.login) {
+      if (data.friend === this.pseudo) {
         if (!this.notifs)
           this.notifs = [];
         this.notifs.push(data);
@@ -125,6 +125,8 @@ export class ProfileComponent {
   }
 
   handleFriendSubmit() {
+    console.log(this.pseudoFriend);
+    console.log(this.login);
     const body = {
       friend: this.pseudoFriend,
       login: this.login,
