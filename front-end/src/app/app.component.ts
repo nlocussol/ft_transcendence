@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from './auth/auth.service';
+import { HomeService } from './home/service/home.service';
+import { Emitters } from './emitters/emitters';
 
 @Component({
   selector: 'app-root',
@@ -7,10 +8,18 @@ import { AuthService } from './auth/auth.service';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit{
+  authenticated: boolean = false;
   title = 'CORSE PONG';
-  constructor(private authService: AuthService) {}
+  constructor(private homeService: HomeService) {}
   
   ngOnInit(): void {
-    // this.authService.setUser();
+    this.homeService.getUser().subscribe({
+      next: () => {
+        Emitters.authEmitter.emit(true);
+    },
+      error: () => {
+        Emitters.authEmitter.emit(false);
+      }
+    })
   }
 }

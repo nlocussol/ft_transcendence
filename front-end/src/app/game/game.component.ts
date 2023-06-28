@@ -31,7 +31,7 @@ export class GameComponent implements OnInit, OnDestroy {
   messageButton: string = "FIND A GAME";
   searchingGame: boolean = false;
   inGame: boolean = false;
-  pseudo?: string;
+  login?: string;
   loguedIn: boolean = false;
   queueTimeElapsed!: number;
   queueInterval: any;
@@ -46,9 +46,8 @@ export class GameComponent implements OnInit, OnDestroy {
     // Need to check if the user is already in game
     this.gameService.getUser().subscribe({
       next: (res) => {
-        this.pseudo = res.pseudo;
+        this.login = res.login;
         this.loguedIn = true;
-        // this.myUUID = this.dataService.getLogin();
     },
       error: () => {
         this.dialog.open(DialogNotLoguedComponent, {
@@ -72,12 +71,12 @@ export class GameComponent implements OnInit, OnDestroy {
     clearInterval(this.refreshQueueInterval);
     clearInterval(this.refreshQueueInterval);
     if (this.searchingGame) {
-      this.gameService.exitQueue(this.pseudo!);
+      this.gameService.exitQueue(this.login!);
     }
   }
 
   enterQueue(element: any) {
-    this.gameService.enterQueue(this.pseudo!).subscribe();
+    this.gameService.enterQueue(this.login!).subscribe();
     this.searchingGame = true;
     element.textContent = "In queue..."
     this.startTimer();
@@ -95,10 +94,10 @@ export class GameComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Send a get request with pseudo to API, expect a matchID in return
+  // Send a get request with login to API, expect a matchID in return
   refreshQueue() {
     this.refreshQueueInterval = setInterval(() => {
-      this.gameService.refreshQueue(this.pseudo!).subscribe({
+      this.gameService.refreshQueue(this.login!).subscribe({
         next: res => {
           this.gameID = res;
           console.log(res);
@@ -113,14 +112,14 @@ export class GameComponent implements OnInit, OnDestroy {
 
 
   leaveQueue() {
-    this.gameService.exitQueue(this.pseudo!).subscribe();
+    this.gameService.exitQueue(this.login!).subscribe();
     this.searchingGame = false;
     clearInterval(this.queueInterval);
     clearInterval(this.refreshQueueInterval);
   }
 
   startGame() {
-    this.gameService.connectToSocket(this.pseudo!);
+    this.gameService.connectToSocket(this.login!);
     // this.gameService.connectToRoom(this.gameID);
     // this.gameService.getGameUpdate(this.gameID).subscribe();
     this.gameService.getGameUpdate(this.gameID).subscribe((payload: GameData) => {
@@ -180,7 +179,7 @@ export class GameComponent implements OnInit, OnDestroy {
   movePlayer() {
     this.movePlayerInterval = setInterval(() => {
       this.gameService.sendPlayerData({
-        pseudo: this.pseudo,
+        login: this.login,
         isMovingUp: this.isMoving[movement.UP],
         isMovingDown: this.isMoving[movement.DOWN]
       });

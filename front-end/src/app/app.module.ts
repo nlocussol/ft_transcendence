@@ -45,7 +45,8 @@ import { AuthGuardService } from './auth/auth-guard.service';
     useClass: CredentialsInterceptor,
     multi: true
     },
-    AuthGuardService],
+    AuthGuardService,
+    ],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule{ }
