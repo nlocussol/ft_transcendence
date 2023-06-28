@@ -52,6 +52,10 @@ export class GameService {
     return this.payload$.asObservable();
   }
 
+  sendPlayerData(payload: any) {
+    this.socket.emit('updatePlayers', payload);
+  }
+
   // connectToSocket() {
   //   this.socket = io(this.API_ENDPOINT + "/inprogress");
   //   this.socket.on('joinGameRoom', (gamedata: any) => {

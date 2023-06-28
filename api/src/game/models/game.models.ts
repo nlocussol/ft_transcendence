@@ -21,10 +21,15 @@ export class Player {
     height?: number;
     width?: number;
     score?: number;
+    endScreenWin: boolean;
     canMove: boolean = false;
+    AFK: boolean = false;
+    AFKTimer: number = 0;
+    AFKInterval: any;
 }
 
 export class GameData {
+    over: boolean = false;
     matchUUID?: string;
     intervalID: any;
     ball: Ball;

@@ -1,1 +1,3 @@
-export const SERVER_TICKRATE = 15;
+export const environment = {
+    TICKRATE: 15,
+};

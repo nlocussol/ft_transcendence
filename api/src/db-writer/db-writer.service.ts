@@ -290,12 +290,11 @@ export class DbWriterService {
         }
 
         let matchWinner: string;
-        if (gameData.players[0].score == 1)
+        if (gameData.players[0].score > gameData.players[1].score)
             matchWinner = gameData.players[0].pseudo;
         else
             matchWinner = gameData.players[1].pseudo;
         
-        console.log(matchWinner);
 
         let match1: match = {
             ownScore: gameData.players[0].score,
@@ -303,8 +302,6 @@ export class DbWriterService {
             opponent: gameData.players[1].pseudo,
             winner: matchWinner
         }
-        console.log("payer1: ", player1);
-        console.log("payer2: ", player2);
         player1.history.push(match1);
 
         let match2 :match = {

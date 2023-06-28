@@ -24,11 +24,7 @@ export class GameComponent implements OnInit, OnDestroy {
   context!: CanvasRenderingContext2D;
   width: number = 858;
   height: number = 525;
-  myUUID!: string;
   gameData: GameData = new GameData();
-  offsetFromWall: number = 50;
-  interval: any;
-  animationId: any;
   isMoving: boolean[] = [false, false];
   fontSize: number = 30;
   myFont!: FontFace;
@@ -40,9 +36,10 @@ export class GameComponent implements OnInit, OnDestroy {
   queueTimeElapsed!: number;
   queueInterval: any;
   refreshQueueInterval: any;
+  movePlayerInterval: any;
   gameID!: string;
 
-  constructor(private gameService : GameService, private dataService: DataService, public dialog: MatDialog) {
+  constructor(private gameService : GameService, public dialog: MatDialog) {
   }
 
   ngOnInit(): void {
@@ -73,7 +70,7 @@ export class GameComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     clearInterval(this.queueInterval);
     clearInterval(this.refreshQueueInterval);
-
+    clearInterval(this.refreshQueueInterval);
     if (this.searchingGame) {
       this.gameService.exitQueue(this.pseudo!);
     }
@@ -85,44 +82,6 @@ export class GameComponent implements OnInit, OnDestroy {
     element.textContent = "In queue..."
     this.startTimer();
     this.refreshQueue();
-    // this.animate();
-    // this.gameService.connectToSocket();
-    // this.gameService.joinGameRoom(this.myUUID);
-    // this.gameService.updateGame().subscribe((payload: GameData) => {
-    //   if (payload.players[0] && payload.players[1]) {
-    //     this.gameData = payload;
-    // }
-    // })
-    // // need to clear this.interval
-    // this.interval = setInterval(() => {
-    //   this.gameService.sendPlayerInfo(this.getUUIDAndMove());
-    // }, TICKRATE);
-
-
-    // if (!this.buttonSearchingGame) {
-    //   element.textContent = "SEARCHING...";
-    //   this.buttonSearchingGame = true;
-
-    //   // Send post request with playerUUID
-    //   this.gameService.enterQueue(this.myUUID).subscribe();
-    //   do {
-    //     await this.waitMilliSec(100);
-    //     // Send a get request to see if another player is waiting for a game
-    //     this.gameService.refreshQueue(this.myUUID).subscribe((res) => {
-    //       if (res.matchUUID) {
-    //         this.gameData = res;
-    //       }
-    //     });
-    //   } while (this.gameData?.matchUUID == undefined);
-    //   console.log("Match found");
-    //   this.gameService.connectToSocket();
-    //   this.gameService.joinGameRoom(this.gameData);
-    //   this.gameLoop();
-    // } else {
-    //   element.textContent = "CLICK TO ENTER QUEUE";
-    //   this.buttonSearchingGame = false;
-    //   this.gameService.exitQueue(this.myUUID).subscribe();
-    // }
   }
 
   // Queue timer
@@ -149,7 +108,7 @@ export class GameComponent implements OnInit, OnDestroy {
         error: err => console.log(err),
         complete: () => this.startGame(),
       });
-    }, 1000);
+    }, 2000);
   }
 
 
@@ -166,15 +125,16 @@ export class GameComponent implements OnInit, OnDestroy {
     // this.gameService.getGameUpdate(this.gameID).subscribe();
     this.gameService.getGameUpdate(this.gameID).subscribe((payload: GameData) => {
         this.gameData = payload;
-     });
-     let waitDataInterval = setInterval(() => {
+    });
+
+     // Wait until game data has been received before drawing
+    let waitDataInterval = setInterval(() => {
       if (this.gameData.players[0] != undefined) {
-        console.log(this.gameData)
         this.animate();
+        this.movePlayer();
         clearInterval(waitDataInterval);
       }
-     }, 100);
-    //  this.draw();
+    }, 100);
   }
 
   animate() {
@@ -212,28 +172,19 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   drawCenterLine() {
-    for( let i: number = 0; i < this.height; i+=30) {
+    for(let i: number = 0 ; i < this.height ; i += 30) {
       this.context.fillRect(this.width / 2 - 10, i + 10, 15, 20);
     }
   }
 
-  getUUIDAndMove(): {} {
-    const players: Player[] = this.gameData.players;
-    if (players[0].pseudo == this.myUUID) {
-      const player: Player = this.gameData.players[0];
-      return {
-        UUID: player.pseudo,
+  movePlayer() {
+    this.movePlayerInterval = setInterval(() => {
+      this.gameService.sendPlayerData({
+        pseudo: this.pseudo,
         isMovingUp: this.isMoving[movement.UP],
         isMovingDown: this.isMoving[movement.DOWN]
-      }
-    } else {
-      const player: Player = this.gameData.players[1];
-      return {
-        UUID: player.pseudo,
-        isMovingUp: this.isMoving[movement.UP],
-        isMovingDown: this.isMoving[movement.DOWN]
-      }
-    }
+      });
+    }, TICKRATE);
   }
 
   @HostListener('window:keydown', ['$event'])
