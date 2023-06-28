@@ -4,6 +4,8 @@ import { Repository } from 'typeorm';
 import { Room } from 'src/typeorm';
 import { member } from 'src/typeorm/room.entity';
 import { message } from 'src/typeorm/user.entity';
+import { hash } from 'bcrypt';
+
 
 @Injectable()
 export class DbWriterRoomService {
@@ -26,6 +28,12 @@ export class DbWriterRoomService {
          room.uuid = crypto.randomUUID();
          room.name = newRoom.name;
          room.owner = newRoom.owner;
+         if (newRoom.pwd !== null){
+            // ConfigModule.forRoot();
+            const hashPassword = await hash(newRoom.pwd, 10);
+            newRoom.pwd = hashPassword;
+         }
+         console.log("recu:", newRoom.pwd)
          room.pwd = newRoom.pwd;
          room.status = newRoom.status;
          room.members = [];
@@ -188,8 +196,10 @@ export class DbWriterRoomService {
 
          //change room status and chagne pwd if protected
          currentRoom.status = newStatus.status;
-         if (currentRoom.status === 'PROTECTED')
-            currentRoom.pwd = newStatus.pwd;
+         if (currentRoom.status === 'PROTECTED'){
+            const hashPassword = await hash(newStatus.pwd, 10);
+            currentRoom.pwd = hashPassword;
+         }
          else
             currentRoom.pwd = null;
          
