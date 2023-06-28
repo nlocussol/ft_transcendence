@@ -13,25 +13,25 @@ export class GameService {
   payload$: BehaviorSubject<GameData> = new BehaviorSubject<GameData>(new GameData())
   constructor(private http: HttpClient) {}
 
-  enterQueue(pseudo: string) {
-    return this.http.post<any>(this.API_ENDPOINT + "/" + pseudo, {});
+  enterQueue(login: string) {
+    return this.http.post<any>(this.API_ENDPOINT + "/" + login, {});
   }
 
-  exitQueue(pseudo: string) {
-    return this.http.delete<any>(this.API_ENDPOINT + "/" + pseudo);
+  exitQueue(login: string) {
+    return this.http.delete<any>(this.API_ENDPOINT + "/" + login);
   }
 
   // Returns the player's match UUID if one is started or undefined
-  refreshQueue(pseudo: string): Observable<string> {
-    return this.http.get<any>(this.API_ENDPOINT + "/" + pseudo).pipe(
+  refreshQueue(login: string): Observable<string> {
+    return this.http.get<any>(this.API_ENDPOINT + "/" + login).pipe(
       map(data => data.matchUUID)
     );
   }
 
-  connectToSocket(pseudo: string) {
+  connectToSocket(login: string) {
     this.socket = io(this.API_ENDPOINT, {
       query: {
-        pseudo: pseudo
+        login: login
       }
     })
   }

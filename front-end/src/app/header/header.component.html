@@ -5,6 +5,9 @@
         <ul class="nav-links">
           <li><a routerLink="/">HOME</a></li>
         </ul>
+        <ul  class="nav-links" *ngIf="authenticated">
+          <li><a routerLink="/leaderboard">LADDER</a></li>
+        </ul>
         <div class="heading">
           <h4>POZO GAME!</h4>
         </div>

@@ -18,11 +18,9 @@ export class HomeComponent implements OnInit {
     this.homeService.getUser().subscribe({
       next: (res) => {
         this.message = `HELLO ${res.login}`;
-        Emitters.authEmitter.emit(true);
     },
       error: () => {
         this.message = 'LOG TOI CHACAL'
-        Emitters.authEmitter.emit(false);
       }
     })
   }

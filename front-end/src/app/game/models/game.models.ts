@@ -18,7 +18,7 @@ class Ball {
 
 export class Player {
     side?: number;
-    pseudo?: string;
+    login?: string;
     posX?: number;
     posY?: number;
     velY?: number;
