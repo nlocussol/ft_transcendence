@@ -13,14 +13,15 @@ class Ball {
     posY?: number;
     velX?: number;
     velY?: number;
+    radius?: number;
 }
 
 export class Player {
     side?: number;
-    socketID?: string;
-    UUID?: string;
+    pseudo?: string;
     posX?: number;
     posY?: number;
+    velY?: number;
     height?: number;
     width?: number;
     score?: number;

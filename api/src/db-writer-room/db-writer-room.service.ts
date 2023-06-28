@@ -242,15 +242,15 @@ export class DbWriterRoomService {
              return null;
          }
 
-         currentRoom.members.find(async member => {
-            if (member.pseudo === newMemberStatus.pseudo && member.status !== 'ADMIN'){
-                member.status = newMemberStatus.status;
+        for (let i in currentRoom.members) {
+            if (currentRoom.members[i].pseudo === newMemberStatus.pseudo) {
+                currentRoom.members[i].status = newMemberStatus.status;
                 await this.roomRepository.save(currentRoom)
                 return true;
-            } else {
-                console.log("Wrong permisson to user status ");
             }
-        })
+        }   
+
+        console.log("Wrong permisson to user status ");
         return null;
     }
 
