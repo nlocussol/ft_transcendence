@@ -336,7 +336,7 @@ export class DbWriterService {
              return null;
          }
          let notif: notif =  {
-            friend: newNotif.login,
+            login: newNotif.login,
             type: newNotif.type,
             content: newNotif.content,
         }
