@@ -47,7 +47,7 @@ export class AuthComponent implements OnInit {
     this.profileData = await this.http.get(`http://localhost:3000/db-writer/data/${this.pseudo}`).toPromise()
 
     // Send user info to API and redirect user to homepage once he received jwt cookie
-    this.http.post('http://localhost:3000/auth/login', {pseudo: this.pseudo}, {withCredentials: true}).subscribe(() => {
+    this.http.post('http://localhost:3000/auth/login', {pseudo: this.pseudo}).subscribe(() => {
       Emitters.authEmitter.emit(true);
       this.router.navigate(['/']);
     });

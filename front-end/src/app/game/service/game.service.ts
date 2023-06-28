@@ -44,8 +44,6 @@ export class GameService {
   }
 
   getGameUpdate = (room: string) => {
-    // this.socket.emit('updatePlayers', room);
-    // return this.socket.on('updatePlayers');
     this.socket.on('updatePlayers', (payload: GameData) => {
       this.payload$.next(payload);
     })
@@ -56,37 +54,7 @@ export class GameService {
     this.socket.emit('updatePlayers', payload);
   }
 
-  // connectToSocket() {
-  //   this.socket = io(this.API_ENDPOINT + "/inprogress");
-  //   this.socket.on('joinGameRoom', (gamedata: any) => {
-  //     console.log("ici")
-  //   });
-  // }
-
-  // joinGameRoom(payload: any) {
-  //   this.socket.emit('joinGameRoom', payload);
-  // }
-
-
-
-  // sendPlayerInfo(payload: any) {
-  //   this.socket.emit('keydown', payload);
-  // }
-
   getUser() {
-    return this.http.get<any>('http://localhost:3000/auth/user', {withCredentials: true});
+    return this.http.get<any>('http://localhost:3000/auth/user');
   }
-
-  // Ask API for game info 
-  // getCurrentGameData(gameUUID: string | undefined): Observable<GameData> {
-  //   return this.http.get<GameData>(this.API_URL + "/" + gameUUID)
-  // }
-
-  // patchPlayerData(gameUUID: string | undefined, playerData: Player | undefined, playerUUID: string) {
-  //   return this.http.patch(this.API_URL + "/" + gameUUID, { 
-  //     side: playerData?.side,
-  //     UUID: playerData?.UUID,
-  //     pos: playerData?.posY
-  //    });
-  // }
 }

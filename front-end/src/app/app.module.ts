@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms'
 import { MatDialogModule } from '@angular/material/dialog';
 
@@ -16,6 +16,7 @@ import { ChatRoomComponent } from './chat-room/chat-room.component';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { DialogNotLoguedComponent } from './dialog-not-logued/dialog-not-logued.component';
 import { UserPageComponent } from './user-page/user-page.component';
+import { CredentialsInterceptor } from './interceptors/credentials.interceptor';
 
 @NgModule({
   declarations: [
@@ -38,7 +39,11 @@ import { UserPageComponent } from './user-page/user-page.component';
     NoopAnimationsModule,
     MatDialogModule,
   ],
-  providers: [],
+  providers: [ {
+    provide: HTTP_INTERCEPTORS,
+    useClass: CredentialsInterceptor,
+    multi: true
+  }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
