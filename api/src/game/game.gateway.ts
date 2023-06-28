@@ -3,7 +3,7 @@ import { Namespace, Socket } from 'socket.io'
 import { GameService } from './game.service';
 import { GameData, side } from './models/game.models';
 import { OnModuleDestroy, OnModuleInit } from '@nestjs/common';
-import { SERVER_TICKRATE } from './environment';
+import { environment } from './environment';
 
 @WebSocketGateway({
   cors: true,
@@ -21,11 +21,9 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
     this.intervalId = setInterval(() => {
       this.gameService.gameInProgress.forEach((game) => {
         delete game.intervalID
-        // this.io.to(game.matchUUID).emit('updatePlayers', game)
         this.io.to(game.matchUUID).emit('updatePlayers', game)
-        // this.io.to(game.matchUUID)
       })
-    }, SERVER_TICKRATE);
+    }, environment.TICKRATE);
   }
 
   onModuleDestroy() {
@@ -34,56 +32,40 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
 
   afterInit(server: any) {
     this.io.on('connection', (socket) => {
-      // If player try to connect without passing its unique pseudo
-      if (socket.handshake.query.pseudo == undefined) {
+      // If player try to connect without passing its unique login
+      if (socket.handshake.query.login == undefined) {
         socket.disconnect();
       } else {
-        var playerMatchUUID = this.gameService.findGameByPlayer(socket.handshake.query.pseudo as string);
-        if (!playerMatchUUID) {
-          console.log(socket.handshake.query.pseudo + ": Tried to connect withouth being in a room")
+        var gameUUID = this.gameService.findGameByPlayer(socket.handshake.query.login as string);
+        if (!gameUUID) {
+          console.log(socket.handshake.query.login + ": Tried to connect withouth being in a room")
           socket.disconnect();
         } else {
-            socket.join(playerMatchUUID);
+            socket.join(gameUUID);
+            this.gameService.handleReconnexion(socket.handshake.query.login as string, gameUUID);
           }
+
+          socket.on('disconnect', () => {
+            console.log(socket.handshake.query.login);
+            this.gameService.handleDeconnexion(socket.handshake.query.login as string, gameUUID);
+          })
         }
-      })
-    }
 
-  // @SubscribeMessage('updatePlayers')
-  // updatePlayers()
-  // {
-  // }
-
-  gameLoops() {
+    });
   }
-      // socket.on('keydown', (payload) => {
-      //   if (payload.UUID == this.gameService.getGameImProgress().players[0].pseudo) {
-      //     this.gameService.movePlayer(0, payload.isMovingUp, payload.isMovingDown);
-      //   } else if (payload.UUID == this.gameService.getGameImProgress().players[1].pseudo) {
-      //     this.gameService.movePlayer(1, payload.isMovingUp, payload.isMovingDown);
-      //   }
-      // })
 
-  //   })
-  //   setInterval(this.updatePlayers, SERVER_TICK);
-  // }
-
-  // handleConnection(socket: Socket) {
-    // console.log(this.io)
-  // }
-
-  // handleDisconnect(client: Socket) {
-  //   // Need to remove player if in queue
-  // }
-
-  // updateGame() {
-
-  // }
-
-  //   }
-  // }
-
-  // updatePlayers = (client: Socket, payload: GameData) => {
-  //   this.io.emit('updatePlayers', this.gameService.getGameImProgress());
-  // }
+  // Payload is login and isMovingUp/Down
+  @SubscribeMessage('updatePlayers')
+  updatePlayers(client: Socket, payload: any) {
+    const playerName = payload.login;
+    const playerMovingUp = payload.isMovingUp;
+    const playerMovingDown = payload.isMovingDown;
+    this.gameService.gameInProgress.forEach((game) => {
+      if (game.players[0].login == playerName) {
+        this.gameService.movePlayer(game, 0, playerMovingUp, playerMovingDown)
+      } else if (game.players[1].login == playerName) {
+        this.gameService.movePlayer(game, 1, playerMovingUp, playerMovingDown)
+      }
+    });
+  }
 }

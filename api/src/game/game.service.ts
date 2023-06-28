@@ -1,17 +1,18 @@
 import { HttpException, HttpStatus, Injectable, OnModuleInit, Scope } from '@nestjs/common';
 import { Ball, GameData, Player, side} from './models/game.models';
-import { SERVER_TICKRATE } from './environment';
+import { environment } from './environment';
 import { DbWriterService } from 'src/db-writer/db-writer.service';
 
-const GAMEWIDTH = 858,
-GAMEHEIGHT = 525,
+const GAME_WIDTH = 858,
+GAME_HEIGHT = 525,
 BALL_INITIAL_SPEED = 5,
 BALL_INITIAL_RADIUS = 5,
 PLAYER_INITIAL_WIDTH = 8,
 PLAYER_INITIAL_HEIGHT = 70,
 PLAYER_INITIAL_SPEED = 5,
 OFFSET_FROM_WALL = 10,
-MAX_SCORE = 1;
+MAX_SCORE = 5,
+MAX_AFK_TIME = 20;
 
 @Injectable()
 export class GameService implements OnModuleInit {
@@ -66,7 +67,7 @@ export class GameService implements OnModuleInit {
         newGame.players[0].height = PLAYER_INITIAL_HEIGHT;
         newGame.players[0].width = PLAYER_INITIAL_WIDTH;
         newGame.players[0].posX = OFFSET_FROM_WALL;
-        newGame.players[0].posY = GAMEHEIGHT / 2 - (PLAYER_INITIAL_HEIGHT / 2);
+        newGame.players[0].posY = GAME_HEIGHT / 2 - (PLAYER_INITIAL_HEIGHT / 2);
         newGame.players[0].score = 0;
         newGame.players[0].canMove = true;
         newGame.players[0].velY = PLAYER_INITIAL_SPEED;
@@ -75,15 +76,15 @@ export class GameService implements OnModuleInit {
         newGame.players[1].side = side.RIGHT;
         newGame.players[1].height = PLAYER_INITIAL_HEIGHT;
         newGame.players[1].width = PLAYER_INITIAL_WIDTH;
-        newGame.players[1].posX = GAMEWIDTH - OFFSET_FROM_WALL;
-        newGame.players[1].posY = GAMEHEIGHT / 2 - (PLAYER_INITIAL_HEIGHT / 2);
+        newGame.players[1].posX = GAME_WIDTH - OFFSET_FROM_WALL;
+        newGame.players[1].posY = GAME_HEIGHT / 2 - (PLAYER_INITIAL_HEIGHT / 2);
         newGame.players[1].score = 0;
         newGame.players[1].canMove = true;
         newGame.players[1].velY = PLAYER_INITIAL_SPEED;
         newGame.ball = new Ball();
         newGame.ball.canMove = true;
-        newGame.ball.posX = GAMEWIDTH / 2;
-        newGame.ball.posY = GAMEHEIGHT / 2;
+        newGame.ball.posX = GAME_WIDTH / 2;
+        newGame.ball.posY = GAME_HEIGHT / 2;
         newGame.ball.radius = BALL_INITIAL_RADIUS;
         if (Math.floor(Math.random() * 2)) {
             newGame.ball.velX = BALL_INITIAL_SPEED;
@@ -104,19 +105,26 @@ export class GameService implements OnModuleInit {
         return undefined
     }
 
-    findGameByUUID(UUID: string) {
+    findGameByUUID(UUID: string): GameData {
         let found = this.gameInProgress.find(game => game.matchUUID == UUID);
         if (found == undefined) {
             console.log("Les problemes")
         } else {
-            return found.matchUUID;
+            return found;
         }
     }
 
+    findPlayerIndex(game: GameData, login: string): number {
+        if (game.players[0].login == login) return 0;
+        if (game.players[1].login == login) return 1;
+    }
+
     startGame(game: GameData) {
-        game.intervalID = setInterval(() => {
-            this.updateGame(game);
-        }, SERVER_TICKRATE);
+        setTimeout(() => {
+            game.intervalID = setInterval(() => {
+                this.updateGame(game);
+            }, environment.TICKRATE);
+        }, 1000);
     }
 
     updateGame(game: GameData) {
@@ -142,20 +150,22 @@ export class GameService implements OnModuleInit {
         if (game.ball.posX - game.ball.radius <= 0) {
             game.players[1].score += 1;
             if (game.players[1].score == MAX_SCORE) {
-                this.handleGameEnd(game, 1);
+                game.players[1].endScreenWin = true;
+                this.handleGameFinish(game)
             } 
             this.resetBall(game, 0);
-        } else if ( game.ball.posX + game.ball.radius >= GAMEWIDTH) {
+        } else if ( game.ball.posX + game.ball.radius >= GAME_WIDTH) {
             game.players[0].score += 1;
             if (game.players[0].score == MAX_SCORE) {
-                this.handleGameEnd(game, 0);
+                game.players[0].endScreenWin = true;
+                this.handleGameFinish(game)
             }
             this.resetBall(game, 1);
         }
     }
 
     isCollidingTopBottom(game: GameData): boolean {
-        if (game.ball.posY - game.ball.radius <= 0 || game.ball.posY + game.ball.radius >= GAMEHEIGHT) {
+        if (game.ball.posY - game.ball.radius <= 0 || game.ball.posY + game.ball.radius >= GAME_HEIGHT) {
             return true;
         }
         return false;
@@ -200,8 +210,8 @@ export class GameService implements OnModuleInit {
     }
 
     resetBall(game: GameData, side: number) {
-        game.ball.posX = GAMEWIDTH / 2;
-        game.ball.posY = GAMEHEIGHT / 2;
+        game.ball.posX = GAME_WIDTH / 2;
+        game.ball.posY = GAME_HEIGHT / 2;
         game.ball.radius = BALL_INITIAL_RADIUS;
         if (side == 0) {
             game.ball.velX = BALL_INITIAL_SPEED;
@@ -211,38 +221,68 @@ export class GameService implements OnModuleInit {
         game.ball.velY = 0;
     }
 
-    handleGameEnd(game: GameData, winner: number) {
+    handleGameFinish(game: GameData) {
+        game.over = true;
         game.ball.canMove = false;
+        game.players[0].canMove = false;
+        game.players[1].canMove = false;
         clearInterval(game.intervalID);
-        console.log("WIN");
         this.dbWriteService.fillMatchHistory(game);
     }
 
+    movePlayer(game: GameData, playerIndex: number, movingUp: boolean, movingDown: boolean) {
+        if (!game.players[playerIndex].canMove)
+            return;
+        if (movingUp && game.players[playerIndex].posY > 0) {
+            game.players[playerIndex].posY -= game.players[playerIndex].velY;
+        }
+        if (movingDown && game.players[playerIndex].posY + game.players[playerIndex].height < GAME_HEIGHT) {
+            game.players[playerIndex].posY += game.players[playerIndex].velY;
+        }
+    }
 
-    // startGame(matchUUID: string) {
-    //     let game: GameData = this.gameInProgress.find(o => o.matchUUID === matchUUID)
-    //     if (game === undefined) {
-    //         console.log("Les problemes (game.service.ts:StartGame)")
-    //     }
-    //     game.ball = new Ball();
-    //     game.ball.posX = GAMEWIDTH / 2;
-    //     game.ball.posY = GAMEHEIGHT / 2;
-    //     game.ball.radius = BALL_INITIAL_RADIUS;
-    //     game.ball.velX = -BALL_INITIAL_SPEED;
-    //     game.ball.velY = 0;
-    //     //Need to clearinterval at the end of match
-    //     game.intervalID = setInterval(this.updateGame.bind(this), 15, game);
-    // }
+    handleDeconnexion(login: string, gameUUID: string) {
+        let game = this.findGameByUUID(gameUUID);
+        if (game == undefined) return;
 
-    // movePlayer(playerIndex: number, isMovingUp: boolean, isMovingDown: boolean) {
-    //     if (isMovingUp) {
-    //         this.gameInProgress[0].players[playerIndex].posY -= PLAYER_SPEED;
-    //     }
-    //     if (isMovingDown) {
-    //         this.gameInProgress[0].players[playerIndex].posY += PLAYER_SPEED;
-    //     }
-    // }
+        game.ball.canMove = false;
+        game.players[0].canMove = false;
+        game.players[1].canMove = false;
 
-    // getGameImProgress() {
-    // }
+        let playerIndex = this.findPlayerIndex(game, login);
+        game.players[playerIndex].AFK = true;
+        let timeoutStartingTime = Date.now();
+        let timeoutInterval = setInterval(() => {
+            game.players[playerIndex].AFKTimer = (Date.now() - timeoutStartingTime) / 1000;
+            if (game.players[playerIndex].AFK == false || game.over) {
+                clearInterval(timeoutInterval);
+            }
+            if (game.players[playerIndex].AFKTimer > MAX_AFK_TIME) {
+
+                // If both players are afk check which one was afk longer
+                let otherPlayerIndex: number;
+                playerIndex == 1 ? otherPlayerIndex = 0 : otherPlayerIndex = 1;
+                game.players[otherPlayerIndex].score = MAX_SCORE;
+                game.players[playerIndex].score = 0;
+                this.handleGameFinish(game);
+                clearInterval(timeoutInterval);
+            }
+            console.log(game.players[playerIndex].AFKTimer);
+        }, 200)
+    }
+
+    handleReconnexion(login:string, gameUUID: string) {
+        let game = this.findGameByUUID(gameUUID);
+        if (game == undefined) return;
+
+        let playerIndex = this.findPlayerIndex(game, login);
+        if (game.players[playerIndex].AFK) game.players[playerIndex].AFK = false;
+
+        if (!game.players[0].AFK && !game.players[1].AFK) {
+            game.ball.canMove = true;
+            game.players[0].canMove = true;
+            game.players[1].canMove = true;
+        }
+    }
+
 }

@@ -191,15 +191,18 @@ export class DbWriterService {
              return null;
          }
         // check if the new username is not already take
-        const newUser = await this.userRepository.findOneBy({
-            login: newName.newLogin,
+        const newUserByLogin = await this.userRepository.findOneBy({
+            login: newName.newPseudo,
          });
-         if (newUser){
+        const newUserByPseudo = await this.userRepository.findOneBy({
+            pseudo: newName.newPseudo,
+         });
+         if (newUserByLogin || newUserByPseudo){
             console.log("changeUserPseudo: The new username is already taken");
             return null;
          }
          // change the current pseudo to the new one
-         currentUser.login = newName.newLogin;
+         currentUser.pseudo = newName.newPseudo;
          await this.userRepository.save(currentUser)
         return true;
     }
@@ -291,7 +294,6 @@ export class DbWriterService {
         else
             matchWinner = gameData.players[1].login;
         
-        console.log(matchWinner);
 
         let match1: match = {
             ownScore: gameData.players[0].score,
@@ -299,8 +301,6 @@ export class DbWriterService {
             opponent: gameData.players[1].login,
             winner: matchWinner
         }
-        console.log("payer1: ", player1);
-        console.log("payer2: ", player2);
         player1.history.push(match1);
 
         let match2 :match = {
