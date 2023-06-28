@@ -59,6 +59,7 @@ export interface History {
 
 export interface UserData {
     authCode: string,
+    status: string,
     pseudo :string,
     email: string,
     pp: string,
