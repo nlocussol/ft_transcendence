@@ -32,38 +32,38 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
 
   afterInit(server: any) {
     this.io.on('connection', (socket) => {
-      // If player try to connect without passing its unique pseudo
-      if (socket.handshake.query.pseudo == undefined) {
+      // If player try to connect without passing its unique login
+      if (socket.handshake.query.login == undefined) {
         socket.disconnect();
       } else {
-        var gameUUID = this.gameService.findGameUUIDByPseudo(socket.handshake.query.pseudo as string);
+        var gameUUID = this.gameService.findGameByPlayer(socket.handshake.query.login as string);
         if (!gameUUID) {
-          console.log(socket.handshake.query.pseudo + ": Tried to connect withouth being in a room")
+          console.log(socket.handshake.query.login + ": Tried to connect withouth being in a room")
           socket.disconnect();
         } else {
             socket.join(gameUUID);
-            this.gameService.handleReconnexion(socket.handshake.query.pseudo as string, gameUUID);
+            this.gameService.handleReconnexion(socket.handshake.query.login as string, gameUUID);
           }
 
           socket.on('disconnect', () => {
-            console.log(socket.handshake.query.pseudo);
-            this.gameService.handleDeconnexion(socket.handshake.query.pseudo as string, gameUUID);
+            console.log(socket.handshake.query.login);
+            this.gameService.handleDeconnexion(socket.handshake.query.login as string, gameUUID);
           })
         }
 
     });
   }
 
-  // Payload is pseudo and isMovingUp/Down
+  // Payload is login and isMovingUp/Down
   @SubscribeMessage('updatePlayers')
   updatePlayers(client: Socket, payload: any) {
-    const playerName = payload.pseudo;
+    const playerName = payload.login;
     const playerMovingUp = payload.isMovingUp;
     const playerMovingDown = payload.isMovingDown;
     this.gameService.gameInProgress.forEach((game) => {
-      if (game.players[0].pseudo == playerName) {
+      if (game.players[0].login == playerName) {
         this.gameService.movePlayer(game, 0, playerMovingUp, playerMovingDown)
-      } else if (game.players[1].pseudo == playerName) {
+      } else if (game.players[1].login == playerName) {
         this.gameService.movePlayer(game, 1, playerMovingUp, playerMovingDown)
       }
     });

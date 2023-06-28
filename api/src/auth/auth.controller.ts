@@ -16,19 +16,19 @@ export class AuthController {
     @SkipAuth()
     @Post('login')
     async login(
-        @Body () pseudo: any,
+        @Body () login: any,
         @Res( {passthrough: true} ) response: Response,
         ) {
 
-        const user = await this.dbWriterService.getDataUser(pseudo.pseudo);
+        const user = await this.dbWriterService.getDataUser(login.login);
         
         // Should never arrive since we login through 42 API
         if (!user) {
             throw new BadRequestException('No user')
         }
 
-        const jwt = await this.jwtService.signAsync( {pseudo: user.pseudo} );
-        response.cookie('jwt', jwt, {httpOnly: false, sameSite: 'lax'});
+        const jwt = await this.jwtService.signAsync( {login: user.login} );
+        response.cookie('jwt', jwt, {httpOnly: true, sameSite: 'lax'});
 
         return {
             message: "User logued"

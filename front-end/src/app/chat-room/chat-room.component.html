@@ -69,7 +69,7 @@
     <div *ngIf="joined && selectedRoom">
       <div *ngFor="let member of members" class="members" [class.selected]="member === selectedMember"(click)="onMemberClick(member)">
           {{ member.pseudo }}
-          <div *ngIf="member.pseudo !== pseudo && member === selectedMember" >
+          <div *ngIf="member.login !== login && member === selectedMember" >
             <select [(ngModel)]="memberOption">
               <option *ngFor="let memberOptions of memberOptions" [value]="memberOptions"> {{ memberOptions }}</option>
             </select>

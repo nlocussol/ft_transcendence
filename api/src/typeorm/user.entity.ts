@@ -32,10 +32,54 @@ export interface pm {
 }
 
 export interface messageData {
-    pseudo: string,
+    login: string,
     friend: string,
     content: string,
     sender: string,
+}
+
+export interface changePseudo {
+    currentLogin: string,
+    newPseudo: string,
+}
+
+export interface addFriend {
+    login: string,
+    friend: string,
+}
+
+export interface modify2fa {
+    login: string,
+    doubleAuth: boolean,
+}
+
+export interface newPp {
+    login: string,
+    newPp: string,
+}
+
+export interface changeBlockStatus {
+    login: string,
+    friend: string,
+    block: boolean,
+}
+
+export interface notif {
+    friend: string,
+    type: string,
+    content: string,
+}
+
+export interface newNotif {
+    friend: string,
+    type: string,
+    content: string,
+    login: string,
+}
+
+export interface deleteNotif {
+    index: string,
+    login: string,
 }
 
 @Entity()
@@ -56,11 +100,6 @@ export class User {
         nullable: true,
     })
     login: string;
-
-    @Column({
-        nullable: true,
-    })
-    email: string;
 
     @IsString()
     @Column({
@@ -109,10 +148,15 @@ export class User {
     })
     history: match[];
 
-    @IsEmpty()
     @IsArray()
     @Column('jsonb', {
         nullable: true,
     })
     pm: pm[];
+
+    @IsArray()
+    @Column('jsonb', {
+        nullable: true,
+    })
+    notif: notif[];
 }

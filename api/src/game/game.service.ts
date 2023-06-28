@@ -24,24 +24,24 @@ export class GameService implements OnModuleInit {
     onModuleInit() {
     }
 
-    addPlayerToQueue(pseudo: string) {
-        if (this.poolQueue.indexOf(pseudo) == -1) {
-            this.poolQueue.push(pseudo);
+    addPlayerToQueue(login: string) {
+        if (this.poolQueue.indexOf(login) == -1) {
+            this.poolQueue.push(login);
         }
     }
 
-    removePlayerFromQueue(pseudo: string) {
-        let playerToRemove = this.poolQueue.indexOf(pseudo);
+    removePlayerFromQueue(login: string) {
+        let playerToRemove = this.poolQueue.indexOf(login);
         if (playerToRemove != -1) {
             this.poolQueue.splice(playerToRemove, 1);
         }
     }
 
-    refreshQueue(pseudo: string) {
+    refreshQueue(login: string) {
         // Search if player is already in a game, if so return game's UUID
         for (let i = 0 ; i < this.gameInProgress.length ; i++) {
-            if (this.gameInProgress[i].players[0].pseudo === pseudo ||
-                this.gameInProgress[i].players[1].pseudo === pseudo) {
+            if (this.gameInProgress[i].players[0].login === login ||
+                this.gameInProgress[i].players[1].login === login) {
                     return { matchUUID: this.gameInProgress[i].matchUUID };
                 }
         }
@@ -62,7 +62,7 @@ export class GameService implements OnModuleInit {
     setupNewGame(newGame: GameData) {
         newGame.matchUUID = crypto.randomUUID();
         newGame.players[0] = new Player();
-        newGame.players[0].pseudo = this.poolQueue.shift();
+        newGame.players[0].login = this.poolQueue.shift();
         newGame.players[0].side = side.LEFT;
         newGame.players[0].height = PLAYER_INITIAL_HEIGHT;
         newGame.players[0].width = PLAYER_INITIAL_WIDTH;
@@ -72,7 +72,7 @@ export class GameService implements OnModuleInit {
         newGame.players[0].canMove = true;
         newGame.players[0].velY = PLAYER_INITIAL_SPEED;
         newGame.players[1] = new Player();
-        newGame.players[1].pseudo = this.poolQueue.shift();
+        newGame.players[1].login = this.poolQueue.shift();
         newGame.players[1].side = side.RIGHT;
         newGame.players[1].height = PLAYER_INITIAL_HEIGHT;
         newGame.players[1].width = PLAYER_INITIAL_WIDTH;
@@ -95,10 +95,10 @@ export class GameService implements OnModuleInit {
     }
 
     // Used in gateway
-    findGameUUIDByPseudo(pseudo:string): string {
+    findGameByPlayer(login:string): string {
         for (let i = 0 ; i < this.gameInProgress.length ; i++) {
-            if (this.gameInProgress[i].players[0].pseudo === pseudo ||
-                this.gameInProgress[i].players[1].pseudo === pseudo) {
+            if (this.gameInProgress[i].players[0].login === login ||
+                this.gameInProgress[i].players[1].login === login) {
                     return this.gameInProgress[i].matchUUID;
                 }
         }
@@ -114,9 +114,9 @@ export class GameService implements OnModuleInit {
         }
     }
 
-    findPlayerIndex(game: GameData, pseudo: string): number {
-        if (game.players[0].pseudo == pseudo) return 0;
-        if (game.players[1].pseudo == pseudo) return 1;
+    findPlayerIndex(game: GameData, login: string): number {
+        if (game.players[0].login == login) return 0;
+        if (game.players[1].login == login) return 1;
     }
 
     startGame(game: GameData) {
@@ -241,7 +241,7 @@ export class GameService implements OnModuleInit {
         }
     }
 
-    handleDeconnexion(pseudo: string, gameUUID: string) {
+    handleDeconnexion(login: string, gameUUID: string) {
         let game = this.findGameByUUID(gameUUID);
         if (game == undefined) return;
 
@@ -249,7 +249,7 @@ export class GameService implements OnModuleInit {
         game.players[0].canMove = false;
         game.players[1].canMove = false;
 
-        let playerIndex = this.findPlayerIndex(game, pseudo);
+        let playerIndex = this.findPlayerIndex(game, login);
         game.players[playerIndex].AFK = true;
         let timeoutStartingTime = Date.now();
         let timeoutInterval = setInterval(() => {
@@ -270,11 +270,11 @@ export class GameService implements OnModuleInit {
         }, 200)
     }
 
-    handleReconnexion(pseudo:string, gameUUID: string) {
+    handleReconnexion(login:string, gameUUID: string) {
         let game = this.findGameByUUID(gameUUID);
         if (game == undefined) return;
 
-        let playerIndex = this.findPlayerIndex(game, pseudo);
+        let playerIndex = this.findPlayerIndex(game, login);
         if (game.players[playerIndex].AFK) game.players[playerIndex].AFK = false;
 
         if (!game.players[0].AFK && !game.players[1].AFK) {
