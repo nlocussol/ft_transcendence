@@ -6,19 +6,19 @@ export class GameController {
     constructor(private readonly gameService: GameService) {
     }
 
-    @Post(':pseudo')
+    @Post(':login')
     addPlayerToQueue(@Param() params: any) {
-        this.gameService.addPlayerToQueue(params.pseudo);
+        this.gameService.addPlayerToQueue(params.login);
     }
 
-    @Delete(':pseudo')
+    @Delete(':login')
     removePlayerFromQueue(@Param() params: any) {
-        this.gameService.removePlayerFromQueue(params.pseudo);
+        this.gameService.removePlayerFromQueue(params.login);
     }
 
-    @Get(':pseudo')
+    @Get(':login')
     refreshQueue(@Param() params: any) {
-        return this.gameService.refreshQueue(params.pseudo);
+        return this.gameService.refreshQueue(params.login);
     }
 
     // @Get()

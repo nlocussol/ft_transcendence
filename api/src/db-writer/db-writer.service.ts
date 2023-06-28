@@ -15,13 +15,10 @@ export class DbWriterService {
     async createUser(newUser: User){
 
         // search if the user is already inside the data base.
-        const currentUserPseudo = await this.userRepository.findOneBy({
-           pseudo: newUser.pseudo,
-        });
         const currentUserLogin = await this.userRepository.findOneBy({
-            login: newUser.pseudo,
+            login: newUser.login,
          });
-        if (currentUserPseudo || currentUserLogin){
+        if (currentUserLogin){
             console.log("The user already exist");
             return null;
         }
@@ -29,10 +26,9 @@ export class DbWriterService {
         // create an instance of user table & fill it
         const user = new User();
         user.authCode = crypto.randomUUID();
-        user.pseudo = newUser.pseudo;
-        user.email = newUser.email;
+        user.pseudo = newUser.login;
         user.pp = newUser.pp;
-        user.login = newUser.pseudo
+        user.login = newUser.login
         user.doubleAuth = false;
         user.friends = [];
         user.pm = [];
@@ -49,22 +45,22 @@ export class DbWriterService {
         await this.userRepository.save(user)
     }
 
-    async addFriendToDb(user: User, friend: User, friendPseudo: string, uuid: string){
+    async addFriendToDb(user: User, friend: User, friendLogin: string, uuid: string){
         // add friend inside the friend list
         const dataFriend: friend = {
-            name: friendPseudo,
+            name: friendLogin,
             pp: friend.pp,
             blocked: false,
         }
         // check if the friend is not already inside friend list
-        if (user.friends && user.friends.find(friend => friend.name === friendPseudo)){
+        if (user.friends && user.friends.find(friend => friend.name === friendLogin)){
             console.log("The friend already exist.");
             return null;
         }
         user.friends.push(dataFriend);
         // add a friend to the private message list
         const newMp: pm = {
-            name: friendPseudo,
+            name: friendLogin,
             uuid: uuid,
             messages: [],
         }
@@ -77,10 +73,10 @@ export class DbWriterService {
         // check if user & friend exist inside db
         let uuid: string = crypto.randomUUID()
         const user = await this.userRepository.findOneBy({
-            pseudo: newFriend.pseudo,
+            login: newFriend.login,
         });
         const friend = await this.userRepository.findOneBy({
-            pseudo: newFriend.friend,
+            login: newFriend.friend,
         });
         if (user === friend){
             console.log("The user and friend's name are the same.");
@@ -92,14 +88,14 @@ export class DbWriterService {
         }
         // add new friend to both users list
         this.addFriendToDb(user, friend, newFriend.friend, uuid);
-        this.addFriendToDb(friend, user, user.pseudo, uuid);
+        this.addFriendToDb(friend, user, user.login, uuid);
         return uuid;
     }
 
     async getPm(obj: messageData){
         // check user
         const user = await this.userRepository.findOneBy({
-            pseudo: obj.pseudo,
+            login: obj.login,
         });
         if (!user){
             console.log("The user didn't exist.");
@@ -129,10 +125,10 @@ export class DbWriterService {
     async addPrivateMessage(obj: messageData): Promise<string> {
         // check if user & friend exist inside db
         const user = await this.userRepository.findOneBy({
-            pseudo: obj.pseudo,
+            login: obj.login,
         });
         const friend = await this.userRepository.findOneBy({
-            pseudo: obj.friend,
+            login: obj.friend,
         });
         if (!user || !friend){
             console.log("The user didn't exist.");
@@ -146,19 +142,19 @@ export class DbWriterService {
 
         // add new message inside user and friend conversation
         const ret = await this.addMessage(user, obj.friend, newMessage);
-        const friendRet = await this.addMessage(friend, user.pseudo, newMessage);
+        const friendRet = await this.addMessage(friend, user.login, newMessage);
         if (ret == null || friendRet == null)
             return null;
         return ret;
     }
 
-    async getDataUser(pseudo: string){
+    async getDataUser(login: string){
         // check if user exist inside db
-        if (pseudo == undefined) {
+        if (login == undefined) {
             return undefined
         }
         const user = await this.userRepository.findOneBy({
-            pseudo: pseudo,
+            login: login,
         });
         if (!user){
             console.log("getDataUser: The user does not exist.");
@@ -167,10 +163,10 @@ export class DbWriterService {
         return user;
     }
 
-    async getFriends(pseudo: string){
+    async getFriends(login: string){
         // check if user exist inside db
         const user = await this.userRepository.findOneBy({
-            pseudo: pseudo,
+            login: login,
         });
         if (!user){
             console.log("getFriends: The user does not exist.");
@@ -188,7 +184,7 @@ export class DbWriterService {
     async changeUserPseudo(newName: any){
         // check if the user exist
         const currentUser = await this.userRepository.findOneBy({
-            pseudo: newName.currentPseudo,
+            login: newName.currentLogin,
          });
          if (!currentUser){
              console.log("changeUserPseudo: The user does not exist");
@@ -196,14 +192,14 @@ export class DbWriterService {
          }
         // check if the new username is not already take
         const newUser = await this.userRepository.findOneBy({
-            pseudo: newName.newPseudo,
+            login: newName.newLogin,
          });
          if (newUser){
             console.log("changeUserPseudo: The new username is already taken");
             return null;
          }
          // change the current pseudo to the new one
-         currentUser.pseudo = newName.newPseudo;
+         currentUser.login = newName.newLogin;
          await this.userRepository.save(currentUser)
         return true;
     }
@@ -211,7 +207,7 @@ export class DbWriterService {
     async changeUserPp(newPp: any){
         // check if the user exist
         const currentUser = await this.userRepository.findOneBy({
-            pseudo: newPp.pseudo,
+            login: newPp.login,
          });
          if (!currentUser){
              console.log("changeUserPp: The user does not exist");
@@ -227,7 +223,7 @@ export class DbWriterService {
     async change2fa(change2fa: any){
         // check if the user exist
         const currentUser = await this.userRepository.findOneBy({
-            pseudo: change2fa.pseudo,
+            login: change2fa.login,
          });
          if (!currentUser){
              console.log("change2fa: The user does not exist");
@@ -244,7 +240,7 @@ export class DbWriterService {
         // check if the user exist
         
         const currentUser = await this.userRepository.findOneBy({
-            pseudo: blockFriend.pseudo,
+            login: blockFriend.login,
          });
          if (!currentUser){
              console.log("blockFriend: The user doesn't exist");
@@ -264,7 +260,7 @@ export class DbWriterService {
     async fillStats(player: User, matchWinner:string){
         
         player.stats.matchs += 1;
-        if (matchWinner === player.pseudo){
+        if (matchWinner === player.login){
             player.stats.win += 1;
         } else {
             player.stats.lose += 1;
@@ -275,14 +271,14 @@ export class DbWriterService {
     async fillMatchHistory(gameData: GameData) {
         // check if the user exist
         const player1 = await this.userRepository.findOneBy({
-            pseudo: gameData.players[0].pseudo,
+            login: gameData.players[0].login,
          });
          if (!player1){
              console.log("fillMatchHistory: The user doesn't exist");
              return null;
          }
          const player2 = await this.userRepository.findOneBy({
-            pseudo: gameData.players[1].pseudo,
+            login: gameData.players[1].login,
          });
          if (!player2){
              console.log("fillMatchHistory: The user doesn't exist");
@@ -291,16 +287,16 @@ export class DbWriterService {
 
         let matchWinner: string;
         if (gameData.players[0].score == 1)
-            matchWinner = gameData.players[0].pseudo;
+            matchWinner = gameData.players[0].login;
         else
-            matchWinner = gameData.players[1].pseudo;
+            matchWinner = gameData.players[1].login;
         
         console.log(matchWinner);
 
         let match1: match = {
             ownScore: gameData.players[0].score,
             opponentScore: gameData.players[1].score,
-            opponent: gameData.players[1].pseudo,
+            opponent: gameData.players[1].login,
             winner: matchWinner
         }
         console.log("payer1: ", player1);
@@ -310,7 +306,7 @@ export class DbWriterService {
         let match2 :match = {
             ownScore: gameData.players[1].score,
             opponentScore: gameData.players[0].score,
-            opponent: gameData.players[0].pseudo,
+            opponent: gameData.players[0].login,
             winner: matchWinner
         }
         player2.history.push(match2);

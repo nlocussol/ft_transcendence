@@ -32,7 +32,7 @@ export interface pm {
 }
 
 export interface messageData {
-    pseudo: string,
+    login: string,
     friend: string,
     content: string,
     sender: string,
@@ -56,11 +56,6 @@ export class User {
         nullable: true,
     })
     login: string;
-
-    @Column({
-        nullable: true,
-    })
-    email: string;
 
     @IsString()
     @Column({

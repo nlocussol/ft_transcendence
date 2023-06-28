@@ -20,17 +20,17 @@ export class DbWriterController {
         return pm
     }
 
-    @Get('data/:pseudo')
-    getDataUser(@Param('pseudo') pseudo: string){
-        return this.dbWriter.getDataUser(pseudo);
+    @Get('data/:login')
+    getDataUser(@Param('login') login: string){
+        return this.dbWriter.getDataUser(login);
     }
 
-    @Get('friends/:pseudo')
-    getFriends(@Param('pseudo') pseudo: string){
-        return this.dbWriter.getFriends(pseudo);
+    @Get('friends/:login')
+    getFriends(@Param('login') login: string){
+        return this.dbWriter.getFriends(login);
     }
 
-    @Post('change-user-pseudo')
+    @Post('change-user-login')
     changeUserPseudo(@Body() obj: any, @Headers() headers){
         return this.dbWriter.changeUserPseudo(obj);
     }

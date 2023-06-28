@@ -5,7 +5,7 @@ import { IsArray, IsEmpty, IsNotEmpty, IsString, IsStrongPassword } from 'class-
 
 
 export interface member {
-    pseudo: string,
+    login: string,
     status: string,
     mute: number,
 }
@@ -18,7 +18,7 @@ export interface ChangeStatus {
 
 export interface UserInRoom {
     name: string,
-    pseudo: string,
+    login: string,
 }
 
 export interface NewMessage {
@@ -29,20 +29,20 @@ export interface NewMessage {
 
 export interface UserStatus {
     name: string,
-    pseudo: string,
+    login: string,
     status: string,
 }
 
 export interface MuteUser{
     name: string,
-    pseudo: string,
+    login: string,
     time: number,
 }
 
 export interface BanUser{
     name: string,
-    pseudo: string,
-    askBanPseudo: string,
+    login: string,
+    askBanLogin: string,
 }
 
 export interface Passwords{

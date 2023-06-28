@@ -40,7 +40,7 @@ export class DbWriterRoomService {
 
          // the first user is admin
          const admin: member = {
-            pseudo: newRoom.owner,
+            login: newRoom.owner,
             status: 'ADMIN',
             mute: 0,
          }
@@ -61,7 +61,7 @@ export class DbWriterRoomService {
         const allRoomsCp = await this.roomRepository.find();
 
         for (var tmp of allRooms){
-            if (!tmp.members.find(member => member.pseudo === userName)) {
+            if (!tmp.members.find(member => member.login === userName)) {
                 allRoomsCp.splice(allRoomsCp.indexOf(tmp), 1);
             }
         }
@@ -104,17 +104,17 @@ export class DbWriterRoomService {
              console.log("The room doesn't exist");
              return null;
          }
-         if (currentRoom.members.find(membre => membre.pseudo === newUser.pseudo)){
+         if (currentRoom.members.find(membre => membre.login === newUser.login)){
             console.log("The user already exist.");
             return null;
         }
-        if (currentRoom.ban.includes(newUser.pseudo)){
+        if (currentRoom.ban.includes(newUser.login)){
             console.log("The user is in the ban list :(");
             return null;
         }
          // create an instance of membre & push back to the membre list
          const newMembre: member = {
-            pseudo: newUser.pseudo,
+            login: newUser.login,
             status: 'NORMAL',
             mute: 0,
          }
@@ -137,13 +137,13 @@ export class DbWriterRoomService {
  
          var date=new Date();
          currentRoom.members.find(async member => {
-            if (member.pseudo === newMessage.sender
+            if (member.login === newMessage.sender
                 && member.mute !== 0
                 && member.mute > date.getTime()){
                 console.log("You are currently muted")
                 console.log(`You need to wait ${member.mute} seconds`);
                 return null;
-            } else if (member.pseudo === newMessage.sender && member.mute !== 0){
+            } else if (member.login === newMessage.sender && member.mute !== 0){
                 member.mute = 0;
             }
         })
@@ -193,8 +193,8 @@ export class DbWriterRoomService {
              return null;
         }
         for (var tmp of currentRoom.members){
-            if (tmp.pseudo === leaveUser.pseudo){
-                if (tmp.pseudo === currentRoom.owner){
+            if (tmp.login === leaveUser.login){
+                if (tmp.login === currentRoom.owner){
                     // this.roomRepository.remove(currentRoom);
                     this.roomRepository.delete(currentRoom.id);
                     console.log("The room owner leave the room, it is therefore destroyed");                  
@@ -218,7 +218,7 @@ export class DbWriterRoomService {
          }
 
         for (let i in currentRoom.members) {
-            if (currentRoom.members[i].pseudo === newMemberStatus.pseudo) {
+            if (currentRoom.members[i].login === newMemberStatus.login) {
                 currentRoom.members[i].status = newMemberStatus.status;
                 await this.roomRepository.save(currentRoom)
                 return true;
@@ -240,8 +240,8 @@ export class DbWriterRoomService {
          }
 
         for (let i in currentRoom.members) {
-            if (currentRoom.members[i].pseudo === banMember.pseudo && ((currentRoom.members[i].status === 'ADMIN' && banMember.askBanPseudo === currentRoom.owner) || (currentRoom.members[i].status !== 'ADMIN'))){
-                currentRoom.ban.push(banMember.pseudo);
+            if (currentRoom.members[i].login === banMember.login && ((currentRoom.members[i].status === 'ADMIN' && banMember.askBanLogin === currentRoom.owner) || (currentRoom.members[i].status !== 'ADMIN'))){
+                currentRoom.ban.push(banMember.login);
                 this.leaveRoom(banMember);
                 await this.roomRepository.save(currentRoom);
                 return true;
@@ -265,7 +265,7 @@ export class DbWriterRoomService {
 
         var date = new Date();
         for (let i in currentRoom.members) {
-            if (currentRoom.members[i].pseudo === mutedMember.pseudo && currentRoom.members[i].status !== 'ADMIN'){
+            if (currentRoom.members[i].login === mutedMember.login && currentRoom.members[i].status !== 'ADMIN'){
                 currentRoom.members[i].mute = date.getTime() + (mutedMember.time * 1000);
                 await this.roomRepository.save(currentRoom);
                 return true;
