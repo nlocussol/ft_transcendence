@@ -4,6 +4,7 @@ import { Server, Socket } from 'socket.io'
 import { OnModuleInit } from "@nestjs/common";
 import { messageData } from "src/typeorm/user.entity";
 import { DbWriterRoomService } from "src/db-writer-room/db-writer-room.service";
+import { NewMessage, UserInRoom } from "src/typeorm/room.entity";
 
 @WebSocketGateway({cors : true})
 export class MyGateway implements OnModuleInit{
@@ -32,7 +33,7 @@ export class MyGateway implements OnModuleInit{
     }
 
     @SubscribeMessage('add-room-msg')
-    async addRoomMessage(client: Socket, messageData: messageData) {
+    async addRoomMessage(client: Socket, messageData: NewMessage) {
         const uuid = await this.dbWriterRoom.addMessage(messageData);
         if (uuid == null)
             return ;
@@ -50,7 +51,7 @@ export class MyGateway implements OnModuleInit{
     }
 
     @SubscribeMessage('request-join-room')
-    async joinRoom(client: Socket, messageData: messageData) {
+    async joinRoom(client: Socket, messageData: UserInRoom) {
         const res = await this.dbWriterRoom.addUserToRoom(messageData);
         if (res == null)
             return ;

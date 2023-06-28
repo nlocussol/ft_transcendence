@@ -3,6 +3,8 @@ import { Component } from '@angular/core';
 import { DataService } from '../services/data.service';
 import { environment } from 'src/environment';
 import { Socket, io } from 'socket.io-client';
+import { Friend, UserData } from '../chat-room/interfaces/interfaces';
+import { Notif } from './interfaces/interfaces';
 
 @Component({
   selector: 'app-profile',
@@ -15,12 +17,12 @@ export class ProfileComponent {
   selectedFile!: File;
   newPseudo!: string;
   pseudoFriend!: string;
-  profileData: any;
+  profileData!: UserData;
   pseudo: string = "! Go Login to get a profile card !";
   ppUrl!: string;
   status!: string;
   socket: Socket;
-  notifs!: any[];
+  notifs!: Notif[];
 
   constructor(private http: HttpClient, private dataService: DataService) {
     this.socket = io(environment.SOCKET_ENDPOINT);
@@ -69,7 +71,7 @@ export class ProfileComponent {
       this.pseudo = this.newPseudo;
   }
 
-  acceptRequest(body: any) {
+  acceptRequest(body: Notif) {
     let bodyToSend: any;
     const headers = new HttpHeaders().set('Content-type', `application/json`)
     switch (body.type) {
@@ -94,23 +96,23 @@ export class ProfileComponent {
         this.http.post('http://localhost:3000/db-writer-room/add-user-room', bodyToSend, { headers }).subscribe()
         break;
     }
-    this.notifs.splice(this.notifs.find(request => body === request), 1);
+    this.notifs.splice(this.notifs.findIndex(request => body === request), 1);
   }
 
-  refuseRequest(body: any) {
+  refuseRequest(body: Notif) {
     console.log(body); 
-    this.notifs.splice(this.notifs.find(request => body === request), 1);
+    this.notifs.splice(this.notifs.findIndex(request => body === request), 1);
   }
 
   async getProfileData() {
-    this.profileData = await this.http.get(`http://localhost:3000/db-writer/data/${this.pseudo}`).toPromise()
+    this.profileData = await this.http.get(`http://localhost:3000/db-writer/data/${this.pseudo}`).toPromise() as UserData
     this.ppUrl = this.profileData.pp;
     this.status = this.profileData.status;
     this.doubleAuth = this.profileData.doubleAuth
   }
 
   newNotif() {
-    this.socket.on('receive-notif', (data:any) => {
+    this.socket.on('receive-notif', (data: Notif) => {
       if (data.friend === this.pseudo) {
         if (!this.notifs)
           this.notifs = [];
@@ -126,7 +128,7 @@ export class ProfileComponent {
       content: `${this.pseudo} want to be your friend!`,
       type: "REQUEST_FRIEND"
     }
-    if (this.profileData.friends.find((friend:any) => friend.name === body.pseudo)) {
+    if (this.profileData.friends.find((friend: Friend) => friend.name === body.pseudo)) {
       console.log(body.friend, 'is already your friend!');
       return ;
     }

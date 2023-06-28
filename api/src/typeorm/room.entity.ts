@@ -2,10 +2,52 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { message } from "./user.entity"
 import { IsArray, IsEmpty, IsNotEmpty, IsString, IsStrongPassword } from 'class-validator';
 
+
+
 export interface member {
     pseudo: string,
     status: string,
     mute: number,
+}
+
+export interface ChangeStatus {
+    name: string,
+    pwd: string,
+    status: string,
+}
+
+export interface UserInRoom {
+    name: string,
+    pseudo: string,
+}
+
+export interface NewMessage {
+    name: string,
+    sender: string,
+    content: string,
+}
+
+export interface UserStatus {
+    name: string,
+    pseudo: string,
+    status: string,
+}
+
+export interface MuteUser{
+    name: string,
+    pseudo: string,
+    time: number,
+}
+
+export interface BanUser{
+    name: string,
+    pseudo: string,
+    askBanPseudo: string,
+}
+
+export interface Passwords{
+    inputPassword: string,
+    roomPassword: string,
 }
 
 @Entity()

@@ -3,8 +3,9 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { DataService } from '../services/data.service';
 import { Socket, io } from 'socket.io-client';
 import { environment } from 'src/environment';
-import * as bcrypt from 'bcryptjs';
-import { Router } from '@angular/router';
+// import * as bcrypt from 'bcryptjs';
+import { Router, RouterOutlet } from '@angular/router';
+import { Friend, JoinLeaveRoom, MemberStatus, NewRoom, Room, Message, UserData, RoomMessage, Passwords } from './interfaces/interfaces';
 
 @Component({
   selector: 'app-chat-room',
@@ -13,11 +14,11 @@ import { Router } from '@angular/router';
 })
 export class ChatRoomComponent {
   muteTime: string = "10";
-  members: any;
+  members!: MemberStatus[];
   memberOption!: string;
   memberOptions: string[] ;
-  selectedMember: any;
-  friendsToInvite!: any;
+  selectedMember!: MemberStatus;
+  friendsToInvite!: Friend[];
   friendInviteRoom!: string;
   selectedStatus!: string;
   selectedOption!: string;
@@ -25,13 +26,13 @@ export class ChatRoomComponent {
   pseudo: string;
   userStatus!: string;
   roomStatus: string;
-  rooms: any;
+  rooms!: Room[];
   roomName!: string;
   roomPassword!: string;
-  selectedRoom: any;
+  selectedRoom!: Room | null;
   selectedRoomPwd!: string;
   newPwd!: string;
-  conversation: any;
+  conversation!: Message[];
   newMessage!: string;
   roomSearch!: string;
   allRoomChecked: boolean;
@@ -54,40 +55,40 @@ export class ChatRoomComponent {
   }
 
   getNewMember() {
-    this.socket.on('join-room', (data:any) => {
-      if (this.selectedRoom.name === data.name)
+    this.socket.on('join-room', (data: JoinLeaveRoom) => {
+      if (this.selectedRoom?.name === data.name)
         this.members.push({pseudo: data.pseudo, status: 'NORMAL'})
       if (this.selectedRoom && data.name === this.selectedRoom.name && this.selectedRoom.ban
         && !this.selectedRoom.ban.find((ban: any) => ban.pseudo === data.pseudo))
         this.selectedRoom.messages.push({content: `${data.pseudo} as joined the room!`, sender: 'BOT'})
-        this.conversation = this.selectedRoom.messages
+        this.conversation = this.selectedRoom?.messages as Message[]
       })
   }
 
    getNewRoom() {
-      this.socket.on('all-room', async (data:any) => {
+      this.socket.on('all-room', async (data: NewRoom) => {
         if (this.allRoomChecked || data.owner === this.pseudo) {
-          const room = await this.http.get(`http://localhost:3000/db-writer-room/data-room/${data.name}`).toPromise()
+          const room: Room = await this.http.get(`http://localhost:3000/db-writer-room/data-room/${data.name}`).toPromise() as Room
           this.rooms.push(room);
         }
       })
 
-      this.socket.on('has-leave-room', (data: any) => {
-        if (this.selectedRoom.name === data.name)
-          this.members.splice(this.members.findIndex((roomMember: any) => roomMember.pseudo === data.pseudo), 1)
+      this.socket.on('has-leave-room', (data: JoinLeaveRoom) => {
+        if (this.selectedRoom?.name === data.name)
+          this.members.splice(this.members.findIndex((roomMember: MemberStatus) => roomMember.pseudo === data.pseudo), 1)
         if (data.pseudo === this.pseudo && !this.allRoomChecked) {
-          this.rooms.splice(this.rooms.findIndex((room: any) => room.name === data.name), 1)
+          this.rooms.splice(this.rooms.findIndex((room: Room) => room.name === data.name), 1)
           this.joined = false;
           this.selectedRoom = null;
         }
-        if (this.allRoomChecked && this.selectedRoom.name === data.name && data.pseudo === this.pseudo) {
+        if (this.allRoomChecked && this.selectedRoom?.name === data.name && data.pseudo === this.pseudo) {
           this.joined = false;
           this.selectedRoom = null;
         }
       })
   }
 
-  onMemberClick(member: any) {
+  onMemberClick(member: MemberStatus) {
     this.selectedMember = member;
   }
 
@@ -95,7 +96,7 @@ export class ChatRoomComponent {
     if (this.newPwd === '')
       return ;
     const body = {
-      name: this.selectedRoom.name,
+      name: this.selectedRoom?.name,
       status: this.selectedStatus,
       pwd: this.newPwd,
     }    
@@ -105,7 +106,7 @@ export class ChatRoomComponent {
     this.newPwd = '';
   }
 
-  async handleMemberOption(memberOption: string, member: any) {
+  async handleMemberOption(memberOption: string, member: MemberStatus) {
     const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
     switch (memberOption) {
       case 'watch profil':
@@ -129,8 +130,8 @@ export class ChatRoomComponent {
           content: `${this.pseudo} want to be your friend!`,
           type: 'REQUEST_FRIEND'
         }
-        const profileData: any = await this.http.get(`http://localhost:3000/db-writer/data/${this.pseudo}`).toPromise()
-        if (profileData.friends.find((friend:any) => friend.name === bodyInvite.pseudo)) {
+        const profileData: UserData = await this.http.get(`http://localhost:3000/db-writer/data/${this.pseudo}`).toPromise() as UserData
+        if (profileData.friends.find((friend: Friend) => friend.name === bodyInvite.pseudo)) {
           console.log(bodyInvite.friend, 'is already your friend!');
           return ;
         }
@@ -140,7 +141,7 @@ export class ChatRoomComponent {
       case 'Promote':
         console.log(member.pseudo);
         const bodyPromote = {
-          name: this.selectedRoom.name,
+          name: this.selectedRoom?.name,
           pseudo: member.pseudo,
           status: 'ADMIN'
         }    
@@ -149,7 +150,7 @@ export class ChatRoomComponent {
 
       case 'Downgrade':
         const bodyDowngrade = {
-          name: this.selectedRoom.name,
+          name: this.selectedRoom?.name,
           pseudo: member.pseudo,
           status: 'NORMAL'
         }    
@@ -163,7 +164,7 @@ export class ChatRoomComponent {
           return ;
         }
         const bodyMute = { 
-          name: this.selectedRoom.name,
+          name: this.selectedRoom?.name,
           pseudo: member.pseudo,
           time: muteInSecond,
         }
@@ -173,11 +174,11 @@ export class ChatRoomComponent {
 
       case 'Kick':
         const bodyKick = { 
-          name: this.selectedRoom.name,
+          name: this.selectedRoom?.name,
           pseudo: member.pseudo
         }
         this.socket.emit('leave-room', bodyKick)
-        this.members.splice(this.members.findIndex((roomMember: any) => roomMember.pseudo === member.pseudo), 1)
+        this.members.splice(this.members.findIndex((roomMember: MemberStatus) => roomMember.pseudo === member.pseudo), 1)
         break ;
 
       case 'Ban':
@@ -186,19 +187,19 @@ export class ChatRoomComponent {
           askBanMember: member.pseudo
         }
         this.http.post(`http://localhost:3000/db-writer-room/ban-member/`, bodyBan, { headers }).subscribe()
-        this.members.splice(this.members.findIndex((roomMember: any) => roomMember.pseudo === member.pseudo), 1)
+        this.members.splice(this.members.findIndex((roomMember: MemberStatus) => roomMember.pseudo === member.pseudo), 1)
         break ;
     }
   }
 
   quitRoom() {
     const body = {
-      name: this.selectedRoom.name,
+      name: this.selectedRoom?.name,
       pseudo: this.pseudo,
     }    
     this.socket.emit('leave-room', body)
     if (!this.allRoomChecked)
-      this.rooms.splice(this.rooms.findIndex((room: any) => room === this.selectedRoom), 1)
+      this.rooms.splice(this.rooms.findIndex((room: Room) => room === this.selectedRoom), 1)
     this.joined = false;
     this.selectedRoom = null;
   }
@@ -212,7 +213,6 @@ export class ChatRoomComponent {
     const body = {
       name: this.roomName,
       owner: this.pseudo,
-      // pwd: bcrypt.hashSync(this.roomPassword, "Bonjour"),
       pwd: this.roomPassword,
       status: roomStatus
     }
@@ -223,46 +223,49 @@ export class ChatRoomComponent {
 
   sendInviteRoom(userToAddRoom: string) {
     const body = {
-      name: this.selectedRoom.name,
+      name: this.selectedRoom?.name,
       friend: userToAddRoom,
-      content: `${this.pseudo} has invited you to join the ${this.selectedRoom.name} room!`,
+      content: `${this.pseudo} has invited you to join the ${this.selectedRoom?.name} room!`,
       type: "ROOM_INVITE"
     }
     this.socket.emit('send-notif', body);
   }
 
-  async onClickRoom(room: any) {
+  async onClickRoom(room: Room) {
     this.newPwd = '';
     this.selectedStatus = '';
     this.options = ['PUBLIC', 'PROTECTED', 'PRIVATE'];
     this.memberOptions = ['watch profil', '1v1 match', 'Friend Invite'];
     this.joined = false;
-    const roomData: any = await this.http.get(`http://localhost:3000/db-writer-room/data-room/${room.name}`).toPromise()
-    this.friendsToInvite = await this.http.get(`http://localhost:3000/db-writer/friends/${this.pseudo}`).toPromise()
+    const roomData: Room = await this.http.get(`http://localhost:3000/db-writer-room/data-room/${room.name}`).toPromise() as Room
+    this.friendsToInvite = await this.http.get(`http://localhost:3000/db-writer/friends/${this.pseudo}`).toPromise() as Friend[]
     this.selectedRoom = room;
     this.members = roomData.members;
-    this.roomStatus = this.selectedRoom.status;
+    this.roomStatus = this.selectedRoom?.status as string;
     this.options.splice(this.options.findIndex(opt => opt === this.roomStatus), 1)
-    if (roomData.members && roomData.members.find((member: any) => this.pseudo === member.pseudo)) {
+    if (roomData.members && roomData.members.find((member: MemberStatus) => this.pseudo === member.pseudo)) {
       this.joined = true;
       this.roomStatus = "PUBLIC"
-      this.userStatus = roomData.members.find((member: any) => this.pseudo === member.pseudo).status
-      if (this.selectedRoom.owner === this.pseudo)
+      const findMember = roomData.members.find((member: MemberStatus) => this.pseudo === member.pseudo)
+      if (findMember)
+        this.userStatus = findMember.status
+      if (this.selectedRoom?.owner === this.pseudo)
         this.memberOptions = this.memberOptions.concat(['Promote', 'Downgrade', 'Mute', 'Kick', 'Ban'])
       else if (this.userStatus === 'ADMIN')
         this.memberOptions = this.memberOptions.concat(['Promote', 'Mute', 'Kick', 'Ban'])
     }
-    this.conversation = this.selectedRoom.messages;
+    this.conversation = this.selectedRoom?.messages as Message[];
   }
 
   onStatusSelected(event: Event) {
     this.selectedStatus = (event.target as HTMLSelectElement).value;
-    this.selectedRoom.status = this.selectedStatus;
+    if (this.selectedRoom)
+      this.selectedRoom.status = this.selectedStatus;
     console.log(this.selectedStatus);
     if (this.selectedStatus === 'PROTECTED')
       return ;
     const body = {
-      name: this.selectedRoom.name,
+      name: this.selectedRoom?.name,
       status: this.selectedStatus,
     }    
     const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
@@ -270,43 +273,60 @@ export class ChatRoomComponent {
   }
 
   receiveMessage() {
-    this.socket.on('receive-room-msg', (data:any) => this.conversation.push(data))
+    this.socket.on('receive-room-msg', (data: RoomMessage) => this.conversation.push(data))
   }
 
   joinRoom() {
-    this.joined = true;
-    const body = {
-      pseudo: this.pseudo,
-      name: this.selectedRoom.name,
-    }    
-    this.socket.emit('request-join-room', body)
+    if (this.selectedRoom) {
+      this.joined = true;
+      const body: JoinLeaveRoom = {
+        pseudo: this.pseudo,
+        name: this.selectedRoom?.name,
+      }    
+      this.socket.emit('request-join-room', body)
+    }
   }
 
   async sendMessage(message: string) {
-    const body = {
-      sender: this.pseudo,
-      name: this.selectedRoom.name,
-      content: message,
-    }  
-    this.socket.emit('add-room-msg', body);
-    this.newMessage = '';
+    if (this.selectedRoom) {
+      const body: RoomMessage = {
+        sender: this.pseudo,
+        name: this.selectedRoom.name,
+        content: message,
+      }  
+      this.socket.emit('add-room-msg', body);
+      this.newMessage = '';
+    } 
   }
 
   async onCheckboxChange() {
     this.selectedRoom = null;
     if (this.allRoomChecked)
-      this.rooms = await this.http.get(`http://localhost:3000/db-writer-room/all-room/`).toPromise()
+      this.rooms = await this.http.get(`http://localhost:3000/db-writer-room/all-room/`).toPromise() as Room[]
     else
-      this.rooms = await this.http.get(`http://localhost:3000/db-writer-room/all-room/${this.pseudo}`).toPromise()
+      this.rooms = await this.http.get(`http://localhost:3000/db-writer-room/all-room/${this.pseudo}`).toPromise() as Room[]
   }
 
   async findRoom(roomName: string) {
-    this.rooms = await this.http.get(`http://localhost:3000/db-writer-room/search-room/${roomName}`).toPromise();
+    this.rooms = await this.http.get(`http://localhost:3000/db-writer-room/search-room/${roomName}`).toPromise() as Room[]
   }
 
-  verifyRoomPwd() {
-    if (this.selectedRoom.pwd === this.selectedRoomPwd)
-      this.roomStatus = 'PUBLIC'
-    this.selectedRoomPwd = ''
+  async verifyRoomPwd() {
+    if (this.selectedRoom == undefined)
+      return ;
+    const body: Passwords = {
+      roomPassword: this.selectedRoom.pwd,
+      inputPassword: this.selectedRoomPwd,
+    }
+    const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
+    this.http.post('http://localhost:3000/db-writer-room/check-password/', body, { headers }).subscribe((res) => {
+      if (res == true){
+        this.roomStatus = 'PUBLIC'
+      this.selectedRoomPwd = ''
+      }
+    })
+    // if (this.selectedRoom?.pwd === this.selectedRoomPwd)
+    //   this.roomStatus = 'PUBLIC'
+    // this.selectedRoomPwd = ''
   }
 }
