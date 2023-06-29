@@ -38,6 +38,8 @@ export class GameComponent implements OnInit, OnDestroy {
   refreshQueueInterval: any;
   movePlayerInterval: any;
   gameID!: string;
+  animationId: any = undefined;
+  animationLoop: boolean = true;
 
   constructor(private gameService : GameService, public dialog: MatDialog) {
   }
@@ -48,6 +50,7 @@ export class GameComponent implements OnInit, OnDestroy {
       next: (res) => {
         this.login = res.login;
         this.loguedIn = true;
+        this.gameService.connectToSocket(this.login as string);
     },
       error: () => {
         this.dialog.open(DialogNotLoguedComponent, {
@@ -63,6 +66,8 @@ export class GameComponent implements OnInit, OnDestroy {
     this.myFont.load().then(function(font){
       document.fonts.add(font);
   // console.log("Font loaded");
+
+
     })
   }
 
@@ -70,17 +75,19 @@ export class GameComponent implements OnInit, OnDestroy {
     clearInterval(this.queueInterval);
     clearInterval(this.refreshQueueInterval);
     clearInterval(this.refreshQueueInterval);
-    if (this.searchingGame) {
-      this.gameService.exitQueue(this.login!);
-    }
+    // if (this.searchingGame) {
+      // this.gameService.exitQueue(this.login!);
+    // }
   }
 
   enterQueue(element: any) {
-    this.gameService.enterQueue(this.login!).subscribe();
-    this.searchingGame = true;
-    element.textContent = "In queue..."
-    this.startTimer();
-    this.refreshQueue();
+    this.gameService.enterQueue();
+    this.gameService.connectToGameUpdate(this.gameID).subscribe((payload: GameData) => {
+      if (payload != undefined) {
+        this.gameData = payload;
+        console.log(payload);
+      } 
+    });
   }
 
   // Queue timer
@@ -95,50 +102,54 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   // Send a get request with login to API, expect a matchID in return
-  refreshQueue() {
-    this.refreshQueueInterval = setInterval(() => {
-      this.gameService.refreshQueue(this.login!).subscribe({
-        next: res => {
-          this.gameID = res;
-          console.log(res);
-          clearInterval(this.refreshQueueInterval);
-          clearInterval(this.queueTimeElapsed);
-        },
-        error: err => console.log(err),
-        complete: () => this.startGame(),
-      });
-    }, 2000);
-  }
+  // refreshQueue() {
+  //   this.refreshQueueInterval = setInterval(() => {
+  //     this.gameService.refreshQueue(this.login!).subscribe({
+  //       next: res => {
+  //         this.gameID = res;
+  //         this.inGame = true;
+  //         clearInterval(this.refreshQueueInterval);
+  //         clearInterval(this.queueTimeElapsed);
+  //       },
+  //       error: err => console.log(err),
+  //       complete: () => this.startGame(),
+  //     });
+  //   }, 2000);
+  // }
 
 
   leaveQueue() {
-    this.gameService.exitQueue(this.login!).subscribe();
+    // this.gameService.exitQueue(this.login!).subscribe();
     this.searchingGame = false;
     clearInterval(this.queueInterval);
     clearInterval(this.refreshQueueInterval);
   }
 
-  startGame() {
-    this.gameService.connectToSocket(this.login!);
-    // this.gameService.connectToRoom(this.gameID);
-    // this.gameService.getGameUpdate(this.gameID).subscribe();
-    this.gameService.getGameUpdate(this.gameID).subscribe((payload: GameData) => {
-        this.gameData = payload;
-    });
+  // startGame() {
+  //   this.gameService.connectToSocket(this.login!);
+  //   // this.gameService.connectToRoom(this.gameID);
+  //   // this.gameService.getGameUpdate(this.gameID).subscribe();
+  //   this.gameService.connectToGameUpdate(this.gameID).subscribe((payload: GameData) => {
+  //       this.gameData = payload;
+  //       if (this.gameData.over) {
+  //         setTimeout(() => this.handleEndGame(), 500);
+  //         clearInterval(this.movePlayerInterval);
+  //       }
+  //   });
 
-     // Wait until game data has been received before drawing
-    let waitDataInterval = setInterval(() => {
-      if (this.gameData.players[0] != undefined) {
-        this.animate();
-        this.movePlayer();
-        clearInterval(waitDataInterval);
-      }
-    }, 100);
-  }
+  //    // Wait until game data has been received before drawing
+  //   let waitDataInterval = setInterval(() => {
+  //     if (this.gameData?.players[0] != undefined) {
+  //       this.startAnimationFrame();
+  //       this.movePlayer();
+  //       clearInterval(waitDataInterval);
+  //     }
+  //   }, 100);
+  // }
 
   animate() {
-    requestAnimationFrame(this.animate.bind(this));
-    if (this.gameData.players[0] && this.gameData.players[1]) {
+    this.animationId = window.requestAnimationFrame(this.animate.bind(this));
+    if (this.gameData?.players[0] && this.gameData?.players[1]) {
       this.draw();
     } else {
       this.context.fillStyle = 'black';
@@ -153,11 +164,11 @@ export class GameComponent implements OnInit, OnDestroy {
 
     // Draw players
     this.context.fillStyle = 'white';
-    this.context.fillRect(this.gameData.players[0].posX!, this.gameData.players[0].posY!, this.gameData.players[0].width!, this.gameData.players[0].height!);
-    this.context.fillRect(this.gameData.players[1].posX!, this.gameData.players[1].posY!, this.gameData.players[1].width!, this.gameData.players[1].height!);
+    this.context.fillRect(this.gameData?.players[0].posX!, this.gameData?.players[0].posY!, this.gameData?.players[0].width!, this.gameData?.players[0].height!);
+    this.context.fillRect(this.gameData?.players[1].posX!, this.gameData?.players[1].posY!, this.gameData?.players[1].width!, this.gameData?.players[1].height!);
 
     // Draw ball
-    this.context.fillRect(this.gameData.ball?.posX!, this.gameData.ball?.posY!, BALL_SIZE, BALL_SIZE)
+    this.context.fillRect(this.gameData?.ball?.posX!, this.gameData?.ball?.posY!, BALL_SIZE, BALL_SIZE)
 
     this.drawScore();
     this.drawCenterLine();
@@ -166,8 +177,8 @@ export class GameComponent implements OnInit, OnDestroy {
   drawScore() {
     this.context.font = this.fontSize + "px 'PressStart2P'";
 
-    this.context.fillText(String(this.gameData.players[0].score), this.width / 2 - 100, 50);
-    this.context.fillText(String(this.gameData.players[1].score), this.width / 2 + 100, 50);
+    this.context.fillText(String(this.gameData?.players[0].score), this.width / 2 - 100, 50);
+    this.context.fillText(String(this.gameData?.players[1].score), this.width / 2 + 100, 50);
   }
 
   drawCenterLine() {
@@ -184,6 +195,26 @@ export class GameComponent implements OnInit, OnDestroy {
         isMovingDown: this.isMoving[movement.DOWN]
       });
     }, TICKRATE);
+  }
+
+  handleEndGame() {
+    this.stopAnimationFrame();
+    this.inGame = false;
+    this.searchingGame = false;
+  }
+
+  startAnimationFrame() {
+    if (!this.animationId) {
+      this.animationId = window.requestAnimationFrame(this.animate.bind(this));
+    }
+  }
+
+  stopAnimationFrame() {
+    if (this.animationId) {
+      window.cancelAnimationFrame(this.animationId);
+      this.animationId = undefined;
+      this.animationLoop = false;
+    }
   }
 
   @HostListener('window:keydown', ['$event'])

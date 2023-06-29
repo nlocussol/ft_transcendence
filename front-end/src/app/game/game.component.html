@@ -8,7 +8,7 @@
   </div>
 </div>
 <div *ngIf="searchingGame">
-  <button (click)="leaveQueue()" id="searchBtn">CANCEL QUEUE</button>
+  <button (click)="leaveQueue()" id="searchBtn" *ngIf="!inGame">CANCEL QUEUE</button>
   <p>{{ queueTimeElapsed }}</p>
 </div>
 <!-- <div *ngFor="let userToAddRoom of friendsToInvite" [value]="userToAddRoom.name">{{ userToAddRoom.name }}>

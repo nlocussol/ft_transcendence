@@ -30,7 +30,7 @@ export class Player {
 }
 
 export class GameData {
-    over: boolean = false;
+    inProgress: boolean = false;
     matchUUID?: string;
     intervalID: any;
     ball: Ball;

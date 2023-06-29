@@ -5,6 +5,14 @@ import { GameData, side } from './models/game.models';
 import { OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { environment } from './environment';
 
+class Client {
+  id: string;
+  login: string;
+  room: string;
+  state: string;
+  socket: Socket;
+}
+
 @WebSocketGateway({
   cors: true,
   namespace: 'game'
@@ -12,16 +20,22 @@ import { environment } from './environment';
 export class GameGateway implements OnModuleInit, OnModuleDestroy {
   @WebSocketServer()
   io: Namespace;
-  socket: Socket;
+  sockets: Socket [] = [];
   intervalId: any;
+  clientQueue: Client [] = [];
+  clients: Client [] = [];
 
   constructor(private gameService: GameService) {}
 
   onModuleInit() {
     this.intervalId = setInterval(() => {
       this.gameService.gameInProgress.forEach((game) => {
-        delete game.intervalID
-        this.io.to(game.matchUUID).emit('updatePlayers', game)
+        if (game.inProgress) {
+          delete game.intervalID
+          this.io.to(game.matchUUID).emit('updatePlayers', game)
+        } else {
+          this.io.to(game.matchUUID).emit('updatePlayers', undefined)
+        }
       })
     }, environment.TICKRATE);
   }
@@ -35,23 +49,78 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
       // If player try to connect without passing its unique login
       if (socket.handshake.query.login == undefined) {
         socket.disconnect();
-      } else {
-        var gameUUID = this.gameService.findGameByPlayer(socket.handshake.query.login as string);
-        if (!gameUUID) {
-          console.log(socket.handshake.query.login + ": Tried to connect withouth being in a room")
-          socket.disconnect();
-        } else {
-            socket.join(gameUUID);
-            this.gameService.handleReconnexion(socket.handshake.query.login as string, gameUUID);
-          }
+      }
+      this.handleSocketConnection(socket);
+      // else {
+      //   var gameUUID = this.gameService.findGameByPlayer(socket.handshake.query.login as string);
+      //   if (!gameUUID) {
+      //     console.log(socket.handshake.query.login + ": Tried to connect without being in a room")
+      //     socket.disconnect();
+      //   } else {
+      //       socket.join(gameUUID);
+      //       this.gameService.handleReconnexion(socket.handshake.query.login as string, gameUUID);
+      //     }
 
-          socket.on('disconnect', () => {
-            console.log(socket.handshake.query.login);
-            this.gameService.handleDeconnexion(socket.handshake.query.login as string, gameUUID);
-          })
-        }
+      socket.on('disconnect', () => {
+        console.log("Disconnect from socket: ", socket.handshake.query.login);
+        // this.removePlayerFromQueue(socket.handshake.query.login as string);
+        // this.gameService.handleDeconnexion(socket.handshake.query.login as string, gameUUID);
+        })
+      }
+  )}
 
-    });
+  handleSocketConnection(socket: Socket){
+    this.sockets.push(socket);
+    if (this.clients.find(client => client.login == socket.handshake.query.login) == undefined) {
+      console.log("Connection: ", socket.handshake.query.login);
+      let client = new Client();
+      client.login = socket.handshake.query.login as string;
+      client.id = socket.id;
+      client.state = "idle";
+      client.socket = socket;
+      this.clients.push(client);
+    } else {
+      console.log("Reconnection: ", socket.handshake.query.login);
+      let client = this.clients.find(client => client.login == socket.handshake.query.login);
+      client.id = socket.id;
+      client.socket = socket;
+    }
+  }
+
+  addPlayerToQueue(client: Client) {
+    if (this.clientQueue.find(c => c.login == client.login) == undefined) {
+      client.state = "queueing";
+      this.clientQueue.push(client);
+    }
+  }
+
+  addPlayersToRoom() {
+    console.log("Creating a game...");
+    const game: GameData = this.gameService.createNewGame();
+
+    let client: Client = this.clientQueue.shift();
+    client.room = game.matchUUID;
+    game.players[0].login = client.login;
+    client.socket.join(game.matchUUID);
+
+    client = this.clientQueue.shift();
+    client.room = game.matchUUID;
+    game.players[1].login = client.login;
+    client.socket.join(game.matchUUID);
+  }
+
+  @SubscribeMessage('queue')
+  handleQueue(socket: Socket) {
+    console.log("Wants to join a game:", socket.handshake.query.login);
+    let client = this.clients.find(c => c.socket == socket);
+    if (client == undefined) {
+      console.log("GameGatewayHandleQueue: Big problem");
+      return;
+    }
+    this.addPlayerToQueue(client);
+    if (this.clientQueue.length >= 2) {
+      this.addPlayersToRoom();
+    }
   }
 
   // Payload is login and isMovingUp/Down

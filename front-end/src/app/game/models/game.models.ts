@@ -28,9 +28,8 @@ export class Player {
 }
 
 export class GameData {
+    inProgress: boolean = false;
     matchUUID?: string;
     players: Player[] = [];
     ball?: Ball;
-    frontEndPlayer?: Player;
-    backEndPlayer?: Player;
 }

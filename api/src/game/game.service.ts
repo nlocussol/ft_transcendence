@@ -11,18 +11,15 @@ PLAYER_INITIAL_WIDTH = 8,
 PLAYER_INITIAL_HEIGHT = 70,
 PLAYER_INITIAL_SPEED = 5,
 OFFSET_FROM_WALL = 10,
-MAX_SCORE = 5,
+MAX_SCORE = 1,
 MAX_AFK_TIME = 20;
 
 @Injectable()
-export class GameService implements OnModuleInit {
+export class GameService {
     poolQueue: string[] = [];
     public gameInProgress: GameData[] = [];
 
     constructor(private dbWriteService: DbWriterService) {}
-
-    onModuleInit() {
-    }
 
     addPlayerToQueue(login: string) {
         if (this.poolQueue.indexOf(login) == -1) {
@@ -106,7 +103,8 @@ export class GameService implements OnModuleInit {
     }
 
     findGameByUUID(UUID: string): GameData {
-        let found = this.gameInProgress.find(game => game.matchUUID == UUID);
+        if (this.gameInProgress.length < 1) return undefined;
+        let found = this.gameInProgress.find(game => game.matchUUID === UUID);
         if (found == undefined) {
             console.log("Les problemes")
         } else {
@@ -222,12 +220,14 @@ export class GameService implements OnModuleInit {
     }
 
     handleGameFinish(game: GameData) {
-        game.over = true;
+        game.inProgress = true;
         game.ball.canMove = false;
         game.players[0].canMove = false;
         game.players[1].canMove = false;
         clearInterval(game.intervalID);
         this.dbWriteService.fillMatchHistory(game);
+        let gameIndex = this.gameInProgress.indexOf(game, 0);
+        // setTimeout(() => delete this.gameInProgress[gameIndex], 500)
     }
 
     movePlayer(game: GameData, playerIndex: number, movingUp: boolean, movingDown: boolean) {
@@ -254,7 +254,7 @@ export class GameService implements OnModuleInit {
         let timeoutStartingTime = Date.now();
         let timeoutInterval = setInterval(() => {
             game.players[playerIndex].AFKTimer = (Date.now() - timeoutStartingTime) / 1000;
-            if (game.players[playerIndex].AFK == false || game.over) {
+            if (game.players[playerIndex].AFK == false || game.inProgress) {
                 clearInterval(timeoutInterval);
             }
             if (game.players[playerIndex].AFKTimer > MAX_AFK_TIME) {
@@ -284,4 +284,40 @@ export class GameService implements OnModuleInit {
         }
     }
 
+    createNewGame(): GameData {
+        let newGame = new GameData();
+        newGame.matchUUID = crypto.randomUUID();
+        newGame.players[0] = new Player();
+        newGame.players[0].side = side.LEFT;
+        newGame.players[0].height = PLAYER_INITIAL_HEIGHT;
+        newGame.players[0].width = PLAYER_INITIAL_WIDTH;
+        newGame.players[0].posX = OFFSET_FROM_WALL;
+        newGame.players[0].posY = GAME_HEIGHT / 2 - (PLAYER_INITIAL_HEIGHT / 2);
+        newGame.players[0].score = 0;
+        newGame.players[0].canMove = true;
+        newGame.players[0].velY = PLAYER_INITIAL_SPEED;
+        newGame.players[1] = new Player();
+        newGame.players[1].side = side.RIGHT;
+        newGame.players[1].height = PLAYER_INITIAL_HEIGHT;
+        newGame.players[1].width = PLAYER_INITIAL_WIDTH;
+        newGame.players[1].posX = GAME_WIDTH - OFFSET_FROM_WALL;
+        newGame.players[1].posY = GAME_HEIGHT / 2 - (PLAYER_INITIAL_HEIGHT / 2);
+        newGame.players[1].score = 0;
+        newGame.players[1].canMove = false;
+        newGame.players[1].velY = PLAYER_INITIAL_SPEED;
+        newGame.ball = new Ball();
+        newGame.ball.canMove = false;
+        newGame.ball.posX = GAME_WIDTH / 2;
+        newGame.ball.posY = GAME_HEIGHT / 2;
+        newGame.ball.radius = BALL_INITIAL_RADIUS;
+        if (Math.floor(Math.random() * 2)) {
+            newGame.ball.velX = BALL_INITIAL_SPEED;
+        } else {
+            newGame.ball.velX = -BALL_INITIAL_SPEED;
+        }
+        newGame.ball.velY = 0;
+        newGame.inProgress = true;
+        this.gameInProgress.push(newGame);
+        return newGame;
+    }
 }

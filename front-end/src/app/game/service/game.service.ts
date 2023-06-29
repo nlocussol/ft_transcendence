@@ -13,20 +13,20 @@ export class GameService {
   payload$: BehaviorSubject<GameData> = new BehaviorSubject<GameData>(new GameData())
   constructor(private http: HttpClient) {}
 
-  enterQueue(login: string) {
-    return this.http.post<any>(this.API_ENDPOINT + "/" + login, {});
-  }
+  // enterQueue(login: string) {
+  //   return this.http.post<any>(this.API_ENDPOINT + "/" + login, {});
+  // }
 
-  exitQueue(login: string) {
-    return this.http.delete<any>(this.API_ENDPOINT + "/" + login);
-  }
+  // exitQueue(login: string) {
+  //   return this.http.delete<any>(this.API_ENDPOINT + "/" + login);
+  // }
 
-  // Returns the player's match UUID if one is started or undefined
-  refreshQueue(login: string): Observable<string> {
-    return this.http.get<any>(this.API_ENDPOINT + "/" + login).pipe(
-      map(data => data.matchUUID)
-    );
-  }
+  // // Returns the player's match UUID if one is started or undefined
+  // refreshQueue(login: string): Observable<string> {
+  //   return this.http.get<any>(this.API_ENDPOINT + "/" + login).pipe(
+  //     map(data => data.matchUUID)
+  //   );
+  // }
 
   connectToSocket(login: string) {
     this.socket = io(this.API_ENDPOINT, {
@@ -36,14 +36,18 @@ export class GameService {
     })
   }
 
-  connectToRoom(room: string) {
-    this.socket.emit('updatePlayers', room);
-    this.socket.on('updatePlayers',room, (payload: any) => {
-      console.log(payload);
-    });
+  enterQueue() {
+    this.socket.emit('queue');
   }
 
-  getGameUpdate = (room: string) => {
+  // connectToRoom(room: string) {
+  //   this.socket.emit('updatePlayers', room);
+  //   this.socket.on('updatePlayers',room, (payload: any) => {
+  //     console.log(payload);
+  //   });
+  // }
+
+  connectToGameUpdate = (room: string) => {
     this.socket.on('updatePlayers', (payload: GameData) => {
       this.payload$.next(payload);
     })
@@ -53,6 +57,11 @@ export class GameService {
   sendPlayerData(payload: any) {
     this.socket.emit('updatePlayers', payload);
   }
+
+  // disconnectFromSocket(matchUUID: string) {
+  //   this.socket.emit('gameOver', matchUUID);
+  //   // this.socket.disconnect();
+  // }
 
   getUser() {
     return this.http.get<any>('http://localhost:3000/auth/user');
