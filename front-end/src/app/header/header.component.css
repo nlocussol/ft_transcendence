@@ -1,7 +1,16 @@
 * {
   margin: 0px;
+  margin-left: 0px;
   padding: 0px;
   box-sizing: border-box;
+}
+
+.heading {
+  margin-left: 36%;
+}
+
+.container {
+  width: 100%;
 }
 
 .body-text {
@@ -25,16 +34,17 @@ nav {
   display: flex;
   flex-wrap: nowrap;
   color: white;
+  align-items: center;
   text-transform: uppercase;
-  letter-spacing: 5px;
-  font-size: 5vh;
+  letter-spacing: 1vw;
+  font-size: calc(10px + 1.5vw);
 }
 
 .nav-links {
   display: flex;
   flex-wrap: nowrap;
   justify-content: space-around;
-  width: 30%;
+  /* width: 30%; */
 }
 
 .nav-links li {
@@ -46,8 +56,10 @@ nav {
   text-decoration: none;
   letter-spacing: 1vh;
   font-weight: bold;
-  font-size: 2vh;
-  padding: 5% 5%;
+  font-size: calc(10px + 1.5vw);
+  padding: 1% 1%;
+  margin-left: 1vw;
+  margin-right: 1vw;
 
 }
 
