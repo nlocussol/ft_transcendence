@@ -1,32 +1,33 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { DataService } from '../services/data.service';
 import { Socket, io } from 'socket.io-client';
 import { environment } from 'src/environment';
-// import * as bcrypt from 'bcryptjs';
-import { Router, RouterOutlet } from '@angular/router';
+import { Router } from '@angular/router';
 import { Friend, JoinLeaveRoom, MemberStatus, NewRoom, Room, Message, UserData, RoomMessage, Passwords } from './interfaces/interfaces';
+import { HomeService } from '../home/service/home.service';
 
 @Component({
   selector: 'app-chat-room',
   templateUrl: './chat-room.component.html',
   styleUrls: ['./chat-room.component.css']
 })
-export class ChatRoomComponent {
+export class ChatRoomComponent implements OnInit, OnDestroy {
+  friends!: Friend[];
   muteTime: string = "10";
   members!: MemberStatus[];
   memberOption!: string;
-  memberOptions: string[] ;
+  memberOptions!: string[] ;
   selectedMember!: MemberStatus;
   friendsToInvite!: Friend[];
   friendInviteRoom!: string;
   selectedStatus!: string;
   selectedOption!: string;
   options!: string[];
-  login: string;
-  pseudo: string;
+  login!: string;
+  pseudo!: string;
   userStatus!: string;
-  roomStatus: string;
+  roomStatus!: string;
   rooms!: Room[];
   roomName!: string;
   roomPassword!: string;
@@ -36,25 +37,32 @@ export class ChatRoomComponent {
   conversation!: Message[];
   newMessage!: string;
   roomSearch!: string;
-  allRoomChecked: boolean;
-  socket: Socket;
-  joined: boolean;
+  allRoomChecked!: boolean;
+  socket!: Socket;
+  joined!: boolean;
 
-  constructor(private http: HttpClient, private dataServices : DataService, private router: Router) {
-    this.memberOptions = ['watch profil', '1v1 match', 'Friend Invite'];
-    this.joined = false;
-    this.allRoomChecked = false;
-    this.roomStatus = 'PROTECTED';
-    this.socket = io(environment.SOCKET_ENDPOINT);
-    this.login = this.dataServices.getLogin();
-    this.pseudo = dataServices.getPseudo()
-    if (!this.login)
-      return;
-    this.onCheckboxChange()
-    this.getNewRoom();
-    this.receiveMessage();
-    this.getNewMember();
+  ngOnInit(): void {
+    this.homeService.getUser().subscribe(res => {
+      this.memberOptions = ['watch profil', '1v1 match', 'Friend Invite'];
+      this.joined = false;
+      this.allRoomChecked = false;
+      this.roomStatus = 'PROTECTED';
+      this.socket = io(environment.SOCKET_ENDPOINT);
+      this.login = res.login;
+      this.pseudo = res.pseudo;
+      this.onCheckboxChange()
+      this.getNewRoom();
+      this.receiveMessage();
+      this.getNewMember();
+      this.http.get(`http://localhost:3000/db-writer/friends/${this.login}`).subscribe((res: any) => this.friends = res)
+    })
   }
+
+  ngOnDestroy(): void {
+    this.socket.disconnect()
+  }
+
+  constructor(private http: HttpClient, private homeService: HomeService, private router: Router) {}
 
   getNewMember() {
     this.socket.on('join-room', (data: JoinLeaveRoom) => {
@@ -62,9 +70,17 @@ export class ChatRoomComponent {
         this.members.push({pseudo: data.pseudo, login: data.login, status: 'NORMAL'})
       if (this.selectedRoom && data.name === this.selectedRoom.name && this.selectedRoom.ban
         && !this.selectedRoom.ban.find((ban: any) => ban.login === data.login))
-        this.selectedRoom.messages.push({content: `${data.login} as joined the room!`, sender: 'BOT'})
         this.conversation = this.selectedRoom?.messages as Message[]
       })
+  }
+
+  isBlocked(member: string) {
+    if (member === this.pseudo)
+      return false
+    let friend: Friend | undefined = this.friends.find(friend => friend.name === member)
+    if (friend)
+      return friend.blocked
+    return false
   }
 
    getNewRoom() {
@@ -202,6 +218,14 @@ export class ChatRoomComponent {
     this.socket.emit('leave-room', body)
     if (!this.allRoomChecked)
       this.rooms.splice(this.rooms.findIndex((room: Room) => room === this.selectedRoom), 1)
+    if (this.selectedRoom) {
+      const bodyMessage: RoomMessage = {
+        sender: 'BOT',
+        name: this.selectedRoom.name,
+        content: `${this.pseudo} has leave the room!`,
+      }  
+      this.socket.emit('add-room-msg', bodyMessage);
+    }
     this.joined = false;
     this.selectedRoom = null;
   }
@@ -290,6 +314,14 @@ export class ChatRoomComponent {
         name: this.selectedRoom?.name,
       }    
       this.socket.emit('request-join-room', body)
+      if (this.selectedRoom) {
+        const bodyMessage: RoomMessage = {
+          sender: 'BOT',
+          name: this.selectedRoom.name,
+          content: `${this.pseudo} has join the room!`,
+        }  
+        this.socket.emit('add-room-msg', bodyMessage);
+      }
     }
   }
 
@@ -331,8 +363,5 @@ export class ChatRoomComponent {
       this.selectedRoomPwd = ''
       }
     })
-    // if (this.selectedRoom?.pwd === this.selectedRoomPwd)
-    //   this.roomStatus = 'PUBLIC'
-    // this.selectedRoomPwd = ''
   }
 }
