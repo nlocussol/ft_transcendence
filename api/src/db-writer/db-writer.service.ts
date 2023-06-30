@@ -79,7 +79,7 @@ export class DbWriterService {
         const friend = await this.userRepository.findOneBy({
             login: newFriend.friend,
         });
-        if (user === friend){
+        if (newFriend.login === newFriend.friend){
             console.log("addFriend: The user and friend's name are the same.");
             return null;
         }

@@ -43,4 +43,7 @@ prune:
 
 re: clean clean_volumes all
 
+giga_bytes: 
+	docker system prune -fa
+
 .PHONY: all clean re build stop down clean_volumes prune
