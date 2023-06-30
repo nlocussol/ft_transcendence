@@ -18,9 +18,9 @@
       Chatting with {{ selectedFriend.name }}
     </div>
     <div class="chat-messages" *ngIf="selectedFriend">
-      <button (click)="blockFriend()">Block him</button>
+      <button id="block-button" (click)="blockFriend()">Block</button>
       <div *ngFor="let message of conversation.reverse()" class="message">
-        <span class="sender">{{ message.sender }}:</span> {{ message.content }}
+        <span class="sender"><em>{{ message.sender }}</em>: </span> {{ message.content }}
       </div>
     </div>
     <div class="chat-input" *ngIf="selectedFriend">

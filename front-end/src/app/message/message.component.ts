@@ -58,11 +58,9 @@ export class MessageComponent {
   }
 
   async getUserData() {
-    const res: UserData = await this.http.get(`http://localhost:3000/db-writer/data/${this.login}`).toPromise() as UserData
-    this.userData = res;
-    const resBis: Friend[] = await this.http.get(`http://localhost:3000/db-writer/friends/${this.login}`).toPromise() as Friend[]
-    this.friends = resBis;
-    console.log(this.friends);
+    this.userData = await this.http.get(`http://localhost:3000/db-writer/data/${this.login}`).toPromise() as UserData
+    this.friends = await this.http.get(`http://localhost:3000/db-writer/friends/${this.login}`).toPromise() as Friend[]
+    // console.log(this.friends);
   }
 
   async onClickFriend(friend: Friend){

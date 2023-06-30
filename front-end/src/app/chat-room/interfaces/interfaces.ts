@@ -6,6 +6,7 @@ export interface MemberStatus {
 }
 
 export interface Friend {
+    pseudo: string,
     name:string,
     pp: string,
     blocked: boolean,
