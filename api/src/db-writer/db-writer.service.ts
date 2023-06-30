@@ -342,6 +342,7 @@ export class DbWriterService {
             type: newNotif.type,
             content: newNotif.content,
         }
+        console.log(notif)
         currentUser.notif.push(notif);
         await this.userRepository.save(currentUser)
         return true;
