@@ -70,7 +70,6 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
         this.members.push({pseudo: data.pseudo, login: data.login, status: 'NORMAL'})
       if (this.selectedRoom && data.name === this.selectedRoom.name && this.selectedRoom.ban
         && !this.selectedRoom.ban.find((ban: any) => ban.login === data.login))
-        this.selectedRoom.messages.push({content: `${data.login} as joined the room!`, sender: 'BOT'})
         this.conversation = this.selectedRoom?.messages as Message[]
       })
   }
@@ -219,6 +218,14 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
     this.socket.emit('leave-room', body)
     if (!this.allRoomChecked)
       this.rooms.splice(this.rooms.findIndex((room: Room) => room === this.selectedRoom), 1)
+    if (this.selectedRoom) {
+      const bodyMessage: RoomMessage = {
+        sender: 'BOT',
+        name: this.selectedRoom.name,
+        content: `${this.pseudo} has leave the room!`,
+      }  
+      this.socket.emit('add-room-msg', bodyMessage);
+    }
     this.joined = false;
     this.selectedRoom = null;
   }
@@ -307,6 +314,14 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
         name: this.selectedRoom?.name,
       }    
       this.socket.emit('request-join-room', body)
+      if (this.selectedRoom) {
+        const bodyMessage: RoomMessage = {
+          sender: 'BOT',
+          name: this.selectedRoom.name,
+          content: `${this.pseudo} has join the room!`,
+        }  
+        this.socket.emit('add-room-msg', bodyMessage);
+      }
     }
   }
 
@@ -348,8 +363,5 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
       this.selectedRoomPwd = ''
       }
     })
-    // if (this.selectedRoom?.pwd === this.selectedRoomPwd)
-    //   this.roomStatus = 'PUBLIC'
-    // this.selectedRoomPwd = ''
   }
 }
