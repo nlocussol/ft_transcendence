@@ -1,49 +1,80 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { DataService } from '../services/data.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Socket, io } from 'socket.io-client';
 import { environment } from 'src/environment';
 import { Router } from '@angular/router';
 import { Message, UserData, Friend } from '../chat-room/interfaces/interfaces';
+import { HomeService } from '../home/service/home.service';
 
 @Component({
   selector: 'app-message',
   templateUrl: './message.component.html',
   styleUrls: ['./message.component.css']
 })
-export class MessageComponent {
-  login: string;
+export class MessageComponent implements OnInit, OnDestroy {
+  login!: string;
+  pseudo!: string;
   friends!: Friend[];
   selectedFriend!: Friend | null;
   userData!: UserData;
   conversation!: Message[];
-  newMessage: string = '';
-  socket: Socket;
+  newMessage!: string;
+  socket!: Socket;
   newMessageObj!: Message;
 
-  constructor(private http: HttpClient, private dataServices : DataService, private router: Router) {
-    this.socket = io(environment.SOCKET_ENDPOINT);
-    this.login = this.dataServices.getLogin();
-    if (!this.login)
-      return
-    this.getUserData();
-    this.receiveMessage()
+  ngOnInit(): void {
+    this.homeService.getUser().subscribe(res => {
+      this.socket = io(environment.SOCKET_ENDPOINT);
+      this.login = res.login;
+      this.pseudo = res.pseudo
+      this.getUserData();
+      this.receiveMessage()
+    })
   }
+
+  ngOnDestroy(): void {
+    this.socket.disconnect()
+  }
+
+  constructor(private http: HttpClient, private homeService: HomeService, private router: Router) {}
 
   receiveMessage() {
     this.socket.on('receive-pm', (data: Message) => this.conversation.push(data))
   }
 
-  blockFriend() {
+  async unblockFriend() {
+    const body = {
+      login: this.login,
+      friend: this.selectedFriend?.name,
+      block: false
+    }
+    const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
+    this.http.post('http://localhost:3000/db-writer/block-friend/', body, { headers }).subscribe()  
+    let bodyNotif = {
+      login: this.login,
+      friend: this.selectedFriend?.name,
+      content: `${this.login} unblocked you!`,
+      type: "BLOCK"
+    }
+    this.socket.emit('send-notif', bodyNotif);
+    bodyNotif.friend = this.login
+    bodyNotif.content = `You blocked ${this.selectedFriend?.name}`
+    this.socket.emit('send-notif', bodyNotif);
+    this.friends.find(friend =>  {
+      if (friend === this.selectedFriend)
+        friend.blocked = false
+    })
+  }
+
+  async blockFriend() {
     const body = {
       login: this.login,
       friend: this.selectedFriend?.name,
       block: true
     }
     const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
-    this.http.post('http://localhost:3000/db-writer/block-friend/', body, { headers }).subscribe()
-    this.friends.splice(this.friends.findIndex((friend: Friend) => friend === this.selectedFriend), 1)
-    
+    this.http.post('http://localhost:3000/db-writer/block-friend/', body, { headers }).subscribe()    
     let bodyNotif = {
       login: this.login,
       friend: this.selectedFriend?.name,
@@ -54,13 +85,15 @@ export class MessageComponent {
     bodyNotif.friend = this.login
     bodyNotif.content = `You blocked ${this.selectedFriend?.name}`
     this.socket.emit('send-notif', bodyNotif);
-    this.selectedFriend = null;
+    this.friends.find(friend =>  {
+      if (friend === this.selectedFriend)
+        friend.blocked = true
+    })
   }
 
   async getUserData() {
     this.userData = await this.http.get(`http://localhost:3000/db-writer/data/${this.login}`).toPromise() as UserData
     this.friends = await this.http.get(`http://localhost:3000/db-writer/friends/${this.login}`).toPromise() as Friend[]
-    // console.log(this.friends);
   }
 
   async onClickFriend(friend: Friend){

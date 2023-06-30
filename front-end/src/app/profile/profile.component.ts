@@ -29,6 +29,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.homeService.getUser().subscribe((res) => {
       this.login = res.login;
+      this.pseudo = res.pseudo;
       this.getProfileData();
       console.log(this.login, this.pseudo);
       this.socket = io(environment.SOCKET_ENDPOINT);
@@ -178,7 +179,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.notifs = this.profileData.notif;
     this.status = this.profileData.status;
     this.doubleAuth = this.profileData.doubleAuth;
-    this.pseudo = this.profileData.pseudo;
   }
 
   newNotif() {
@@ -208,5 +208,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
       return;
     }
     this.socket.emit('send-notif', body);
+    this.pseudoFriend = '';
   }
 }

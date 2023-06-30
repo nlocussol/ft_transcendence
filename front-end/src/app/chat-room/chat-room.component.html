@@ -40,10 +40,14 @@
             </select>
             <button id="send-request" (click)="sendInviteRoom(friendInviteRoom)">Send</button>
           </div>          
-          
           <div class="chat-messages" *ngIf="roomStatus === 'PUBLIC' && conversation">
             <div *ngFor="let message of conversation.reverse()" class="message">
-              <span class="sender"><em>{{ message.sender }}</em></span>: {{ message.content }}
+              <div *ngIf="!isBlocked(message.sender)">
+                <span class="sender"><em>{{ message.sender }}</em></span>: {{ message.content }}
+              </div>
+              <div *ngIf="isBlocked(message.sender)">
+                <span class="sender"><em>{{ message.sender }}</em></span>: You blocked this user!
+              </div>
             </div>
           </div>
           <form *ngIf="userStatus === 'ADMIN'">

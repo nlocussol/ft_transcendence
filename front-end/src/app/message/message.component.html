@@ -13,19 +13,24 @@
       </div>
     </li>
   </ul>
-  <div *ngIf="friends && friends.length" class="chat">
-    <div class="chat-header" *ngIf="selectedFriend">
-      Chatting with {{ selectedFriend.name }}
+  <div *ngIf="selectedFriend && friends && friends.length" class="chat">
+    <div *ngIf="selectedFriend.blocked">
+      <button id="block-button" (click)="unblockFriend()">Unblock</button>
     </div>
-    <div class="chat-messages" *ngIf="selectedFriend">
-      <button id="block-button" (click)="blockFriend()">Block</button>
-      <div *ngFor="let message of conversation.reverse()" class="message">
-        <span class="sender"><em>{{ message.sender }}</em>: </span> {{ message.content }}
+    <div *ngIf="!selectedFriend.blocked">
+      <div class="chat-header">
+        Chatting with {{ selectedFriend.name }}
       </div>
-    </div>
-    <div class="chat-input" *ngIf="selectedFriend">
-      <input type="text" [(ngModel)]="newMessage" (keyup.enter)="sendMessage(newMessage)" placeholder="Type a message..." />
-      <button (click)="sendMessage(newMessage)">Send</button>
+      <div class="chat-messages">
+        <button id="block-button" (click)="blockFriend()">Block</button>
+        <div *ngFor="let message of conversation.reverse()" class="message">
+          <span class="sender"><em>{{ message.sender }}</em>: </span> {{ message.content }}
+        </div>
+      </div>
+      <div class="chat-input">
+        <input type="text" [(ngModel)]="newMessage" (keyup.enter)="sendMessage(newMessage)" placeholder="Type a message..." />
+        <button (click)="sendMessage(newMessage)">Send</button>
+      </div>
     </div>
   </div>
 </div>

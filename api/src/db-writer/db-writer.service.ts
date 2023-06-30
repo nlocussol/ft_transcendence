@@ -173,13 +173,7 @@ export class DbWriterService {
             console.log("getFriends: The user does not exist.");
             return null;
         }
-
-        let list = user.friends;
-        for (var i of list){
-            if (i.blocked === true)
-                list.splice(list.indexOf(i, 0), 1);
-        }
-        return list;
+        return user.friends;
     }   
 
     async changeUserPseudo(newName: changePseudo){
