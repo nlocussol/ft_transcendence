@@ -235,24 +235,24 @@ export class DbWriterRoomService {
     async banMember(banMember: BanUser){
         // check if the room exist
         const currentRoom = await this.roomRepository.findOneBy({
-            name: banMember.name,
-         });
-         if (!currentRoom){
-             console.log("The room doesn't exist");
-             return null;
-         }
-
-        for (let i in currentRoom.members) {
-            if (currentRoom.members[i].login === banMember.login && ((currentRoom.members[i].status === 'ADMIN' && banMember.askBanLogin === currentRoom.owner) || (currentRoom.members[i].status !== 'ADMIN'))){
-                currentRoom.ban.push(banMember.login);
-                this.leaveRoom(banMember);
-                await this.roomRepository.save(currentRoom);
-                return true;
-            } else {
-                console.log("Wrong permisson to ban this user");
-                return null;
-            }
+        name: banMember.name,
+        });
+        if (!currentRoom){
+            console.log("The room doesn't exist");
+            return null;
         }
+        for (let i in currentRoom.members) {
+            if (currentRoom.members[i].login === banMember.login) {
+                if (currentRoom.members[i].status !== 'ADMIN' || (currentRoom.members[i].status === 'ADMIN' && banMember.askBanLogin === currentRoom.owner)) {
+                    currentRoom.ban.push(banMember.login);
+                    this.leaveRoom({name: banMember.name, login: banMember.login})
+                    await this.roomRepository.save(currentRoom);
+                    console.log(banMember.login, 'is banned');
+                    return true;
+                }
+            } 
+        }
+        console.log("Wrong permisson to ban this user");
         return null;
     }
 
@@ -272,10 +272,7 @@ export class DbWriterRoomService {
                 currentRoom.members[i].mute = date.getTime() + (mutedMember.time * 1000);
                 await this.roomRepository.save(currentRoom);
                 return true;
-            } else {
-                console.log("Wrong permisson to mute this user");
-                return null;
-            }
+            } 
         }
         console.log("The user doesn't exist");
         return null;

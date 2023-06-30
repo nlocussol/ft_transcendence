@@ -65,9 +65,10 @@
             <button (click)="sendMessage(newMessage)">Send</button>
           </div>
         </div>
-        <div *ngIf="!joined && allRoomChecked">
+        <div *ngIf="!joined && allRoomChecked && !isBan()">
           <button type="submit" class="join-button" (click)="joinRoom()">Join</button>
         </div>
+        <div *ngIf="!joined && isBan()" class="chat-messages">You are ban of this room!</div>
       </div>
       <div *ngIf="roomStatus === 'PROTECTED' && allRoomChecked && selectedRoom" class="input">
         <input type="text" [(ngModel)]="selectedRoomPwd" (keyup.enter)="verifyRoomPwd()" placeholder="Enter the Password of the room to get access!" />

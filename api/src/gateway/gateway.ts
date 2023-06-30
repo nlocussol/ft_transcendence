@@ -4,7 +4,7 @@ import { Server, Socket } from 'socket.io'
 import { OnModuleInit } from "@nestjs/common";
 import { messageData } from "src/typeorm/user.entity";
 import { DbWriterRoomService } from "src/db-writer-room/db-writer-room.service";
-import { NewMessage, UserInRoom } from "src/typeorm/room.entity";
+import { BanUser, NewMessage, UserInRoom } from "src/typeorm/room.entity";
 
 @WebSocketGateway({cors : true})
 export class MyGateway implements OnModuleInit{
@@ -65,5 +65,13 @@ export class MyGateway implements OnModuleInit{
         if (res == null)
             return ;
         this.server.emit('has-leave-room', messageData);
+    }
+
+    @SubscribeMessage('ban-member')
+    async banMember(client: Socket, messageData: BanUser) {
+        const res = await this.dbWriterRoom.banMember(messageData);
+        if (res == null)
+            return ;
+        this.server.emit('ban-member-room', {name: messageData.name, login: messageData.login});
     }
 }

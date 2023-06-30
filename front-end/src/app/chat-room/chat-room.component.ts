@@ -83,6 +83,12 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
     return false
   }
 
+  isBan() {
+    if (this.selectedRoom?.ban.find(banMember => banMember === this.login))
+      return true;
+    return false
+  }
+
    getNewRoom() {
       this.socket.on('all-room', async (data: NewRoom) => {
         if (this.allRoomChecked || data.owner === this.login) {
@@ -100,6 +106,28 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
           this.selectedRoom = null;
         }
         if (this.allRoomChecked && this.selectedRoom?.name === data.name && data.login === this.login) {
+          this.joined = false;
+          this.selectedRoom = null;
+        }
+      })
+
+      this.socket.on('ban-member-room', (data: JoinLeaveRoom) => {
+        if (this.selectedRoom?.name === data.name)
+          this.members.splice(this.members.findIndex((roomMember: MemberStatus) => roomMember.login === data.login), 1)
+        if (data.login === this.login && !this.allRoomChecked) {
+          this.rooms.find(room => {
+            if (room.name === data.name)
+              room.ban.push(data.login)
+          })
+          this.rooms.splice(this.rooms.findIndex((room: Room) => room.name === data.name), 1)
+          this.joined = false;
+          this.selectedRoom = null;
+        }
+        if (this.allRoomChecked && this.selectedRoom?.name === data.name && data.login === this.login) {
+          this.rooms.find(room => {
+            if (room.name === data.name)
+              room.ban.push(data.login)
+          })
           this.joined = false;
           this.selectedRoom = null;
         }
@@ -201,10 +229,11 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
 
       case 'Ban':
         const bodyBan = {
-          login: this.login,
-          askBanMember: member.login
+          name: this.selectedRoom?.name,
+          login: member.login,
+          askBanLogin: this.login
         }
-        this.http.post(`http://localhost:3000/db-writer-room/ban-member/`, bodyBan, { headers }).subscribe()
+        this.socket.emit('ban-member', bodyBan)
         this.members.splice(this.members.findIndex((roomMember: MemberStatus) => roomMember.login === member.login), 1)
         break ;
     }
