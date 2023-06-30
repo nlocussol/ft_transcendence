@@ -1,5 +1,5 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { DataService } from '../services/data.service';
 import { environment } from 'src/environment';
 import { Socket, io } from 'socket.io-client';
@@ -12,7 +12,7 @@ import { Notif, addFriend } from './interfaces/interfaces';
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css']
 })
-export class ProfileComponent {
+export class ProfileComponent implements OnInit, OnDestroy {
   doubleAuth!: boolean;
   selectedFile!: File;
   newPseudo!: string;
@@ -22,21 +22,23 @@ export class ProfileComponent {
   login!: string;
   ppUrl!: string;
   status!: string;
-  socket: Socket;
+  socket!: Socket;
   notifs!: Notif[];
 
-  constructor(private http: HttpClient, private dataService: DataService) {
+  ngOnInit(): void {
     this.socket = io(environment.SOCKET_ENDPOINT);
-    const tmp: string = dataService.getLogin();
-    const temp: string = dataService.getPseudo();
-    if (!tmp || !temp)
-      return ;
-    this.pseudo = temp;
-    this.login = tmp;
+    this.login = this.dataService.getLogin();
+    this.pseudo = this.dataService.getPseudo();
     console.log('My pseudo:', this.pseudo);
     this.getProfileData();
     this.newNotif();
   }
+
+  ngOnDestroy(): void {
+    this.socket.disconnect();
+  }
+
+  constructor(private http: HttpClient, private dataService: DataService) {}
 
   onFileSelected(event: any): void {
     this.selectedFile = event.target.files[0];
