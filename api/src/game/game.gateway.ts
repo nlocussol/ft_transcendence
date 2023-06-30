@@ -37,10 +37,8 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
   onModuleInit() {
     this.intervalId = setInterval(() => {
       this.gameService.gameInProgress.forEach((game) => {
-        // if (!game.isOver) {
-          delete game.intervalID;
-          this.io.to(game.matchUUID).emit('updatePlayers', game);
-        // }
+        delete game.intervalID;
+        this.io.to(game.matchUUID).emit('updatePlayers', game);
       });
     }, environment.TICKRATE);
   }
@@ -51,7 +49,7 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
 
   afterInit(server: any) {
     this.io.on('connection', (socket) => {
-      if (socket.handshake.query.login == undefined) {
+      if (socket.handshake.auth.login == undefined) {
         socket.disconnect();
       }
       this.handleSocketConnection(socket);
@@ -66,11 +64,13 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
       //     }
 
       socket.on('disconnect', () => {
-        console.log('Disconnect from socket: ', socket.handshake.query.login);
-        const client = this.clients.find(client => client.id == socket.id);
+        console.log('Disconnect from socket: ', socket.handshake.auth.login);
+        const client = this.clients.find((client) => client.id == socket.id);
         this.removePlayerFromQueue(client);
         // this.removePlayerFromQueue(socket.handshake.query.login as string);
-        this.gameService.handleDeconnexion(socket.handshake.query.login as string);
+        this.gameService.handleDeconnexion(
+          socket.handshake.auth.login as string,
+        );
       });
     });
   }
@@ -79,20 +79,20 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
     this.sockets.push(socket);
     if (
       this.clients.find(
-        (client) => client.login == socket.handshake.query.login,
+        (client) => client.login == socket.handshake.auth.login,
       ) == undefined
     ) {
-      console.log('Connection: ', socket.handshake.query.login);
+      console.log('Connection: ', socket.handshake.auth.login);
       let client = new Client();
-      client.login = socket.handshake.query.login as string;
+      client.login = socket.handshake.auth.login as string;
       client.id = socket.id;
       client.state = 'idle';
       client.socket = socket;
       this.clients.push(client);
     } else {
-      console.log('Reconnection: ', socket.handshake.query.login);
+      console.log('Reconnection: ', socket.handshake.auth.login);
       let client = this.clients.find(
-        (client) => client.login == socket.handshake.query.login,
+        (client) => client.login == socket.handshake.auth.login,
       );
       client.id = socket.id;
       client.socket = socket;
@@ -109,7 +109,7 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
   removePlayerFromQueue(client: Client) {
     const clientIndex = this.clientQueue.indexOf(client, 0);
     if (clientIndex < 0) {
-      return ;
+      return;
     }
     this.clientQueue.splice(clientIndex, 0);
   }
@@ -131,7 +131,7 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
 
   @SubscribeMessage('queue')
   handleQueue(socket: Socket) {
-    console.log('Wants to join a game:', socket.handshake.query.login);
+    console.log('Wants to join a game:', socket.handshake.auth.login);
     let client = this.clients.find((c) => c.socket.id == socket.id);
     if (client == undefined) {
       console.log('GameGatewayHandleQueue: problem');
@@ -154,8 +154,8 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
 
   @SubscribeMessage('leaveRoom')
   removePlayerFromRoom(socket: Socket) {
-    console.log('Want to leave the room: ', socket.handshake.query.login);
-    const client = this.clients.find(client => client.id = socket.id);
+    console.log('Want to leave the room: ', socket.handshake.auth.login);
+    const client = this.clients.find((client) => (client.id = socket.id));
     client.socket.leave(client.room);
   }
 

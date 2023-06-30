@@ -54,6 +54,7 @@ export class GameComponent implements OnInit, OnDestroy {
     this.gameService.getUser().subscribe({
       next: (res) => {
         this.login = res.login;
+        console.log(this.login)
         this.loguedIn = true;
         this.gameService.connectToSocket(this.login as string);
 

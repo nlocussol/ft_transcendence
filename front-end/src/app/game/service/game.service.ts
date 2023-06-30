@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { io } from 'socket.io-client';
 import { GameData } from '../models/game.models';
-import { Subject, BehaviorSubject, Observable, map, tap } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -16,10 +16,14 @@ export class GameService {
   constructor(private http: HttpClient) {}
 
   connectToSocket(login: string) {
+    console.log("Connecting to socket...", login)
     this.socket = io(this.API_ENDPOINT, {
-      query: {
-        login: login,
+      auth: {
+        login: login
       },
+      query: {
+        login: "grosfdp"
+      }
     });
   }
 
