@@ -27,6 +27,10 @@ export class GameService {
     });
   }
 
+  disconnectFromSocket() {
+    this.socket.disconnect();
+  }
+
   enterQueue() {
     this.socket.emit('queue');
   }

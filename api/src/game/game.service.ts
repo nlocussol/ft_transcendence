@@ -21,7 +21,7 @@ export class GameService {
   constructor(private dbWriteService: DbWriterService) {}
 
   // Used in gateway
-  findGameByPlayer(login: string): string {
+  findGameUUIDByLogin(login: string): string {
     for (let i = 0; i < this.gameInProgress.length; i++) {
       if (
         this.gameInProgress[i].players[0].login === login ||
@@ -167,12 +167,14 @@ export class GameService {
     game.players[0].canMove = false;
     game.players[1].canMove = false;
     this.dbWriteService.fillMatchHistory(game);
-    game.players[0].score > game.players[1].score ? console.log(game.players[0].login) : console.log(game.players[1].login)
+    game.players[0].score > game.players[1].score
+      ? console.log(game.players[0].login)
+      : console.log(game.players[1].login);
     clearInterval(game.intervalID);
     setTimeout(() => {
-        const gameIndex = this.gameInProgress.indexOf(game, 0);
-        this.gameInProgress.splice(gameIndex, 1);
-    }, 200)
+      const gameIndex = this.gameInProgress.indexOf(game, 0);
+      this.gameInProgress.splice(gameIndex, 1);
+    }, 200);
   }
 
   movePlayer(
@@ -195,7 +197,7 @@ export class GameService {
   }
 
   handleDeconnexion(login: string) {
-    const gameUUID = this.findGameByPlayer(login);
+    const gameUUID = this.findGameUUIDByLogin(login);
     const game = this.findGameByUUID(gameUUID);
     if (game == undefined) return;
 
@@ -209,7 +211,8 @@ export class GameService {
     let timeoutInterval = setInterval(() => {
       game.players[playerIndex].AFKTimer =
         (Date.now() - timeoutStartingTime) / 1000;
-      if (game.players[playerIndex].AFK == false || game.inProgress) {
+        console.log(game.players[playerIndex].AFKTimer)
+      if (game.players[playerIndex].AFK == false || game.isOver) {
         clearInterval(timeoutInterval);
       }
       if (game.players[playerIndex].AFKTimer > MAX_AFK_TIME) {
@@ -229,7 +232,9 @@ export class GameService {
     if (game == undefined) return;
 
     let playerIndex = this.findPlayerIndex(game, login);
-    if (game.players[playerIndex].AFK) game.players[playerIndex].AFK = false;
+    if (game.players[playerIndex].AFK) {
+      game.players[playerIndex].AFK = false;
+    }
 
     if (!game.players[0].AFK && !game.players[1].AFK) {
       game.ball.canMove = true;

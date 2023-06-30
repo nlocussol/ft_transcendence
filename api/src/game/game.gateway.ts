@@ -52,22 +52,13 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
       if (socket.handshake.auth.login == undefined) {
         socket.disconnect();
       }
+
       this.handleSocketConnection(socket);
-      // else {
-      //   var gameUUID = this.gameService.findGameByPlayer(socket.handshake.query.login as string);
-      //   if (!gameUUID) {
-      //     console.log(socket.handshake.query.login + ": Tried to connect without being in a room")
-      //     socket.disconnect();
-      //   } else {
-      //       socket.join(gameUUID);
-      //       this.gameService.handleReconnexion(socket.handshake.query.login as string, gameUUID);
-      //     }
 
       socket.on('disconnect', () => {
         console.log('Disconnect from socket: ', socket.handshake.auth.login);
         const client = this.clients.find((client) => client.id == socket.id);
         this.removePlayerFromQueue(client);
-        // this.removePlayerFromQueue(socket.handshake.query.login as string);
         this.gameService.handleDeconnexion(
           socket.handshake.auth.login as string,
         );
@@ -100,6 +91,14 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
   }
 
   addPlayerToQueue(client: Client) {
+    // If the player is already in a game make force him to join it
+    const gameUUID = this.gameService.findGameUUIDByLogin(client.login);
+    if (gameUUID != undefined) {
+      client.socket.join(gameUUID);
+      this.gameService.handleReconnexion(client.login, client.room);
+      return;
+    }
+
     if (this.clientQueue.find((c) => c.login == client.login) == undefined) {
       client.state = 'queueing';
       this.clientQueue.push(client);
@@ -129,9 +128,17 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
     client.socket.join(game.matchUUID);
   }
 
+  handleReconnection(client: Client) {
+    if (client.room == undefined) {
+      return;
+    }
+    client.socket.join(client.room);
+    this.gameService.handleReconnexion(client.login, client.room);
+  }
+
   @SubscribeMessage('queue')
   handleQueue(socket: Socket) {
-    console.log('Wants to join a game:', socket.handshake.auth.login);
+    // console.log('Wants to join a game:', socket.handshake.auth.login);
     let client = this.clients.find((c) => c.socket.id == socket.id);
     if (client == undefined) {
       console.log('GameGatewayHandleQueue: problem');
@@ -154,7 +161,7 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
 
   @SubscribeMessage('leaveRoom')
   removePlayerFromRoom(socket: Socket) {
-    console.log('Want to leave the room: ', socket.handshake.auth.login);
+    // console.log('Want to leave the room: ', socket.handshake.auth.login);
     const client = this.clients.find((client) => (client.id = socket.id));
     client.socket.leave(client.room);
   }

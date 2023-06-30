@@ -57,7 +57,6 @@ export class GameComponent implements OnInit, OnDestroy {
         console.log(this.login)
         this.loguedIn = true;
         this.gameService.connectToSocket(this.login as string);
-
       },
       error: () => {
         this.dialog.open(DialogNotLoguedComponent, {
@@ -82,6 +81,7 @@ export class GameComponent implements OnInit, OnDestroy {
     clearInterval(this.queueInterval);
     clearInterval(this.refreshQueueInterval);
     clearInterval(this.movePlayerInterval);
+    this.gameService.disconnectFromSocket();
     // if (this.searchingGame) {
     // this.gameService.exitQueue(this.login!);
     // }
@@ -93,9 +93,13 @@ export class GameComponent implements OnInit, OnDestroy {
     this.gameData.isOver = false;
     this.gameService.enterQueue();
     this.startTimer();
+    this.startGame();
+  }
+
+  startGame() {
     this.gameService
-      .connectToGameUpdate(this.gameID)
-      .subscribe((payload) => this.gameLoop(payload));
+    .connectToGameUpdate(this.gameID)
+    .subscribe((payload) => this.gameLoop(payload));
   }
 
   gameLoop(payload: GameData) {
