@@ -70,6 +70,8 @@ button.active {
 }
 
 .card {
+  margin-left: 1vw;
+  margin-top: 1vh;
   background-color: #222831;
   border-radius: 5px;
   display: flex;
