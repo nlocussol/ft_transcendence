@@ -1,15 +1,15 @@
 <canvas #canvas width="{{ width }}" height="{{ height }}"></canvas><br />
 
-<div *ngIf="loguedIn && !searchingGame">
+<div *ngIf="inGame">{{gameData.players[0].login}} VS {{gameData.players[1].login}}</div>
+
+<div *ngIf="loguedIn">
   <div>
-    <button (click)="enterQueue($event.target)" id="searchBtn" *ngIf="!inGame">{{ messageButton }}</button>
+    <button (click)="enterQueue($event.target)" id="searchBtn" *ngIf="!inGame && !searchingGame">FIND GAME</button>
+    <button (click)="leaveQueue()" id="searchBtn" *ngIf="searchingGame">CANCEL QUEUE</button>
+    <p *ngIf="searchingGame">{{ queueTimeElapsed }}</p>
     <br />
     <br />
   </div>
-</div>
-<div *ngIf="searchingGame">
-  <button (click)="leaveQueue()" id="searchBtn" *ngIf="!inGame">CANCEL QUEUE</button>
-  <p>{{ queueTimeElapsed }}</p>
 </div>
 <!-- <div *ngFor="let userToAddRoom of friendsToInvite" [value]="userToAddRoom.name">{{ userToAddRoom.name }}>
   <button (click)="leaveQueue()" id="searchBtn">CANCEL QUEUE</button>
