@@ -14,12 +14,32 @@ const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'game', component: GameComponent, canActivate: [AuthGuardService] },
   { path: 'auth', component: AuthComponent },
-  { path: 'profile', component: ProfileComponent },
-  { path: 'leaderboard', component: LeaderboardComponent },
-  { path: 'message', component: MessageComponent, canActivate: [AuthGuardService] },
-  { path: 'chat-room', component: ChatRoomComponent, canActivate: [AuthGuardService] },
-  { path: 'user-page/:pseudo', component: UserPageComponent, canActivate: [AuthGuardService] },
-  { path: '**', component: HomeComponent}
+  {
+    path: 'profile',
+    component: ProfileComponent,
+    canActivate: [AuthGuardService],
+  },
+  {
+    path: 'leaderboard',
+    component: LeaderboardComponent,
+    canActivate: [AuthGuardService],
+  },
+  {
+    path: 'message',
+    component: MessageComponent,
+    canActivate: [AuthGuardService],
+  },
+  {
+    path: 'chat-room',
+    component: ChatRoomComponent,
+    canActivate: [AuthGuardService],
+  },
+  {
+    path: 'user-page/:pseudo',
+    component: UserPageComponent,
+    canActivate: [AuthGuardService],
+  },
+  { path: '**', component: HomeComponent },
 ];
 
 @NgModule({
