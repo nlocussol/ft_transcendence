@@ -34,7 +34,7 @@ export class AuthComponent implements OnInit {
     const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
     this.http.post('http://localhost:3000/db-writer/create-user/', body, { headers }).subscribe()
     // this.router.navigateByUrl("/profile");
-}
+  }
 
   async getUserData(accessToken: string) {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`)
