@@ -17,7 +17,7 @@ export class HomeComponent implements OnInit {
   ngOnInit(): void {
     this.homeService.getUser().subscribe({
       next: (res) => {
-        this.message = `HELLO ${res.login}`;
+        this.message = `Welcome watibg ${res.login}`;
     },
       error: () => {
         this.message = 'LOG TOI CHACAL'

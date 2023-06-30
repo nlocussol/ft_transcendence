@@ -193,6 +193,7 @@
 
 #nameMatch{
   color: red;
+  font-size: calc(10px + 0.5vw);
 }
 
 #notFound{

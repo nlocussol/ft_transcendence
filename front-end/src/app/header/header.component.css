@@ -6,7 +6,11 @@
 }
 
 .heading {
-  margin-left: 36%;
+  /* align-items: center; */
+  /* text-align: center; */
+  margin-left: auto;
+  margin-right: auto;
+  width: 8em;
 }
 
 .container {
@@ -18,7 +22,7 @@
   font-family: "Montserrat", sans-serif;
   align-items: center;
   justify-content: center;
-  margin-top: 250px;
+  /* margin-top: 10vh; */
 }
 
 nav {

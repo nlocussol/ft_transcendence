@@ -1,5 +1,7 @@
 <canvas #canvas width="{{ width }}" height="{{ height }}"></canvas><br />
-
+<div *ngIf="loguedIn && this.gameData.players[0] && this.gameData.players[1]">
+  <p>{{this.gameData.players[0].login}} vs {{this.gameData.players[1].login}}</p>
+</div>
 <div *ngIf="loguedIn && !searchingGame">
   <div>
     <button (click)="enterQueue($event.target)" id="searchBtn" *ngIf="!inGame">{{ messageButton }}</button>
