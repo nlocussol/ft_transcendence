@@ -134,6 +134,8 @@ export class ProfileComponent {
     this.notifs = this.profileData.notif
     this.status = this.profileData.status;
     this.doubleAuth = this.profileData.doubleAuth
+    if (this.pseudo !== this.profileData.pseudo)
+      this.pseudo = this.profileData.pseudo
   }
 
   newNotif() {
