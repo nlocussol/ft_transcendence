@@ -16,6 +16,7 @@ import { ChatRoomComponent } from './chat-room/chat-room.component';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { DialogNotLoguedComponent } from './dialog-not-logued/dialog-not-logued.component';
 import { UserPageComponent } from './user-page/user-page.component';
+import { LeaderboardComponent } from './leaderboard/leaderboard.component';
 import { CredentialsInterceptor } from './interceptors/credentials.interceptor';
 import { AuthGuardService } from './auth/auth-guard.service';
 
@@ -31,6 +32,7 @@ import { AuthGuardService } from './auth/auth-guard.service';
     ChatRoomComponent,
     DialogNotLoguedComponent,
     UserPageComponent,
+    LeaderboardComponent,
   ],
   imports: [
     FormsModule,

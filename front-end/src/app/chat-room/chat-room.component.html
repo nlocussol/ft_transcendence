@@ -2,45 +2,48 @@
     <div class="input">
       <form (ngSubmit)="submitRoom()">
         <p>Create a room:</p>
-        <input class="input" type="text" [(ngModel)]="roomName" name="roomName" placeholder="Name" />
-        <input class="input" type="password" [(ngModel)]="roomPassword" name="roomPassword" placeholder="Password" />
+        <input id="input-case" type="text" [(ngModel)]="roomName" name="roomName" placeholder="Name" />
+        <input id="input-case" type="password" [(ngModel)]="roomPassword" name="roomPassword" placeholder="Password" />
         <button type="submit">Submit</button>
       </form>
-      <div class="input">
+      <div class="checkbox">
         <input type="checkbox" [(ngModel)]="allRoomChecked" (change)="onCheckboxChange()" name="all-room">
-        <label for="all-room">all room</label>
+        <label for="all-room">All room</label>
+      
+        <div *ngIf="allRoomChecked">
+          <p>Search a room:</p>
+          <input id="input-case" type="text" [(ngModel)]="roomSearch" (keyup.enter)="findRoom(roomSearch)" placeholder="Search ..." />
+        </div>
       </div>
-      <div *ngIf="allRoomChecked">
-        <p>Search a room:</p>
-        <input class="input" type="text" [(ngModel)]="roomSearch" (keyup.enter)="findRoom(roomSearch)" placeholder="Search a room ..." />
+      <div class="room-list">
+        <ul>
+          <li class="room" *ngFor="let room of rooms" [class.selected]="room === selectedRoom" (click)="onClickRoom(room)">
+            <div *ngIf="room" class="name">
+              {{ room.name }}
+              <button *ngIf="room === selectedRoom && joined" type="button" class="quit-button" (click)="quitRoom()">Quit</button>
+            </div>
+          </li>
+        </ul>
       </div>
     </div>
-    <div class="room-list">
-      <ul>
-        <li class="room" *ngFor="let room of rooms" [class.selected]="room === selectedRoom" (click)="onClickRoom(room)">
-          <div *ngIf="room" class="name">
-            {{ room.name }}
-            <button *ngIf="room === selectedRoom && joined" type="button" class="quit-button" (click)="quitRoom()">Quit</button>
-          </div>
-        </li>
-      </ul>
-    </div>
-    <div *ngIf="selectedRoom">
+    <br>
+    <div class="select-room" *ngIf="selectedRoom">
       <div class="chat" *ngIf="roomStatus === 'PUBLIC'">
         <div *ngIf="joined">
+          <div class="chat-header">
+            Chat in <u>{{ selectedRoom.name }}</u> room
+          </div>
           <div>
             <label for="lang">Invite a friend: </label>
             <select id="user-list" [(ngModel)]="friendInviteRoom">
               <option *ngFor="let userToAddRoom of friendsToInvite" [value]="userToAddRoom.name">{{ userToAddRoom.name }}</option>
             </select>
-            <button (click)="sendInviteRoom(friendInviteRoom)">Send</button>
+            <button id="send-request" (click)="sendInviteRoom(friendInviteRoom)">Send</button>
           </div>          
-          <div class="chat-header">
-            Chat in {{ selectedRoom.name }} room
-          </div>
+          
           <div class="chat-messages" *ngIf="roomStatus === 'PUBLIC' && conversation">
             <div *ngFor="let message of conversation.reverse()" class="message">
-              <span class="sender">{{ message.sender }}:</span> {{ message.content }}
+              <span class="sender"><em>{{ message.sender }}</em></span>: {{ message.content }}
             </div>
           </div>
           <form *ngIf="userStatus === 'ADMIN'">

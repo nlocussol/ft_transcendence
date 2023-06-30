@@ -1,24 +1,27 @@
 <header>
-    <div class="container">
-      <nav>
-
-        <ul class="nav-links">
-          <li><a routerLink="/">HOME</a></li>
-        </ul>
-        <div class="heading">
-          <h4>POZO GAME!</h4>
-        </div>
-
-        <ul class="nav-links" *ngIf="!authenticated">
-          <li><a routerLink="/auth">LOGIN</a></li>
-        </ul>
-
-        <ul class="nav-links" *ngIf="authenticated">
-          <li><a routerLink="/game">GAME</a></li>
-          <li><a routerLink="/profile">PROFILE</a></li>
-          <li><a routerLink="/auth" (click)="logout()">LOGOUT</a></li>
-
-        </ul>
-      </nav>
-    </div>
-  </header>
+  <div class="heading">
+    <h4>POZO GAME!</h4>
+  </div>
+  <div class="container">
+    <nav>
+      <ul class="nav-links">
+        <li><a routerLink="/">HOME</a></li>
+        <li *ngIf="authenticated">
+          <a routerLink="/leaderboard">LADDER</a>
+        </li>
+        <li *ngIf="!authenticated">
+          <a routerLink="/auth">LOGIN</a>
+        </li>
+        <li *ngIf="authenticated">
+          <a routerLink="/game">GAME</a>
+        </li>
+        <li *ngIf="authenticated">
+          <a routerLink="/profile">PROFILE<img *ngIf="notif" src="https://img1.freepng.fr/20180411/pre/kisspng-visual-perception-optical-illusion-eye-color-circle-5acdca5077ff26.9533774115234361124915.jpg"></a>
+        </li>
+        <li *ngIf="authenticated">
+          <a routerLink="/auth" (click)="logout()">LOGOUT</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>

@@ -134,11 +134,13 @@ export class ProfileComponent {
     this.notifs = this.profileData.notif
     this.status = this.profileData.status;
     this.doubleAuth = this.profileData.doubleAuth
+    if (this.pseudo !== this.profileData.pseudo)
+      this.pseudo = this.profileData.pseudo
   }
 
   newNotif() {
     this.socket.on('receive-notif', (data: Notif) => {
-      if (data.friend === this.pseudo) {
+      if (data.friend === this.login) {
         if (!this.notifs)
           this.notifs = [];
         if (data.login)

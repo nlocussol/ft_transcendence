@@ -290,7 +290,7 @@ export class DbWriterService {
         }
 
         let matchWinner: string;
-        if (gameData.players[0].score == 1)
+        if (gameData.players[0].score == 5)
             matchWinner = gameData.players[0].login;
         else
             matchWinner = gameData.players[1].login;
@@ -328,8 +328,10 @@ export class DbWriterService {
 
     async addNotif(newNotif:any){        
         // check if the user exist
+        console.log("Friend's name: ", newNotif.friend);
+        // HERE : LOGIN CHANGED INTO PSEUDO BECAUSE neNotif.friend envoie pseudo
         const currentUser = await this.userRepository.findOneBy({
-            login: newNotif.friend,
+            pseudo: newNotif.friend,
          });
          if (!currentUser){
              console.log("addNotif: The user does not exist");

@@ -16,6 +16,8 @@
         <label for="pseudoFriend">Add a friend:</label><br>
         <input type="text" id="pseudoFriend" name="pseudoFriend" [(ngModel)]="pseudoFriend" required>
       </form>
+    </div>
+    <div class="card">
       <button routerLink="/message" class="btn draw-border">Message</button>
       <button routerLink="/chat-room" class="btn draw-border">Chat Room</button>
       <button class="btn draw-border" (click)="change2AF()" [class.active]="doubleAuth">2AF</button>

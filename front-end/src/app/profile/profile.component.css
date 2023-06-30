@@ -3,7 +3,7 @@
 .container {
   display: grid;
   grid-template-columns: 1fr 1fr; /* Updated to have two equal-sized columns */
-  grid-gap: 50px; /* Increased the gap between the columns */
+  grid-gap: 1vh; /* Increased the gap between the columns */
   justify-content: center;
   align-items: center;
   /* background-color: #f5f5f5; */
@@ -71,7 +71,6 @@ button.active {
 
 .card {
   background-color: #222831;
-  height: 90vh;
   border-radius: 5px;
   display: flex;
   flex-direction: column;
