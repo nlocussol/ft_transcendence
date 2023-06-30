@@ -126,7 +126,7 @@ export class DbWriterRoomService {
          // save in database (shared volume)
          await this.roomRepository.save(currentRoom)
          return true ;
-}
+    }
 
     async addMessage(newMessage: NewMessage) {
         // check if the room exist

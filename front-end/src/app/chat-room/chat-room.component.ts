@@ -215,7 +215,8 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
           time: muteInSecond,
         }
         console.log(muteInSecond);
-        this.http.post(`http://localhost:3000/db-writer-room/mute-member/`, bodyMute, { headers }).subscribe()
+        // this.http.post(`http://localhost:3000/db-writer-room/mute-member/`, bodyMute, { headers }).subscribe()
+        this.socket.emit('mute-member', bodyMute)
         break ;
 
       case 'Kick':
