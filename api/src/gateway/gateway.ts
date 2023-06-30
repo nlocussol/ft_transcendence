@@ -4,7 +4,7 @@ import { Server, Socket } from 'socket.io'
 import { OnModuleInit } from "@nestjs/common";
 import { messageData } from "src/typeorm/user.entity";
 import { DbWriterRoomService } from "src/db-writer-room/db-writer-room.service";
-import { NewMessage, UserInRoom } from "src/typeorm/room.entity";
+import { MuteUser, NewMessage, UserInRoom } from "src/typeorm/room.entity";
 
 @WebSocketGateway({cors : true})
 export class MyGateway implements OnModuleInit{
@@ -65,5 +65,13 @@ export class MyGateway implements OnModuleInit{
         if (res == null)
             return ;
         this.server.emit('has-leave-room', messageData);
+    }
+
+    @SubscribeMessage('mute-member')
+    async muteMember(client: Socket, muteUser: MuteUser){
+        const res = await this.dbWriterRoom.muteMember(muteUser);
+        if (res == null)
+            return ;
+        return res;
     }
 }
