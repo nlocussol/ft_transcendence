@@ -1,6 +1,6 @@
 <div class="container">
     <div class="card">
-      <input type="file" (change)="onFileSelected($event)" name="uploadfile" id="img" style="display:none;"/>
+      <input type="file" (change)="onFileSelected($event)" name="uploadfile" id="img" style="display:none;" accept="image/png, image/jpeg"/>
       <label for="img">
         <img [src]="ppUrl" class="card__image">
       </label>

@@ -9,9 +9,11 @@ import { ChatRoomComponent } from './chat-room/chat-room.component';
 import { UserPageComponent } from './user-page/user-page.component';
 import { LeaderboardComponent } from './leaderboard/leaderboard.component';
 import { AuthGuardService } from './auth/auth-guard.service';
+import { NewUserFormComponent } from './new-user-form/new-user-form.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
+  { path: 'new-user-form', component: NewUserFormComponent },
   { path: 'game', component: GameComponent, canActivate: [AuthGuardService] },
   { path: 'auth', component: AuthComponent },
   {

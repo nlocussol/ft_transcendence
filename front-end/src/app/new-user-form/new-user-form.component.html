@@ -1,0 +1,37 @@
+<form method="post">
+
+    <div class="field">
+        <label>
+            <u>Pseudo: </u>
+            <br>
+            <input type="text"> 
+        </label>
+        <br>
+        <br>
+        
+        <label for="profilePic">
+            <u>Profile picture: </u>
+            <br>
+            (default: your intra profile pic)
+            <br>
+            <br>     
+        </label>
+        
+        <input  type="file"
+                name="uploadfile" id="profilePic"
+                accept="image/png, image/jpeg"/>
+        <br>
+        <br>     
+        <label for="valid2fa">
+            <u>Enable 2fa</u>
+        </label>
+        <input  type="checkbox"
+                name="valid2fa" id="valid2fa"
+                value=true>
+        <br>     
+        <br>
+    </div>
+    <div>
+        <button>Submit</button>
+    </div>
+</form>

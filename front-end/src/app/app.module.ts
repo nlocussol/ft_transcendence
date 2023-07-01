@@ -19,6 +19,7 @@ import { UserPageComponent } from './user-page/user-page.component';
 import { LeaderboardComponent } from './leaderboard/leaderboard.component';
 import { CredentialsInterceptor } from './interceptors/credentials.interceptor';
 import { AuthGuardService } from './auth/auth-guard.service';
+import { NewUserFormComponent } from './new-user-form/new-user-form.component';
 
 @NgModule({
   declarations: [
@@ -33,6 +34,7 @@ import { AuthGuardService } from './auth/auth-guard.service';
     DialogNotLoguedComponent,
     UserPageComponent,
     LeaderboardComponent,
+    NewUserFormComponent,
   ],
   imports: [
     FormsModule,
