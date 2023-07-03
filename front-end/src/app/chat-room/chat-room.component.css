@@ -164,7 +164,7 @@ button[type="submit"]:hover {
   cursor: pointer;
 }
 
-#user-list, #room-status{
+#user-list, #room-status, #user-option{
   background-color: darkblue;
   color: white;
   border: teal;

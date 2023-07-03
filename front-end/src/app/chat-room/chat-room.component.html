@@ -9,7 +9,6 @@
       <div class="checkbox">
         <input type="checkbox" [(ngModel)]="allRoomChecked" (change)="onCheckboxChange()" name="all-room">
         <label for="all-room">All room</label>
-      
         <div *ngIf="allRoomChecked">
           <p>Search a room:</p>
           <input id="input-case" type="text" [(ngModel)]="roomSearch" (keyup.enter)="findRoom(roomSearch)" placeholder="Search ..." />
@@ -81,8 +80,8 @@
             <select [(ngModel)]="memberOption">
               <option *ngFor="let memberOptions of memberOptions" [value]="memberOptions"> {{ memberOptions }}</option>
             </select>
-            <input *ngIf="memberOption === 'Mute'" type="text" [(ngModel)]="muteTime" placeholder="Time to mute in second" />
-            <button (click)="handleMemberOption(memberOption, member)">Send</button>
+            <input class="input" *ngIf="memberOption === 'Mute'" type="text" [(ngModel)]="muteTime" placeholder="Time to mute in second" />
+            <button id="send-request" (click)="handleMemberOption(memberOption, member)">Send</button>
           </div>    
       </div>
     </div>

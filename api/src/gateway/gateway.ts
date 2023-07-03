@@ -40,7 +40,7 @@ export class MyGateway implements OnModuleInit{
             return ;
         this.clientSocket.join(uuid);
         // this.server.to(uuid).emit('receive-room-msg', messageData)
-        this.server.emit('receive-room-msg', messageData)
+        this.server.emit('receive-room-msg', messageData) // dont work need to fix it
     }
 
     @SubscribeMessage('create-room')

@@ -14,7 +14,7 @@ import { HomeService } from '../home/service/home.service';
 })
 export class ChatRoomComponent implements OnInit, OnDestroy {
   friends!: Friend[];
-  muteTime: string = "10";
+  muteTime!: string;
   members!: MemberStatus[];
   memberOption!: string;
   memberOptions!: string[] ;
@@ -98,6 +98,13 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
       })
 
       this.socket.on('has-leave-room', (data: JoinLeaveRoom) => {
+        const ownerOfRoom: number = this.rooms.findIndex(room => room.owner === data.login)
+        if (ownerOfRoom >= 0) {
+          this.rooms.splice(ownerOfRoom, 1)
+          this.joined = false;
+          this.selectedRoom = null;
+          return ;
+        }
         if (this.selectedRoom?.name === data.name)
           this.members.splice(this.members.findIndex((roomMember: MemberStatus) => roomMember.login === data.login), 1)
         if (data.login === this.login && !this.allRoomChecked) {
