@@ -138,18 +138,18 @@ export class DbWriterRoomService {
              return null;
          }
  
-         var date=new Date();
-         currentRoom.members.find(async member => {
+        var date = new Date();
+        for (let member of currentRoom.members) {
             if (member.login === newMessage.sender
                 && member.mute !== 0
                 && member.mute > date.getTime()){
                 console.log("You are currently muted")
-                console.log(`You need to wait ${member.mute} seconds`);
+                console.log(`You need to wait ${(member.mute - date.getTime()) / 1000} seconds`);
                 return null;
             } else if (member.login === newMessage.sender && member.mute !== 0){
                 member.mute = 0;
             }
-        })
+        }
          // create an instance of membre & push back to the membre list
          const message: message = {
             sender: newMessage.sender,

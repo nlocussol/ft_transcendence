@@ -80,6 +80,5 @@ export class MyGateway implements OnModuleInit{
         const res = await this.dbWriterRoom.muteMember(muteUser);
         if (res == null)
             return ;
-        return res;
     }
 }
