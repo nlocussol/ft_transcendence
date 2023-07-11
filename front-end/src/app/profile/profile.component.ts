@@ -31,7 +31,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
       this.login = res.login;
       this.pseudo = res.pseudo;
       this.getProfileData();
-      console.log(this.login, this.pseudo);
       this.socket = io(environment.SOCKET_ENDPOINT);
       this.newNotif();
     });
@@ -179,6 +178,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.notifs = this.profileData.notif;
     this.status = this.profileData.status;
     this.doubleAuth = this.profileData.doubleAuth;
+    this.pseudo = this.profileData.pseudo;
   }
 
   newNotif() {
@@ -205,6 +205,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
       )
     ) {
       console.log(body.friend, 'is already your friend!');
+      return;
+    }
+    else if (this.pseudoFriend === this.pseudo){
+      console.log('You can not send friend request to yourself');
       return;
     }
     this.socket.emit('send-notif', body);
