@@ -123,6 +123,24 @@ export class DbWriterService {
         return null;
     }
 
+    async getPmUuid(obj: addFriend) {
+        const user = await this.userRepository.findOneBy({
+            login: obj.login,
+        });
+        const friend = await this.userRepository.findOneBy({
+            login: obj.friend,
+        });
+        if (!user || !friend){
+            console.log("The user didn't exist.");
+            return null;
+        }
+        for(const index in user.pm){
+            if (user.pm[index].name === friend.login)
+                return user.pm[index].uuid;
+        }
+        return null;
+    }
+
     async addPrivateMessage(obj: messageData): Promise<string> {
         // check if user & friend exist inside db
         const user = await this.userRepository.findOneBy({

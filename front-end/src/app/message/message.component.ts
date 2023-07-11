@@ -25,10 +25,10 @@ export class MessageComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.homeService.getUser().subscribe(res => {
-      this.socket = io(environment.SOCKET_ENDPOINT);
       this.login = res.login;
       this.pseudo = res.pseudo
       this.getUserData();
+      this.socket = io(environment.SOCKET_ENDPOINT);
       this.receiveMessage()
     })
   }
@@ -97,6 +97,8 @@ export class MessageComponent implements OnInit, OnDestroy {
   }
 
   async onClickFriend(friend: Friend){
+    if (this.selectedFriend)
+      this.socket.emit('leave-pm', {login: this.login, friend: friend.pseudo})
     this.selectedFriend = friend;
     const body = {
       login: this.login,
@@ -106,6 +108,7 @@ export class MessageComponent implements OnInit, OnDestroy {
     }    
     const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
     this.conversation = await this.http.post('http://localhost:3000/db-writer/get-pm/', body, { headers }).toPromise() as Message[]
+    this.socket.emit('join-pm', {login: this.login, friend: friend.pseudo})
   }
 
   async sendMessage(message: string) {
@@ -115,7 +118,6 @@ export class MessageComponent implements OnInit, OnDestroy {
       content: message,
       sender: this.login
     }
-    // this.conversation.push(body);
     this.socket.emit('add-pm', body);
     this.newMessage = '';
   }

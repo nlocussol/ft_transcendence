@@ -82,6 +82,17 @@ export class DbWriterRoomService {
         return currentRoom;
     }
 
+    async getRoomUuid(roomName: string) {
+        const currentRoom = await this.roomRepository.findOneBy({
+            name: roomName,
+         });
+        if (!currentRoom){
+            console.log("The room doesn't exist");
+            return null;
+        }
+        return currentRoom.uuid;
+    }
+
     async searchRoom(roomName: string){
         // check if the room doesn't already exist
         const roomList = this.roomRepository

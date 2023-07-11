@@ -252,8 +252,6 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
       login: this.login,
     }    
     this.socket.emit('leave-room', body)
-    if (!this.allRoomChecked)
-      this.rooms.splice(this.rooms.findIndex((room: Room) => room === this.selectedRoom), 1)
     if (this.selectedRoom) {
       const bodyMessage: RoomMessage = {
         sender: 'BOT',
@@ -295,6 +293,8 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
   }
 
   async onClickRoom(room: Room) {
+    if (this.selectedRoom)
+      this.socket.emit('socket-leave-room', this.selectedRoom.name)
     this.newPwd = '';
     this.selectedStatus = '';
     this.options = ['PUBLIC', 'PROTECTED', 'PRIVATE'];
@@ -303,6 +303,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
     const roomData: Room = await this.http.get(`http://localhost:3000/db-writer-room/data-room/${room.name}`).toPromise() as Room
     this.friendsToInvite = await this.http.get(`http://localhost:3000/db-writer/friends/${this.login}`).toPromise() as Friend[]
     this.selectedRoom = room;
+    this.socket.emit('socket-join-room', this.selectedRoom.name)
     this.members = roomData.members;
     this.roomStatus = this.selectedRoom?.status as string;
     this.options.splice(this.options.findIndex(opt => opt === this.roomStatus), 1)

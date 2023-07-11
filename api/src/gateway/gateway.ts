@@ -2,7 +2,7 @@ import { SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/web
 import { DbWriterService } from "src/db-writer/db-writer.service";
 import { Server, Socket } from 'socket.io'
 import { OnModuleInit } from "@nestjs/common";
-import { messageData } from "src/typeorm/user.entity";
+import { addFriend, messageData } from "src/typeorm/user.entity";
 import { DbWriterRoomService } from "src/db-writer-room/db-writer-room.service";
 import { BanUser, NewMessage, UserInRoom, MuteUser } from "src/typeorm/room.entity";
 
@@ -10,12 +10,11 @@ import { BanUser, NewMessage, UserInRoom, MuteUser } from "src/typeorm/room.enti
 export class MyGateway implements OnModuleInit{
     @WebSocketServer()
     server: Server;
-    clientSocket: Socket;
 
     constructor(private dbWriter: DbWriterService, private dbWriterRoom: DbWriterRoomService) {}
 
     onModuleInit() {
-        this.server.on('connection', (socket) => this.clientSocket = socket)
+        this.server.on('connection', () => {})
     }
 
     @SubscribeMessage('send-notif')
@@ -24,12 +23,44 @@ export class MyGateway implements OnModuleInit{
         this.server.emit('receive-notif', friendToAdd)
     }
 
+    @SubscribeMessage('join-pm')
+    async joinPm(client: Socket, friendPm: addFriend) {
+        const uuid = await this.dbWriter.getPmUuid(friendPm);
+        if (uuid == null)
+            return ;
+        client.join(uuid)
+    }
+
+    @SubscribeMessage('leave-pm')
+    async leavePm(client: Socket, friendPm: addFriend) {
+        const uuid = await this.dbWriter.getPmUuid(friendPm);
+        if (uuid == null)
+            return ;
+        client.leave(uuid)
+    }
+
+    @SubscribeMessage('socket-join-room')
+    async socketJoinPm(client: Socket, roomName: string) {
+        const uuid = await this.dbWriterRoom.getRoomUuid(roomName);
+        if (uuid == null)
+            return ;
+        client.join(uuid)
+    }
+
+    @SubscribeMessage('socket-leave-room')
+    async socketLeavePm(client: Socket, roomName: string) {
+        const uuid = await this.dbWriterRoom.getRoomUuid(roomName);
+        if (uuid == null)
+            return ;
+        client.leave(uuid)
+    }
+
     @SubscribeMessage('add-pm')
-    async addPrivateMessage(client: Socket, messageData: messageData) {        
+    async addPrivateMessage(client: Socket, messageData: messageData) {       
         const uuid = await this.dbWriter.addPrivateMessage(messageData);
         if (uuid == null)
             return ;
-        this.clientSocket.join(uuid);
+        client.join(uuid);
         this.server.to(uuid).emit('receive-pm', messageData)
     }
 
@@ -38,9 +69,8 @@ export class MyGateway implements OnModuleInit{
         const uuid = await this.dbWriterRoom.addMessage(messageData);
         if (uuid == null)
             return ;
-        this.clientSocket.join(uuid);
-        // this.server.to(uuid).emit('receive-room-msg', messageData)
-        this.server.emit('receive-room-msg', messageData) // dont work need to fix it
+        client.join(uuid);
+        this.server.to(uuid).emit('receive-room-msg', messageData)
     }
 
     @SubscribeMessage('create-room')
