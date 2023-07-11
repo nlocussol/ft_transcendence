@@ -54,19 +54,20 @@ export class AuthComponent implements OnInit {
     // if (this.profileData.doubleAuth === true){
     // }
     // this.doubleFactorAuth();
-    this.router.navigate(['/new-user-form']);
+    // this.router.navigate(['/new-user-form']);
   }
 
   async getAccessToken(code: string) {
     const body = new URLSearchParams({
           grant_type: "authorization_code",
           client_id: "u-s4t2ud-d4f9852c6392f3a567c8fb78fac0ffaa6a248187093e5a84ba0a0b1e507c8f01",
-          client_secret: "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",
+          client_secret: "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",
           code: code,
           redirect_uri: "http://localhost:4200/auth"
     });
     const headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded')
     const res: any = await this.http.post('https://api.intra.42.fr/oauth/token', body.toString(), { headers }).toPromise()
+    console.log(res.access_token);
     this.getUserData(res.access_token)
    }
 
