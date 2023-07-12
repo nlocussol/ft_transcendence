@@ -3,6 +3,7 @@ import { AuthHandlerService } from './auth-handler.service';
 import { Router } from '@angular/router';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DialogFirstLoginComponent } from '../dialog-first-login/dialog-first-login.component';
+import { Emitters } from '../emitters/emitters';
 
 @Component({
   selector: 'app-auth-handler',
@@ -49,9 +50,10 @@ export class AuthHandlerComponent implements OnInit {
 
     this.authHandlerService.sendLogin(userData.login).subscribe({
       next: () => {
-        this.authHandlerService
-          .getJwt(userData.login)
-          .subscribe(() => this.router.navigate(['/']));
+        this.authHandlerService.getJwt(userData.login).subscribe(() => {
+          Emitters.authEmitter.emit(true);
+          this.router.navigate(['/profile']);
+        });
       },
       error: (err) => {
         if (err.error.message === 'No user with this login') {
