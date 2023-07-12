@@ -94,7 +94,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   acceptRequest(body: Notif) {
     const bodyToDelete = {
-      login: body.login,
+      login: this.login,
       index: this.notifs.findIndex((notif) => notif === body),
     };
     let bodyToSend: any;
@@ -117,15 +117,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
         bodyToSend = {
           uuid: crypto.randomUUID(),
           payer1: this.login,
-          player2: bodyToDelete.login,
+          player2: body.login,
         };
-        const notifBody = {
-          friend: body.login,
-          login: this.login,
-          content: `${this.pseudo} has accepted your match request, go in the game page!`,
-          type: 'MATCH_ACCEPTED',
-        };
-        this.socket.emit('send-notif', notifBody);
         this.router.navigate(['/game']);
         break;
 
