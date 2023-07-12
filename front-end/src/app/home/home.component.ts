@@ -5,23 +5,21 @@ import { Emitters } from '../emitters/emitters';
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css']
+  styleUrls: ['./home.component.css'],
 })
 export class HomeComponent implements OnInit {
-  message = ""
+  message = '';
 
-  constructor(
-    private homeService: HomeService
-  ) {}
+  constructor(private homeService: HomeService) {}
 
   ngOnInit(): void {
     this.homeService.getUser().subscribe({
       next: (res) => {
         this.message = `Welcome watibg ${res.login}`;
-    },
+      },
       error: () => {
-        this.message = 'LOG TOI CHACAL'
-      }
-    })
+        this.message = 'LOG TOI CHACAL';
+      },
+    });
   }
 }
