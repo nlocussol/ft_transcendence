@@ -40,7 +40,11 @@ export class MessageComponent implements OnInit, OnDestroy {
   constructor(private http: HttpClient, private homeService: HomeService, private router: Router) {}
 
   receiveMessage() {
-    this.socket.on('receive-pm', (data: Message) => this.conversation.push(data))
+    this.socket.on('receive-pm', async (data: Message) => {
+      let senderData: UserData = await this.http.get(`http://localhost:3000/db-writer/data/${data.sender}`).toPromise() as UserData
+      data.sender = senderData.pseudo;
+      this.conversation.push(data)
+    })
   }
 
   async unblockFriend() {
@@ -105,6 +109,10 @@ export class MessageComponent implements OnInit, OnDestroy {
   async getUserData() {
     this.userData = await this.http.get(`http://localhost:3000/db-writer/data/${this.login}`).toPromise() as UserData
     this.friends = await this.http.get(`http://localhost:3000/db-writer/friends/${this.login}`).toPromise() as Friend[]
+    for (let i in this.friends) {
+      let friendData: UserData = await this.http.get(`http://localhost:3000/db-writer/data/${this.friends[i].name}`).toPromise() as UserData
+      this.friends[i].pseudo = friendData.pseudo;
+    }
   }
 
   async onClickFriend(friend: Friend){
@@ -118,8 +126,13 @@ export class MessageComponent implements OnInit, OnDestroy {
       sender: ''
     }    
     const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
-    this.conversation = await this.http.post('http://localhost:3000/db-writer/get-pm/', body, { headers }).toPromise() as Message[]
-    this.socket.emit('join-pm', {login: this.login, friend: friend.pseudo})
+    let conversationTmp: Message[] = await this.http.post('http://localhost:3000/db-writer/get-pm/', body, { headers }).toPromise() as Message[]
+    for (let i in conversationTmp) {
+      let senderData: UserData = await this.http.get(`http://localhost:3000/db-writer/data/${conversationTmp[i].sender}`).toPromise() as UserData
+      conversationTmp[i].sender = senderData.pseudo;
+    }
+    this.conversation = conversationTmp;
+    this.socket.emit('join-pm', {login: this.login, friend: friend.name})
   }
 
   async sendMessage(message: string) {

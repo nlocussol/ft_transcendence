@@ -210,7 +210,8 @@ export class DbWriterService {
         const newUserByPseudo = await this.userRepository.findOneBy({
             pseudo: newName.newPseudo,
          });
-         if ((newUserByLogin && newUserByLogin.login !== newName.currentLogin)|| newUserByPseudo){
+         if ((newUserByLogin && newUserByLogin.login !== newName.currentLogin)
+            || newUserByPseudo) {
             console.log("changeUserPseudo: The new username is already taken");
             return null
          }

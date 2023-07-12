@@ -56,7 +56,7 @@ export class MyGateway implements OnModuleInit{
     }
 
     @SubscribeMessage('add-pm')
-    async addPrivateMessage(client: Socket, messageData: messageData) {       
+    async addPrivateMessage(client: Socket, messageData: messageData) {  
         const uuid = await this.dbWriter.addPrivateMessage(messageData);
         if (uuid == null)
             return ;
