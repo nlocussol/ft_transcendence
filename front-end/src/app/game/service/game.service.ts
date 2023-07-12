@@ -21,9 +21,6 @@ export class GameService {
       auth: {
         login: login
       },
-      query: {
-        login: "grosfdp"
-      }
     });
   }
 

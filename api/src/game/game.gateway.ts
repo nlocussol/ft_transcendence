@@ -136,6 +136,11 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
     this.gameService.handleReconnexion(client.login, client.room);
   }
 
+  @SubscribeMessage('privateGame')
+  handlePrivateGame(socket: Socket) {
+
+  }
+
   @SubscribeMessage('queue')
   handleQueue(socket: Socket) {
     // console.log('Wants to join a game:', socket.handshake.auth.login);

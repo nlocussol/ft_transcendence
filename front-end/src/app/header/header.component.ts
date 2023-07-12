@@ -10,36 +10,38 @@ import { HttpClient } from '@angular/common/http';
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.css']
+  styleUrls: ['./header.component.css'],
 })
-export class HeaderComponent implements OnInit{
+export class HeaderComponent implements OnInit {
   authenticated: boolean = false;
   socket: Socket;
   notif: boolean;
   login: string;
 
-  constructor(private headerService: HeaderService, private dataService: DataService, private http: HttpClient ) {
-    this.notif = false
+  constructor(
+    private headerService: HeaderService,
+    private dataService: DataService,
+    private http: HttpClient
+  ) {
+    this.notif = false;
     this.socket = io(environment.SOCKET_ENDPOINT);
-    this.login = dataService.getLogin()
+    this.login = dataService.getLogin();
     this.socket.on('receive-notif', (data: Notif) => {
       if (data.friend === this.login) {
-        this.http.get(`http://localhost:3000/db-writer/data-user/${this.login}`).subscribe((res: any) => {
-          if (res.notif.length() > 0)
-            this.notif = true;
-          else 
-            this.notif = false;
-        })
+        this.http
+          .get(`http://localhost:3000/db-writer/data-user/${this.login}`)
+          .subscribe((res: any) => {
+            if (res.notif.length() > 0) this.notif = true;
+            else this.notif = false;
+          });
       }
-    })
+    });
   }
 
   ngOnInit(): void {
-    Emitters.authEmitter.subscribe(
-      (auth: boolean) => {
-        this.authenticated = auth;
-      }
-    );
+    Emitters.authEmitter.subscribe((auth: boolean) => {
+      this.authenticated = auth;
+    });
   }
 
   logout() {

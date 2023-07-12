@@ -15,6 +15,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Dialog } from '@angular/cdk/dialog';
 import { DialogNotLoguedComponent } from '../dialog-not-logued/dialog-not-logued.component';
 import { Subject, map } from 'rxjs';
+import { Emitters } from '../emitters/emitters';
 
 const TICKRATE = 15,
   BALL_SIZE = 10;
@@ -46,6 +47,7 @@ export class GameComponent implements OnInit, OnDestroy {
   gameID!: string;
   animationId: any = undefined;
   loadOnce: boolean = false;
+  privateGame: boolean = false;
 
   constructor(private gameService: GameService, private dialog: MatDialog) {}
 
@@ -53,8 +55,11 @@ export class GameComponent implements OnInit, OnDestroy {
     this.gameService.getUser().subscribe({
       next: (res) => {
         this.login = res.login;
-        console.log(this.login)
+        console.log(this.login);
         this.loguedIn = true;
+        Emitters.privateGameEmitter.subscribe((privateGame: boolean) => {
+          this.privateGame = privateGame;
+        });
         this.gameService.connectToSocket(this.login as string);
       },
       error: () => {
@@ -97,8 +102,8 @@ export class GameComponent implements OnInit, OnDestroy {
 
   startGame() {
     this.gameService
-    .connectToGameUpdate(this.gameID)
-    .subscribe((payload) => this.gameLoop(payload));
+      .connectToGameUpdate(this.gameID)
+      .subscribe((payload) => this.gameLoop(payload));
   }
 
   gameLoop(payload: GameData) {
@@ -213,6 +218,9 @@ export class GameComponent implements OnInit, OnDestroy {
   handleEndGame() {
     this.inGame = false;
     this.gameService.exitRoom();
+    if (this.privateGame) {
+      this.privateGame = false;
+    }
     clearInterval(this.movePlayerInterval);
     setTimeout(() => this.stopAnimationFrame(), 300);
   }
