@@ -56,7 +56,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     reader.readAsDataURL(this.selectedFile);
     const body = {
       login: this.login,
-      newPp: this.selectedFile,
+      newPp: this.selectedFile.name,
     };
     const headers = new HttpHeaders().set('Content-type', `application/json`);
     this.http
@@ -94,7 +94,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   acceptRequest(body: Notif) {
     const bodyToDelete = {
-      login: this.login,
+      login: body.login,
       index: this.notifs.findIndex((notif) => notif === body),
     };
     let bodyToSend: any;
@@ -188,7 +188,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
       if (data.friend === this.login) {
         if (!this.notifs) this.notifs = [];
         if (data.login)
-          // this.notifs.push({friend: data.login, content: data.content, type: data.type});
           this.notifs.push(data);
       }
     });

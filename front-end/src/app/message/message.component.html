@@ -23,6 +23,7 @@
       </div>
       <div class="chat-messages">
         <button id="block-button" (click)="blockFriend()">Block</button>
+        <button id="block-button" (click)="matchFriend()">Match</button>
         <div *ngFor="let message of conversation.reverse()" class="message">
           <span class="sender"><em>{{ message.sender }}</em>: </span> {{ message.content }}
         </div>

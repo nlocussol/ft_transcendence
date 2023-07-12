@@ -282,6 +282,10 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
   }
 
   sendInviteRoom(userToAddRoom: string) {
+    if (this.selectedRoom?.members.find(member => member.login === userToAddRoom)) {
+      console.log(`${userToAddRoom} is already in the room`);
+      return ;
+    }
     const body = {
       name: this.selectedRoom?.name,
       friend: userToAddRoom,
