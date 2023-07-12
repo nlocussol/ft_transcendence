@@ -15,11 +15,12 @@ export class GameService {
   );
   constructor(private http: HttpClient) {}
 
-  connectToSocket(login: string) {
+  connectToSocket(login: string, privateGame: boolean) {
     console.log("Connecting to socket...", login)
     this.socket = io(this.API_ENDPOINT, {
       auth: {
-        login: login
+        login: login,
+        privateGame: privateGame
       },
     });
   }
