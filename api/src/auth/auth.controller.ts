@@ -4,6 +4,7 @@ import {
   Controller,
   Get,
   Post,
+  Query,
   Req,
   Res,
   UnauthorizedException,
@@ -12,13 +13,48 @@ import { Response, Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { DbWriterService } from 'src/db-writer/db-writer.service';
 import { SkipAuth } from 'src/utils/decorators';
+import { HttpService } from '@nestjs/axios';
+import { AxiosRequestConfig } from 'axios';
+import { firstValueFrom, lastValueFrom, map } from 'rxjs';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private jwtService: JwtService,
     private dbWriterService: DbWriterService,
+    private httpService: HttpService,
   ) {}
+
+  @SkipAuth()
+  @Get('42')
+  async retrieveAndSend42Token(@Query('code') code: string) {
+    console.log("code= ", code)
+    const body = {
+      grant_type: process.env.API_GRANT_TYPE,
+      client_id: process.env.API_CLIENT_ID,
+      client_secret: process.env.API_CLIENT_SECRET,
+      code: code,
+      redirect_uri: process.env.API_REDIRECT_URL,
+    };
+    const requestConfig: AxiosRequestConfig = {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      validateStatus: function (status) {
+        return status == 200
+      }
+    };
+    const response = this.httpService
+      .post('https://api.intra.42.fr/oauth/token', body, requestConfig)
+      .pipe(
+        map((response) => {
+          return response.data.access_token;
+        }),
+      );
+    const token42 = await lastValueFrom(response)
+    console.log("access_token = ", token42);
+    return token42;
+  }
 
   @SkipAuth()
   @Post('login')

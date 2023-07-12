@@ -13,9 +13,11 @@ import { AuthModule } from './auth/auth.module';
 import entities from './typeorm';
 import { AuthController } from './auth/auth.controller';
 import { JwtModule } from '@nestjs/jwt';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
+    HttpModule,
     DbWriterModule,
     DbWriterRoomModule,
     ConfigModule.forRoot({ isGlobal: true , envFilePath: '../.env'}),

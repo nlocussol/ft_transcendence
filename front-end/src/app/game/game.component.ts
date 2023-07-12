@@ -2,7 +2,6 @@ import {
   Component,
   ElementRef,
   HostListener,
-  Inject,
   OnDestroy,
   OnInit,
   ViewChild,
@@ -48,7 +47,7 @@ export class GameComponent implements OnInit, OnDestroy {
   animationId: any = undefined;
   loadOnce: boolean = false;
 
-  constructor(private gameService: GameService, public dialog: MatDialog) {}
+  constructor(private gameService: GameService, private dialog: MatDialog) {}
 
   ngOnInit(): void {
     this.gameService.getUser().subscribe({

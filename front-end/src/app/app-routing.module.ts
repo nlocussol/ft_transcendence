@@ -9,6 +9,7 @@ import { ChatRoomComponent } from './chat-room/chat-room.component';
 import { UserPageComponent } from './user-page/user-page.component';
 import { LeaderboardComponent } from './leaderboard/leaderboard.component';
 import { AuthGuardService } from './auth/auth-guard.service';
+import { AuthHandlerComponent } from './auth-handler/auth-handler.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -38,6 +39,10 @@ const routes: Routes = [
     path: 'user-page/:pseudo',
     component: UserPageComponent,
     canActivate: [AuthGuardService],
+  },
+  {
+    path: 'auth-handler',
+    component: AuthHandlerComponent,
   },
   { path: '**', component: HomeComponent },
 ];

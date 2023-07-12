@@ -1,14 +1,14 @@
-import { Injectable } from "@angular/core";
-import { AuthService } from "./auth.service";
-import { Observable } from "rxjs";
+import { Injectable } from '@angular/core';
+import { AuthService } from './auth.service';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class AuthGuardService {
-    authenticated: boolean = false;
+  authenticated: boolean = false;
 
-    constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) {}
 
-    canActivate(): Observable<boolean> {
-        return this.authService.getToken();
-    }
+  canActivate(): Observable<boolean> {
+    return this.authService.getTokenValidation();
+  }
 }

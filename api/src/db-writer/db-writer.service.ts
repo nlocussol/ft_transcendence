@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from 'src/typeorm';
@@ -159,7 +159,7 @@ export class DbWriterService {
         });
         if (!user){
             console.log("getDataUser: The user does not exist.");
-            return null;
+            throw new BadRequestException('No user with this login')
         }
         return user;
     }
