@@ -231,7 +231,6 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
           login: member.login
         }
         this.socket.emit('leave-room', bodyKick)
-        this.members.splice(this.members.findIndex((roomMember: MemberStatus) => roomMember.login === member.login), 1)
         break ;
 
       case 'Ban':
@@ -241,7 +240,6 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
           askBanLogin: this.login
         }
         this.socket.emit('ban-member', bodyBan)
-        this.members.splice(this.members.findIndex((roomMember: MemberStatus) => roomMember.login === member.login), 1)
         break ;
     }
   }
