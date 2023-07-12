@@ -16,8 +16,8 @@ import { Dialog } from '@angular/cdk/dialog';
 import { DialogNotLoguedComponent } from '../dialog-not-logued/dialog-not-logued.component';
 import { Subject, map } from 'rxjs';
 
-const TICKRATE = 15,
-  BALL_SIZE = 10;
+const TICKRATE = 15;
+  // BALL_SIZE = 10;
 
 @Component({
   selector: 'app-game',
@@ -31,6 +31,9 @@ export class GameComponent implements OnInit, OnDestroy {
   context!: CanvasRenderingContext2D;
   width: number = 858;
   height: number = 525;
+  // heightDiff: number = 0;
+  heightInit: number = 525;
+  widthInit: number = 858;
   gameData: GameData = new GameData();
   isMoving: boolean[] = [false, false];
   fontSize: number = 30;
@@ -46,6 +49,9 @@ export class GameComponent implements OnInit, OnDestroy {
   gameID!: string;
   animationId: any = undefined;
   loadOnce: boolean = false;
+  ballSize = 10;
+  widthPercent = 1;
+  heightPercent = 1
 
   constructor(private gameService: GameService, private dialog: MatDialog) {}
 
@@ -53,7 +59,6 @@ export class GameComponent implements OnInit, OnDestroy {
     this.gameService.getUser().subscribe({
       next: (res) => {
         this.login = res.login;
-        console.log(this.login)
         this.loguedIn = true;
         this.gameService.connectToSocket(this.login as string);
       },
@@ -155,24 +160,24 @@ export class GameComponent implements OnInit, OnDestroy {
     // Draw players
     this.context.fillStyle = 'white';
     this.context.fillRect(
-      this.gameData?.players[0].posX!,
-      this.gameData?.players[0].posY!,
-      this.gameData?.players[0].width!,
-      this.gameData?.players[0].height!
+      this.gameData?.players[0].posX! * this.widthPercent,
+      this.gameData?.players[0].posY! * this.heightPercent,
+      this.gameData?.players[0].width! * this.widthPercent,
+      this.gameData?.players[0].height! * this.heightPercent
     );
     this.context.fillRect(
-      this.gameData?.players[1].posX!,
-      this.gameData?.players[1].posY!,
-      this.gameData?.players[1].width!,
-      this.gameData?.players[1].height!
+      this.gameData?.players[1].posX! * this.widthPercent,
+      this.gameData?.players[1].posY! * this.heightPercent,
+      this.gameData?.players[1].width! * this.widthPercent,
+      this.gameData?.players[1].height! * this.heightPercent
     );
 
     // Draw ball
     this.context.fillRect(
-      this.gameData?.ball?.posX!,
-      this.gameData?.ball?.posY!,
-      BALL_SIZE,
-      BALL_SIZE
+      this.gameData?.ball?.posX! * this.widthPercent,
+      this.gameData?.ball?.posY! * this.heightPercent,
+      this.ballSize,
+      this.ballSize
     );
 
     this.drawScore();
@@ -195,8 +200,9 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   drawCenterLine() {
-    for (let i: number = 0; i < this.height; i += 30) {
-      this.context.fillRect(this.width / 2 - 10, i + 10, 15, 20);
+    let lineHeight = this.height / 17.5;
+    for (let i: number = 0; i < this.height; i += lineHeight) {
+      this.context.fillRect(this.width / 2 - lineHeight / 3, i + lineHeight/3, lineHeight/2, lineHeight / 2 + lineHeight / 5 );
     }
   }
 
@@ -248,5 +254,15 @@ export class GameComponent implements OnInit, OnDestroy {
     if (event.key === 's') {
       this.isMoving[movement.DOWN] = false;
     }
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    if (this.inGame === false || event.target.innerWidth < 1500 || event.target.innerHeight < 1000)
+      return    
+    this.widthPercent = (event.target.innerWidth - this.widthInit) / this.widthInit;
+    this.heightPercent = (event.target.innerHeight - this.heightInit) / this.heightInit;
+    this.width = this.widthInit * this.widthPercent;
+    this.height =  this.heightInit * this.heightPercent;
   }
 }

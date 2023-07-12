@@ -11,7 +11,7 @@ const GAME_WIDTH = 858,
   PLAYER_INITIAL_HEIGHT = 70,
   PLAYER_INITIAL_SPEED = 5,
   OFFSET_FROM_WALL = 10,
-  MAX_SCORE = 1,
+  MAX_SCORE = 10,
   MAX_AFK_TIME = 20;
 
 @Injectable()
@@ -37,7 +37,7 @@ export class GameService {
     if (this.gameInProgress.length < 1) return undefined;
     let found = this.gameInProgress.find((game) => game.matchUUID === UUID);
     if (found == undefined) {
-      console.log('Les problemes');
+      console.log('Les problemes c kan y trouve pa un game par uuuuuuuuuuuuuuuiid');
     } else {
       return found;
     }
