@@ -67,6 +67,17 @@ export class MessageComponent implements OnInit, OnDestroy {
     })
   }
 
+  matchFriend() {
+    const bodyInviteMatch = {
+      friend: this.selectedFriend?.name,
+      login: this.login,
+      content: `${this.pseudo} challenges you to a pong duel!`,
+      type: 'REQUEST_MATCH'
+    }
+    this.socket.emit('send-notif', bodyInviteMatch);
+    this.router.navigate(['/game']);
+  }
+
   async blockFriend() {
     const body = {
       login: this.login,
