@@ -1,0 +1,31 @@
+.field{
+    margin-top: 20%;
+    color: white;
+    font-size: calc(10px + 1.5vw);
+}
+
+u{
+    font-size: calc(20px + 1.5vw);
+}
+
+button{
+    font-size:calc(10px + 1.5vh);    
+    padding: 0.5vh;
+    border: 0.2vh solid teal;
+    color: white;
+    background-color:darkblue;
+}
+
+button:hover{
+    font-size:calc(10px + 1.5vh);    
+    padding: 0.5vh;
+    border: 0.2vh solid goldenrod;
+    color: white;
+    background-color:darkblue;
+}
+
+#valid2fa {
+    width: calc(10px + 1.5vw);
+    height: calc(10px + 1.5vh);
+    white-space: nowrap;
+}

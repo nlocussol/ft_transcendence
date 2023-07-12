@@ -29,8 +29,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.homeService.getUser().subscribe((res) => {
       this.login = res.login;
+      this.pseudo = res.pseudo;
       this.getProfileData();
-      console.log(this.login, this.pseudo);
       this.socket = io(environment.SOCKET_ENDPOINT);
       this.newNotif();
     });
@@ -207,6 +207,11 @@ export class ProfileComponent implements OnInit, OnDestroy {
       console.log(body.friend, 'is already your friend!');
       return;
     }
+    else if (this.pseudoFriend === this.pseudo){
+      console.log('You can not send friend request to yourself');
+      return;
+    }
     this.socket.emit('send-notif', body);
+    this.pseudoFriend = '';
   }
 }

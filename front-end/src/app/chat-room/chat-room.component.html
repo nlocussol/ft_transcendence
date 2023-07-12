@@ -9,7 +9,6 @@
       <div class="checkbox">
         <input type="checkbox" [(ngModel)]="allRoomChecked" (change)="onCheckboxChange()" name="all-room">
         <label for="all-room">All room</label>
-      
         <div *ngIf="allRoomChecked">
           <p>Search a room:</p>
           <input id="input-case" type="text" [(ngModel)]="roomSearch" (keyup.enter)="findRoom(roomSearch)" placeholder="Search ..." />
@@ -40,10 +39,14 @@
             </select>
             <button id="send-request" (click)="sendInviteRoom(friendInviteRoom)">Send</button>
           </div>          
-          
           <div class="chat-messages" *ngIf="roomStatus === 'PUBLIC' && conversation">
             <div *ngFor="let message of conversation.reverse()" class="message">
-              <span class="sender"><em>{{ message.sender }}</em></span>: {{ message.content }}
+              <div *ngIf="!isBlocked(message.sender)">
+                <span class="sender"><em>{{ message.sender }}</em></span>: {{ message.content }}
+              </div>
+              <div *ngIf="isBlocked(message.sender)">
+                <span class="sender"><em>{{ message.sender }}</em></span>: You blocked this user!
+              </div>
             </div>
           </div>
           <form *ngIf="userStatus === 'ADMIN'">
@@ -61,9 +64,10 @@
             <button (click)="sendMessage(newMessage)">Send</button>
           </div>
         </div>
-        <div *ngIf="!joined && allRoomChecked">
+        <div *ngIf="!joined && allRoomChecked && !isBan()">
           <button type="submit" class="join-button" (click)="joinRoom()">Join</button>
         </div>
+        <div *ngIf="!joined && isBan()" class="chat-messages">You are ban of this room!</div>
       </div>
       <div *ngIf="roomStatus === 'PROTECTED' && allRoomChecked && selectedRoom" class="input">
         <input type="text" [(ngModel)]="selectedRoomPwd" (keyup.enter)="verifyRoomPwd()" placeholder="Enter the Password of the room to get access!" />
@@ -76,8 +80,8 @@
             <select [(ngModel)]="memberOption">
               <option *ngFor="let memberOptions of memberOptions" [value]="memberOptions"> {{ memberOptions }}</option>
             </select>
-            <input *ngIf="memberOption === 'Mute'" type="text" [(ngModel)]="muteTime" placeholder="Time to mute in second" />
-            <button (click)="handleMemberOption(memberOption, member)">Send</button>
+            <input class="input" *ngIf="memberOption === 'Mute'" type="text" [(ngModel)]="muteTime" placeholder="Time to mute in second" />
+            <button id="send-request" (click)="handleMemberOption(memberOption, member)">Send</button>
           </div>    
       </div>
     </div>

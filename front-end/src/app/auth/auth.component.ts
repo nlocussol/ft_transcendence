@@ -76,6 +76,7 @@ export class AuthComponent implements OnInit {
     // if (this.profileData.doubleAuth === true){
     // }
     // this.doubleFactorAuth();
+    // this.router.navigate(['/new-user-form']);
   }
 
   async getAccessToken(code: string) {

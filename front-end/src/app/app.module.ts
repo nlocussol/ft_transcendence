@@ -22,6 +22,7 @@ import { AuthHandlerComponent } from './auth-handler/auth-handler.component';
 import { DialogFirstLoginComponent } from './dialog-first-login/dialog-first-login.component';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormFieldModule } from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
+import { NewUserFormComponent } from './new-user-form/new-user-form.component';
 
 @NgModule({
   declarations: [
@@ -38,6 +39,7 @@ import {MatInputModule} from '@angular/material/input';
     LeaderboardComponent,
     AuthHandlerComponent,
     DialogFirstLoginComponent,
+    NewUserFormComponent,
   ],
   imports: [
     FormsModule,

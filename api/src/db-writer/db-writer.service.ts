@@ -79,7 +79,7 @@ export class DbWriterService {
         const friend = await this.userRepository.findOneBy({
             login: newFriend.friend,
         });
-        if (user === friend){
+        if (newFriend.login === newFriend.friend){
             console.log("addFriend: The user and friend's name are the same.");
             return null;
         }
@@ -119,6 +119,24 @@ export class DbWriterService {
                 await this.userRepository.save(user);  
                 return user.pm[index].uuid;
             }
+        }
+        return null;
+    }
+
+    async getPmUuid(obj: addFriend) {
+        const user = await this.userRepository.findOneBy({
+            login: obj.login,
+        });
+        const friend = await this.userRepository.findOneBy({
+            login: obj.friend,
+        });
+        if (!user || !friend){
+            console.log("The user didn't exist.");
+            return null;
+        }
+        for(const index in user.pm){
+            if (user.pm[index].name === friend.login)
+                return user.pm[index].uuid;
         }
         return null;
     }
@@ -173,13 +191,7 @@ export class DbWriterService {
             console.log("getFriends: The user does not exist.");
             return null;
         }
-
-        let list = user.friends;
-        for (var i of list){
-            if (i.blocked === true)
-                list.splice(list.indexOf(i, 0), 1);
-        }
-        return list;
+        return user.friends;
     }   
 
     async changeUserPseudo(newName: changePseudo){

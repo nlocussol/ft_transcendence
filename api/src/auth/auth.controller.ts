@@ -28,7 +28,7 @@ export class AuthController {
   @SkipAuth()
   @Get('42')
   async retrieveAndSend42Token(@Query('code') code: string) {
-    console.log("code= ", code)
+    // console.log("code= ", code)
     const body = {
       grant_type: process.env.API_GRANT_TYPE,
       client_id: process.env.API_CLIENT_ID,
@@ -52,7 +52,7 @@ export class AuthController {
         }),
       );
     const token42 = await lastValueFrom(response)
-    console.log("access_token = ", token42);
+    // console.log("access_token = ", token42);
     return token42;
   }
 

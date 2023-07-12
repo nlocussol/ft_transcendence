@@ -18,6 +18,5 @@ export class LeaderboardComponent {
     this.topUser = await this.http
       .get(`http://localhost:3000/db-writer/leaderboard/`)
       .toPromise() as User[]
-      console.log(this.topUser)
   }
 }
