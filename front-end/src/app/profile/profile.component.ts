@@ -6,6 +6,7 @@ import { Socket, io } from 'socket.io-client';
 import { Friend, UserData } from '../chat-room/interfaces/interfaces';
 import { Notif, addFriend } from './interfaces/interfaces';
 import { HomeService } from '../home/service/home.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-profile',
@@ -42,7 +43,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   constructor(
     private http: HttpClient,
-    private homeService: HomeService
+    private homeService: HomeService,
+    private router: Router
   ) {}
 
   onFileSelected(event: any): void {
@@ -111,7 +113,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
           )
           .subscribe();
         break;
-
       case 'REQUEST_MATCH':
         bodyToSend = {
           uuid: crypto.randomUUID(),
@@ -121,10 +122,11 @@ export class ProfileComponent implements OnInit, OnDestroy {
         const notifBody = {
           friend: body.login,
           login: this.login,
-          content: `${this.pseudo} has accepted your match request so go in the game page!`,
+          content: `${this.pseudo} has accepted your match request, go in the game page!`,
           type: 'MATCH_ACCEPTED',
         };
         this.socket.emit('send-notif', notifBody);
+        this.router.navigate(['/game']);
         break;
 
       case 'ROOM_INVITE':

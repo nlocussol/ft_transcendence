@@ -174,6 +174,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
           type: 'REQUEST_MATCH'
         }
         this.socket.emit('send-notif', bodyInviteMatch);
+        this.router.navigate(['/game']);
         break ;
 
       case 'Friend Invite':
