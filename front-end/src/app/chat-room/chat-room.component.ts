@@ -6,6 +6,7 @@ import { environment } from 'src/environment';
 import { Router } from '@angular/router';
 import { Friend, JoinLeaveRoom, MemberStatus, NewRoom, Room, Message, UserData, RoomMessage, Passwords } from './interfaces/interfaces';
 import { HomeService } from '../home/service/home.service';
+import { Emitters } from '../emitters/emitters';
 
 @Component({
   selector: 'app-chat-room',
@@ -173,10 +174,10 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
           content: `${this.pseudo} challenges you to a pong duel!`,
           type: 'REQUEST_MATCH'
         }
+        Emitters.privateGameEmitter.emit(true);
         this.socket.emit('send-notif', bodyInviteMatch);
         this.router.navigate(['/game']);
         break ;
-
       case 'Friend Invite':
         const bodyInvite = {
           friend: member.login,
@@ -282,6 +283,10 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
   }
 
   sendInviteRoom(userToAddRoom: string) {
+    if (this.selectedRoom?.members.find(member => member.login === userToAddRoom)) {
+      console.log(`${userToAddRoom} is already in the room`);
+      return ;
+    }
     const body = {
       name: this.selectedRoom?.name,
       friend: userToAddRoom,

@@ -340,7 +340,6 @@ export class DbWriterService {
 
     async addNotif(newNotif:any){        
         // check if the user exist
-        console.log("Friend's name: ", newNotif.friend);
         // HERE : LOGIN CHANGED INTO PSEUDO BECAUSE neNotif.friend envoie pseudo
         const currentUser = await this.userRepository.findOneBy({
             pseudo: newNotif.friend,
@@ -354,7 +353,6 @@ export class DbWriterService {
             type: newNotif.type,
             content: newNotif.content,
         }
-        console.log(notif)
         currentUser.notif.push(notif);
         await this.userRepository.save(currentUser)
         return true;
