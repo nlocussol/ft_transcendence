@@ -60,7 +60,7 @@ export class GameComponent implements OnInit, OnDestroy {
         Emitters.privateGameEmitter.subscribe((privateGame: boolean) => {
           this.privateGame = privateGame;
         });
-        this.gameService.connectToSocket(this.login as string);
+        this.gameService.connectToSocket(this.login as string, this.privateGame);
       },
       error: () => {
         this.dialog.open(DialogNotLoguedComponent, {
@@ -219,7 +219,7 @@ export class GameComponent implements OnInit, OnDestroy {
     this.inGame = false;
     this.gameService.exitRoom();
     if (this.privateGame) {
-      this.privateGame = false;
+      Emitters.privateGameEmitter.emit(false);
     }
     clearInterval(this.movePlayerInterval);
     setTimeout(() => this.stopAnimationFrame(), 300);

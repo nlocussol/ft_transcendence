@@ -73,7 +73,12 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
         (client) => client.login == socket.handshake.auth.login,
       ) == undefined
     ) {
-      console.log('Connection: ', socket.handshake.auth.login);
+      console.log(
+        'Connection: ',
+        socket.handshake.auth.login,
+        ' ',
+        socket.handshake.auth.privateGame,
+      );
       let client = new Client();
       client.login = socket.handshake.auth.login as string;
       client.id = socket.id;
@@ -137,8 +142,8 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
   }
 
   @SubscribeMessage('privateGame')
-  handlePrivateGame(socket: Socket) {
-
+  handlePrivateGame(socket: Socket, payload: any) {
+    console.log('ICIGROSFDP: ', payload);
   }
 
   @SubscribeMessage('queue')
