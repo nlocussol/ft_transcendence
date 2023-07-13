@@ -6,7 +6,6 @@ import { environment } from 'src/environment';
 import { Router } from '@angular/router';
 import { Message, UserData, Friend } from '../chat-room/interfaces/interfaces';
 import { HomeService } from '../home/service/home.service';
-import { Emitters } from '../emitters/emitters';
 
 @Component({
   selector: 'app-message',
@@ -80,7 +79,6 @@ export class MessageComponent implements OnInit, OnDestroy {
       type: 'REQUEST_MATCH'
     }
     this.socket.emit('send-notif', bodyInviteMatch);
-    Emitters.privateGameEmitter.emit(true);
     this.router.navigate(['/game']);
   }
 

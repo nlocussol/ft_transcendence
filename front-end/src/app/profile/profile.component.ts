@@ -7,7 +7,6 @@ import { Friend, UserData } from '../chat-room/interfaces/interfaces';
 import { Notif, addFriend } from './interfaces/interfaces';
 import { HomeService } from '../home/service/home.service';
 import { Router } from '@angular/router';
-import { Emitters } from '../emitters/emitters';
 import { ProfileService } from './profile.service';
 
 @Component({
@@ -123,14 +122,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
           player2: body.login,
         };
         this.profileService.sendPrivateGameData(bodyToSend).subscribe(() => {
-          // setTimeout(() => this.router.navigate(['/game']), 500);
-
           this.router.navigate(['/game']);
-          Emitters.privateGameEmitter.emit(true);
         });
-        // Emitters.privateGameEmitter.emit(true);
-        // this.socket.emit('send-notif', notifBody);
-        // setTimeout(() => this.router.navigate(['/game']), 1000);
         break;
 
       case 'ROOM_INVITE':

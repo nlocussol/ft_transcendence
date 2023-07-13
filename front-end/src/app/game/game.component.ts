@@ -53,7 +53,6 @@ export class GameComponent implements OnInit, OnDestroy {
   ballSize = 10;
   widthPercent = 1;
   heightPercent = 1
-  privateGame: boolean = false;
   autoReconnectInterval: any;
 
   constructor(private gameService: GameService, private dialog: MatDialog) {}
@@ -65,7 +64,7 @@ export class GameComponent implements OnInit, OnDestroy {
         this.loguedIn = true;
         this.gameService.connectToSocket(this.login as string);
         this.autoReconnectInterval = setInterval(() => this.gameService.isInGame(res.login).subscribe({
-          next: (res) => {
+          next: () => {
             clearInterval(this.autoReconnectInterval);
             this.enterQueue(undefined);
           },
@@ -95,6 +94,7 @@ export class GameComponent implements OnInit, OnDestroy {
     clearInterval(this.queueInterval);
     clearInterval(this.refreshQueueInterval);
     clearInterval(this.movePlayerInterval);
+    clearInterval(this.autoReconnectInterval);
     this.gameService.disconnectFromSocket();
   }
 
@@ -226,9 +226,6 @@ export class GameComponent implements OnInit, OnDestroy {
   handleEndGame() {
     this.inGame = false;
     this.gameService.exitRoom();
-    if (this.privateGame) {
-      Emitters.privateGameEmitter.emit(false);
-    }
     clearInterval(this.movePlayerInterval);
     setTimeout(() => this.stopAnimationFrame(), 300);
   }
