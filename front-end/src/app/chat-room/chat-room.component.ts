@@ -67,8 +67,10 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
 
   getNewMember() {
     this.socket.on('join-room', (data: JoinLeaveRoom) => {
-      if (this.selectedRoom?.name === data.name)
-        this.members.push({pseudo: data.pseudo, login: data.login, status: 'NORMAL'})
+      if (this.selectedRoom?.name === data.name) {
+        this.http.get(`http://localhost:3000/db-writer/data/${data.login}`).subscribe((newMemberData: any) => {
+          this.members.push({pseudo: newMemberData.pseudo, login: data.login, status: 'NORMAL'})})
+      }
       if (this.selectedRoom && data.name === this.selectedRoom.name && this.selectedRoom.ban
         && !this.selectedRoom.ban.find((ban: any) => ban.login === data.login))
         this.conversation = this.selectedRoom?.messages as Message[]
@@ -305,9 +307,20 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
     this.memberOptions = ['watch profil', '1v1 match', 'Friend Invite'];
     this.joined = false;
     const roomData: Room = await this.http.get(`http://localhost:3000/db-writer-room/data-room/${room.name}`).toPromise() as Room
-    this.friendsToInvite = await this.http.get(`http://localhost:3000/db-writer/friends/${this.login}`).toPromise() as Friend[]
+    this.http.get(`http://localhost:3000/db-writer/friends/${this.login}`).subscribe((friends: any) => {
+      for (let i in friends) {
+        this.http.get(`http://localhost:3000/db-writer/data/${friends[i].name}`).subscribe((friendData: any) => {
+          friends[i].name = friendData.pseudo
+        })
+      }
+      this.friendsToInvite = friends;
+    })
     this.selectedRoom = room;
     this.socket.emit('socket-join-room', this.selectedRoom.name)
+    for (let i in roomData.members) {
+      let memberData = await this.http.get(`http://localhost:3000/db-writer/data/${roomData.members[i].login}`).toPromise() as UserData
+      roomData.members[i].pseudo = memberData.pseudo
+    }
     this.members = roomData.members;
     this.roomStatus = this.selectedRoom?.status as string;
     this.options.splice(this.options.findIndex(opt => opt === this.roomStatus), 1)
@@ -322,7 +335,12 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
       else if (this.userStatus === 'ADMIN')
         this.memberOptions = this.memberOptions.concat(['Promote', 'Mute', 'Kick', 'Ban'])
     }
-    this.conversation = this.selectedRoom?.messages as Message[];
+    for (let i in this.selectedRoom?.messages) {
+      this.http.get(`http://localhost:3000/db-writer/data/${this.selectedRoom?.messages[i].sender}`).subscribe((newMemberData: any) => {
+        if (this.selectedRoom)
+          this.selectedRoom.messages[i].sender = newMemberData.pseudo})
+    }
+    this.conversation = this.selectedRoom.messages
   }
 
   onStatusSelected(event: Event) {
@@ -343,7 +361,13 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
   }
 
   receiveMessage() {
-    this.socket.on('receive-room-msg', (data: RoomMessage) => this.conversation.push(data))
+    this.socket.on('receive-room-msg', (data: RoomMessage) => {
+      console.log(data.sender);
+      this.http.get(`http://localhost:3000/db-writer/data/${data.sender}`).subscribe((newMemberData: any) => {
+        data.sender = newMemberData.pseudo
+        this.conversation.push(data)
+    })
+   })
   }
 
   joinRoom() {

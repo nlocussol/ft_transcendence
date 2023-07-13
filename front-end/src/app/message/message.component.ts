@@ -128,7 +128,7 @@ export class MessageComponent implements OnInit, OnDestroy {
     const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
     let conversationTmp: Message[] = await this.http.post('http://localhost:3000/db-writer/get-pm/', body, { headers }).toPromise() as Message[]
     for (let i in conversationTmp) {
-      let senderData: UserData = await this.http.get(`http://localhost:3000/db-writer/data/${conversationTmp[i].sender}`).toPromise() as UserData
+      const senderData: UserData = await this.http.get(`http://localhost:3000/db-writer/data/${conversationTmp[i].sender}`).toPromise() as UserData
       conversationTmp[i].sender = senderData.pseudo;
     }
     this.conversation = conversationTmp;
