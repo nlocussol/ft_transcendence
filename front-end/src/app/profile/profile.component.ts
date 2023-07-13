@@ -83,7 +83,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   async changeUsername() {
     const body = {
-      currentPseudo: this.pseudo,
+      currentLogin: this.login,
       newPseudo: this.newPseudo,
     };
     const headers = new HttpHeaders().set('Content-type', `application/json`);
