@@ -20,8 +20,7 @@ export class GameService {
 
   constructor(private dbWriteService: DbWriterService) {}
 
-  // Used in gateway
-  findGameUUIDByLogin(login: string): string {
+  findGameUUIDWithLogin(login: string): string {
     for (let i = 0; i < this.gameInProgress.length; i++) {
       if (
         this.gameInProgress[i].players[0].login === login ||
@@ -197,7 +196,7 @@ export class GameService {
   }
 
   handleDeconnexion(login: string) {
-    const gameUUID = this.findGameUUIDByLogin(login);
+    const gameUUID = this.findGameUUIDWithLogin(login);
     const game = this.findGameByUUID(gameUUID);
     if (game == undefined) return;
 
@@ -211,7 +210,7 @@ export class GameService {
     let timeoutInterval = setInterval(() => {
       game.players[playerIndex].AFKTimer =
         (Date.now() - timeoutStartingTime) / 1000;
-        console.log(game.players[playerIndex].AFKTimer)
+      console.log(game.players[playerIndex].AFKTimer);
       if (game.players[playerIndex].AFK == false || game.isOver) {
         clearInterval(timeoutInterval);
       }
@@ -253,7 +252,7 @@ export class GameService {
     newGame.players[0].posX = OFFSET_FROM_WALL;
     newGame.players[0].posY = GAME_HEIGHT / 2 - PLAYER_INITIAL_HEIGHT / 2;
     newGame.players[0].score = 0;
-    newGame.players[0].canMove = true;
+    newGame.players[0].canMove = false;
     newGame.players[0].velY = PLAYER_INITIAL_SPEED;
     newGame.players[1] = new Player();
     newGame.players[1].side = side.RIGHT;
@@ -280,5 +279,11 @@ export class GameService {
     this.gameInProgress.push(newGame);
     this.startGame(newGame);
     return newGame;
+  }
+
+  createPrivateGame(gameData: any) {
+    const newGame = this.createNewGame();
+    newGame.players[0].login = gameData.player1;
+    newGame.players[1].login = gameData.player2;
   }
 }

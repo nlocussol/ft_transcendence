@@ -48,6 +48,7 @@ export class GameComponent implements OnInit, OnDestroy {
   animationId: any = undefined;
   loadOnce: boolean = false;
   privateGame: boolean = false;
+  autoReconnectInterval: any;
 
   constructor(private gameService: GameService, private dialog: MatDialog) {}
 
@@ -55,12 +56,15 @@ export class GameComponent implements OnInit, OnDestroy {
     this.gameService.getUser().subscribe({
       next: (res) => {
         this.login = res.login;
-        console.log(this.login);
         this.loguedIn = true;
-        Emitters.privateGameEmitter.subscribe((privateGame: boolean) => {
-          this.privateGame = privateGame;
-        });
-        this.gameService.connectToSocket(this.login as string, this.privateGame);
+        this.gameService.connectToSocket(this.login as string);
+        this.autoReconnectInterval = setInterval(() => this.gameService.isInGame(res.login).subscribe({
+          next: (res) => {
+            clearInterval(this.autoReconnectInterval);
+            this.enterQueue(undefined);
+          },
+          error: () => {}
+        }), 300);
       },
       error: () => {
         this.dialog.open(DialogNotLoguedComponent, {
@@ -86,9 +90,6 @@ export class GameComponent implements OnInit, OnDestroy {
     clearInterval(this.refreshQueueInterval);
     clearInterval(this.movePlayerInterval);
     this.gameService.disconnectFromSocket();
-    // if (this.searchingGame) {
-    // this.gameService.exitQueue(this.login!);
-    // }
   }
 
   enterQueue(element: any) {
@@ -116,7 +117,7 @@ export class GameComponent implements OnInit, OnDestroy {
         this.movePlayer();
         this.loadOnce = true;
       }
-      if (this.gameData.inProgress == false && this.gameData.isOver == true) {
+      if (!this.gameData.inProgress && this.gameData.isOver) {
         this.handleEndGame();
         this.loadOnce = false;
       }

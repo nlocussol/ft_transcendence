@@ -15,12 +15,10 @@ export class GameService {
   );
   constructor(private http: HttpClient) {}
 
-  connectToSocket(login: string, privateGame: boolean) {
-    console.log("Connecting to socket...", login)
+  connectToSocket(login: string) {
     this.socket = io(this.API_ENDPOINT, {
       auth: {
         login: login,
-        privateGame: privateGame
       },
     });
   }
@@ -54,5 +52,11 @@ export class GameService {
 
   getUser() {
     return this.http.get<any>('http://localhost:3000/auth/user');
+  }
+
+  isInGame(login: string) {
+    return this.http.get(`http://localhost:3000/game/${login}`, {
+      responseType: 'text',
+    });
   }
 }

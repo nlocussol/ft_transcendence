@@ -73,12 +73,7 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
         (client) => client.login == socket.handshake.auth.login,
       ) == undefined
     ) {
-      console.log(
-        'Connection: ',
-        socket.handshake.auth.login,
-        ' ',
-        socket.handshake.auth.privateGame,
-      );
+      console.log('Connection: ', socket.handshake.auth.login);
       let client = new Client();
       client.login = socket.handshake.auth.login as string;
       client.id = socket.id;
@@ -95,12 +90,42 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
     }
   }
 
+  removePlayerFromQueue(client: Client) {
+    const clientIndex = this.clientQueue.indexOf(client, 0);
+    if (clientIndex < 0) {
+      return;
+    }
+    this.clientQueue.splice(clientIndex, 0);
+  }
+
+
+  handleReconnection(client: Client) {
+    if (client.room == undefined) {
+      return;
+    }
+    client.socket.join(client.room);
+    this.gameService.handleReconnexion(client.login, client.room);
+  }
+
+  @SubscribeMessage('queue')
+  handleQueue(socket: Socket) {
+    let client = this.clients.find((c) => c.socket.id == socket.id);
+    if (client == undefined) {
+      console.log('GameGatewayHandleQueue: problem');
+      return;
+    }
+    this.addPlayerToQueue(client);
+    if (this.clientQueue.length >= 2) {
+      this.addPlayersToRoom();
+    }
+  }
+
   addPlayerToQueue(client: Client) {
     // If the player is already in a game make force him to join it
-    const gameUUID = this.gameService.findGameUUIDByLogin(client.login);
+    const gameUUID = this.gameService.findGameUUIDWithLogin(client.login);
     if (gameUUID != undefined) {
       client.socket.join(gameUUID);
-      this.gameService.handleReconnexion(client.login, client.room);
+      this.gameService.handleReconnexion(client.login, gameUUID);
       return;
     }
 
@@ -108,14 +133,6 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
       client.state = 'queueing';
       this.clientQueue.push(client);
     }
-  }
-
-  removePlayerFromQueue(client: Client) {
-    const clientIndex = this.clientQueue.indexOf(client, 0);
-    if (clientIndex < 0) {
-      return;
-    }
-    this.clientQueue.splice(clientIndex, 0);
   }
 
   addPlayersToRoom() {
@@ -131,33 +148,6 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
     client.room = game.matchUUID;
     game.players[1].login = client.login;
     client.socket.join(game.matchUUID);
-  }
-
-  handleReconnection(client: Client) {
-    if (client.room == undefined) {
-      return;
-    }
-    client.socket.join(client.room);
-    this.gameService.handleReconnexion(client.login, client.room);
-  }
-
-  @SubscribeMessage('privateGame')
-  handlePrivateGame(socket: Socket, payload: any) {
-    console.log('ICIGROSFDP: ', payload);
-  }
-
-  @SubscribeMessage('queue')
-  handleQueue(socket: Socket) {
-    // console.log('Wants to join a game:', socket.handshake.auth.login);
-    let client = this.clients.find((c) => c.socket.id == socket.id);
-    if (client == undefined) {
-      console.log('GameGatewayHandleQueue: problem');
-      return;
-    }
-    this.addPlayerToQueue(client);
-    if (this.clientQueue.length >= 2) {
-      this.addPlayersToRoom();
-    }
   }
 
   @SubscribeMessage('leaveQueue')

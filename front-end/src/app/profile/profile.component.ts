@@ -123,7 +123,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
           player2: body.login,
         };
         this.profileService.sendPrivateGameData(bodyToSend).subscribe(() => {
+          // setTimeout(() => this.router.navigate(['/game']), 500);
+
           this.router.navigate(['/game']);
+          Emitters.privateGameEmitter.emit(true);
         });
         // Emitters.privateGameEmitter.emit(true);
         // this.socket.emit('send-notif', notifBody);
@@ -188,8 +191,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.socket.on('receive-notif', (data: Notif) => {
       if (data.friend === this.login) {
         if (!this.notifs) this.notifs = [];
-        if (data.login)
-          this.notifs.push(data);
+        if (data.login) this.notifs.push(data);
       }
     });
   }

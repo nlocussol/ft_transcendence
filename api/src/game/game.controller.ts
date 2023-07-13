@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, HttpException, HttpStatus, Param, Post } from '@nestjs/common';
 import { GameService } from './game.service';
 
 @Controller('game')
@@ -7,8 +7,15 @@ export class GameController {
 
   @Post('private-game')
   receivePrivateGameData(@Body() gameData: any) {
-    const newGame = this.gameService.createNewGame();
-    newGame.players[0].login = gameData.player1;
-    newGame.players[1].login = gameData.player2;
+    this.gameService.createPrivateGame(gameData);
+  }
+
+  @Get(':login')
+  getGame(@Param('login') login: string) {
+    if (this.gameService.findGameUUIDWithLogin(login) != undefined) {
+      return this.gameService.findGameUUIDWithLogin(login);
+    } else {
+      throw new HttpException('You are not in a game', HttpStatus.FORBIDDEN)
+    }
   }
 }
