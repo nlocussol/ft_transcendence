@@ -53,7 +53,7 @@ export class GameComponent implements OnInit, OnDestroy {
   ballSize = 10;
   widthPercent = 1;
   heightPercent = 1
-  privateGame: boolean = false;
+  autoReconnectInterval: any;
 
   constructor(private gameService: GameService, private dialog: MatDialog) {}
 
@@ -61,12 +61,15 @@ export class GameComponent implements OnInit, OnDestroy {
     this.gameService.getUser().subscribe({
       next: (res) => {
         this.login = res.login;
-        console.log("ng init on game compo", this.login);
         this.loguedIn = true;
-        Emitters.privateGameEmitter.subscribe((privateGame: boolean) => {
-          this.privateGame = privateGame;
-        });
-        this.gameService.connectToSocket(this.login as string, this.privateGame);
+        this.gameService.connectToSocket(this.login as string);
+        this.autoReconnectInterval = setInterval(() => this.gameService.isInGame(res.login).subscribe({
+          next: () => {
+            clearInterval(this.autoReconnectInterval);
+            this.enterQueue(undefined);
+          },
+          error: () => {}
+        }), 300);
       },
       error: () => {
         this.dialog.open(DialogNotLoguedComponent, {
@@ -91,10 +94,8 @@ export class GameComponent implements OnInit, OnDestroy {
     clearInterval(this.queueInterval);
     clearInterval(this.refreshQueueInterval);
     clearInterval(this.movePlayerInterval);
+    clearInterval(this.autoReconnectInterval);
     this.gameService.disconnectFromSocket();
-    // if (this.searchingGame) {
-    // this.gameService.exitQueue(this.login!);
-    // }
   }
 
   enterQueue(element: any) {
@@ -122,7 +123,7 @@ export class GameComponent implements OnInit, OnDestroy {
         this.movePlayer();
         this.loadOnce = true;
       }
-      if (this.gameData.inProgress == false && this.gameData.isOver == true) {
+      if (!this.gameData.inProgress && this.gameData.isOver) {
         this.handleEndGame();
         this.loadOnce = false;
       }
@@ -225,9 +226,6 @@ export class GameComponent implements OnInit, OnDestroy {
   handleEndGame() {
     this.inGame = false;
     this.gameService.exitRoom();
-    if (this.privateGame) {
-      Emitters.privateGameEmitter.emit(false);
-    }
     clearInterval(this.movePlayerInterval);
     setTimeout(() => this.stopAnimationFrame(), 300);
   }

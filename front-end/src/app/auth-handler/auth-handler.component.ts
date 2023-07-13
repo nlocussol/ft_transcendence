@@ -76,9 +76,19 @@ export class AuthHandlerComponent implements OnInit, OnDestroy {
           dialogConfig.data = { login: userData.login, pp: userData.pp };
           const dia = this.dialog.open(DialogFirstLoginComponent, dialogConfig);
           dia.afterClosed().subscribe((res) => {
-            console.log(res);
             // Change below to send right infos
-            this.authHandlerService.sendUserData(userData).subscribe();
+            this.authHandlerService.sendUserData(userData).subscribe(() => {
+              this.authHandlerService.sendLogin(userData.login).subscribe({
+                next: () => {
+                  this.authHandlerService
+                    .getJwt(userData.login)
+                    .subscribe((res) => {
+                      Emitters.authEmitter.emit(true);
+                      this.router.navigate(['/profile']);
+                    });
+                },
+              });
+            });
           });
         }
       },

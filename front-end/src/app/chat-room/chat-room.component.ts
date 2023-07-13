@@ -185,9 +185,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
           content: `${this.pseudo} challenges you to a pong duel!`,
           type: 'REQUEST_MATCH'
         }
-        Emitters.privateGameEmitter.emit(true);
         this.socket.emit('send-notif', bodyInviteMatch);
-        this.router.navigate(['/game']);
         break ;
       case 'Friend Invite':
         const bodyInvite = {
