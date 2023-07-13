@@ -1,17 +1,20 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AuthHandlerService } from './auth-handler.service';
 import { Router } from '@angular/router';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DialogFirstLoginComponent } from '../dialog-first-login/dialog-first-login.component';
 import { Emitters } from '../emitters/emitters';
+import { Socket, io } from 'socket.io-client';
+import { environment } from 'src/environment';
 
 @Component({
   selector: 'app-auth-handler',
   templateUrl: './auth-handler.component.html',
   styleUrls: ['./auth-handler.component.css'],
 })
-export class AuthHandlerComponent implements OnInit {
+export class AuthHandlerComponent implements OnInit, OnDestroy {
   errorBool: boolean = false;
+  socket!: Socket
 
   constructor(
     private authHandlerService: AuthHandlerService,
@@ -20,6 +23,7 @@ export class AuthHandlerComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.socket = io(environment.SOCKET_ENDPOINT);
     const urlQuery = new URLSearchParams(window.location.search);
     const code = urlQuery.get('code');
     console.log(code);
@@ -31,6 +35,10 @@ export class AuthHandlerComponent implements OnInit {
     } else {
       this.router.navigate(['/home']);
     }
+  }
+
+  ngOnDestroy(): void {
+    this.socket.disconnect()
   }
 
   getUserDataFrom42(res: string) {
@@ -52,6 +60,8 @@ export class AuthHandlerComponent implements OnInit {
       next: () => {
         this.authHandlerService.getJwt(userData.login).subscribe(() => {
           Emitters.authEmitter.emit(true);
+          //add to error
+          this.socket.emit('user-change-status', {login: userData.login, status: 'ONLINE'})
           this.router.navigate(['/profile']);
         });
       },

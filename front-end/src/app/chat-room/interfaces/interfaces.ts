@@ -10,6 +10,7 @@ export interface Friend {
     name:string,
     pp: string,
     blocked: boolean,
+    status?: string,
 }
 
 export interface Passwords {

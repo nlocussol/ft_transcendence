@@ -12,6 +12,36 @@ html, body {
   background-color: inherit;
 }
 
+#status-circle-online {
+  border: 1px solid;
+  border-color: goldenrod;
+  width: 2vw;
+  height: 2vh;
+  border-radius: 20px;
+  margin-left: 2vw;
+  background: green;
+}
+
+#status-circle-offline {
+  border: 1px solid;
+  border-color: goldenrod;
+  width: 2vw;
+  height: 2vh;
+  border-radius: 20px;
+  margin-left: 2vw;
+  background: red;
+}
+
+#status-circle-ig {
+  border: 1px solid;
+  border-color: goldenrod;
+  width: 2vw;
+  height: 2vh;
+  border-radius: 20px;
+  margin-left: 2vw;
+  background: rgb(77, 74, 231);
+}
+
 #friend-list { 
   flex: 1;
   display: block;
