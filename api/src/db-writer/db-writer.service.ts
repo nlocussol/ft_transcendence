@@ -379,4 +379,48 @@ export class DbWriterService {
         await this.userRepository.save(currentUser)
         return true;
     }
+
+    async deleteFriendToDb(user: User, friendLogin: string){
+        // check if the friend is not already inside friend list
+        for (var i in user.friends){
+            if (user.friends[i].name == friendLogin){
+                user.friends.splice(user.friends.indexOf(user.friends[i], 0), 1);
+                break ;
+            }
+        }
+        // add a friend to the private message list
+        await this.userRepository.save(user);
+    }
+
+    async deleteFriend(newFriend: addFriend){
+
+        // check if user & friend exist inside db
+        const user = await this.userRepository.findOneBy({
+            login: newFriend.login,
+        });
+        const friend = await this.userRepository.findOneBy({
+            login: newFriend.friend,
+        });
+        if (!user || !friend){
+            console.log("deleteFriend: The friend doesn't exist.");
+            return null;
+        }
+        // add new friend to both users list
+        this.deleteFriendToDb(user, newFriend.friend);
+        this.deleteFriendToDb(friend, user.login);
+        return true;
+    }
+
+    async changeStatus(userStatus: any) {
+        const user = await this.userRepository.findOneBy({
+            login: userStatus.login,
+        });
+        if (!user) {
+            console.log(`changeStatus: this user doesn't not exist.`);
+            return null   
+        }
+        user.status = userStatus.status
+        await this.userRepository.save(user);
+        return true
+    }
 }

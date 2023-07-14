@@ -7,7 +7,6 @@ import { Friend, UserData } from '../chat-room/interfaces/interfaces';
 import { Notif, addFriend } from './interfaces/interfaces';
 import { HomeService } from '../home/service/home.service';
 import { Router } from '@angular/router';
-import { Emitters } from '../emitters/emitters';
 import { ProfileService } from './profile.service';
 
 @Component({
@@ -108,10 +107,11 @@ export class ProfileComponent implements OnInit, OnDestroy {
           login: this.login,
           friend: body.login,
         };
+        console.log(bodyToSend);
         this.http
           .post(
             'http://localhost:3000/db-writer/add-friend/',
-            bodyToSend as addFriend,
+            bodyToSend,
             { headers }
           )
           .subscribe();
@@ -125,9 +125,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.profileService.sendPrivateGameData(bodyToSend).subscribe(() => {
           this.router.navigate(['/game']);
         });
-        // Emitters.privateGameEmitter.emit(true);
-        // this.socket.emit('send-notif', notifBody);
-        // setTimeout(() => this.router.navigate(['/game']), 1000);
         break;
 
       case 'ROOM_INVITE':
@@ -186,15 +183,15 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   newNotif() {
     this.socket.on('receive-notif', (data: Notif) => {
-      if (data.friend === this.login) {
+      if (data.friend === this.pseudo || (data.friend === this.login && data.type != 'REQUEST_MATCH')) {
         if (!this.notifs) this.notifs = [];
-        if (data.login)
-          this.notifs.push(data);
+        if (data.login) this.notifs.push(data);
       }
     });
   }
 
   handleFriendSubmit() {
+    this.getProfileData()
     const body = {
       friend: this.pseudoFriend,
       login: this.login,
@@ -203,7 +200,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     };
     if (
       this.profileData.friends.find(
-        (friend: Friend) => friend.name === body.login
+        (friend: Friend) => friend.name === this.pseudoFriend
       )
     ) {
       console.log(body.friend, 'is already your friend!');

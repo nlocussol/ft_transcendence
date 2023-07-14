@@ -35,7 +35,7 @@
   display: block;
 }
 
-#input-case{
+#input-name, #input-password, #input-case{
   width:calc(100px + 1.5vw);
   font-size:calc(10px + 1.5vh);
   color: white;

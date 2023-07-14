@@ -24,7 +24,7 @@ export class Player {
     score?: number;
     endScreenWin: boolean;
     canMove: boolean = false;
-    AFK: boolean = false;
+    AFK: boolean = true;
     AFKTimer: number = 0;
     AFKInterval: any;
 }
