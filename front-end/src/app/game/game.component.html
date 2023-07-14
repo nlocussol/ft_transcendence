@@ -1,18 +1,17 @@
-<div id="textDiv">width: {{width}} / height: {{height}}</div>
 <div id="canvasMaster">
-<canvas #canvas width="{{ width }}" height="{{ height }}"></canvas><br />
+  <canvas #canvas width="{{ width }}" height="{{ height }}"></canvas><br />
 
-<div *ngIf="inGame" id="textDiv">{{gameData.players[0].login}} VS {{gameData.players[1].login}}</div>
+  <div *ngIf="inGame" id="textDiv">{{gameData.players[0].login}} VS {{gameData.players[1].login}}</div>
 
-<div *ngIf="loguedIn">
-  <div>
-    <button (click)="enterQueue($event.target)" id="searchBtn" *ngIf="!inGame && !searchingGame">FIND GAME</button>
-    <button (click)="leaveQueue()" id="searchBtn" *ngIf="searchingGame">CANCEL QUEUE</button>
-    <p *ngIf="searchingGame">{{ queueTimeElapsed }}</p>
-    <br />
-    <br />
+  <div *ngIf="loguedIn">
+    <div>
+      <button (click)="enterQueue($event.target)" id="searchBtn" *ngIf="!inGame && !searchingGame">FIND GAME</button>
+      <button (click)="leaveQueue()" id="searchBtn" *ngIf="searchingGame">CANCEL QUEUE</button>
+      <p *ngIf="searchingGame">{{ queueTimeElapsed }}</p>
+      <br />
+      <br />
+    </div>
   </div>
-</div>
 </div>
 
 <!-- <div *ngFor="let userToAddRoom of friendsToInvite" [value]="userToAddRoom.name">{{ userToAddRoom.name }}>

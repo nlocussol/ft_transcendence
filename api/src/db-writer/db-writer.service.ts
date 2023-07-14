@@ -46,6 +46,8 @@ export class DbWriterService {
         await this.userRepository.save(user)
     }
 
+    
+
     async addFriendToDb(user: User, friend: User, friendLogin: string, uuid: string){
         // add friend inside the friend list
         const dataFriend: friend = {
