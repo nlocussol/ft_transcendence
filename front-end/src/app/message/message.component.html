@@ -25,8 +25,8 @@
         Chatting with {{ selectedFriend.pseudo }}
       </div>
       <div class="chat-messages">
-        <button id="block-button" (click)="blockFriend()">Block</button>
         <button id="block-button" (click)="matchFriend()">Match</button>
+        <button id="block-button" (click)="blockFriend()">Block</button>
         <button id="block-button" (click)="deleteFriend()">Delete</button>
         <div *ngIf="conversation">
           <div *ngFor="let message of conversation.reverse()" class="message">

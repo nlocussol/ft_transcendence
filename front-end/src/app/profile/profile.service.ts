@@ -22,16 +22,4 @@ export class ProfileService implements OnInit {
   sendPrivateGameData(gameData: any) {
     return this.http.post('http://localhost:3000/game/private-game', gameData);
   }
-
-  // sendPrivateGameData(gameData: any) {
-  //   console.log(gameData);
-  //   this.socket = io(this.API_ENDPOINT_GAME, {
-  //     auth: {
-  //       login: this.login,
-  //       privateGameData: true,
-  //     },
-  //   });
-  //   this.socket.emit('privateGame', gameData);
-  //   this.socket.disconnect();
-  // }
 }
