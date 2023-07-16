@@ -16,7 +16,7 @@ import { ProfileService } from './profile.service';
   styleUrls: ['./profile.component.css'],
 })
 export class ProfileComponent implements OnInit, OnDestroy {
-  pathToPp: string = 'http://localhost:3000/upload' // a modif
+  pathToPp!: string //= 'http://localhost:3000/upload' // a modif
   doubleAuth!: boolean;
   selectedFile!: File;
   newPseudo!: string;
@@ -55,16 +55,13 @@ export class ProfileComponent implements OnInit, OnDestroy {
     const formData: FormData = new FormData();
     formData.append('file', selectedFile, selectedFile.name);
     this.http.post('http://localhost:3000/db-writer/upload', formData).subscribe((res: any) => {
-        let headers = new HttpHeaders().set('Content-type', `application/json`);
-        this.ppUrl = `${this.pathToPp}/${res.name}`
-        this.http.post('http://localhost:3000/db-writer/change-user-pp', {login: this.login, newPp: res.name}, { headers }).subscribe(() => {
-          headers = new HttpHeaders().set('Accept', 'image/*');
-          this.http.get(`http://localhost:3000/db-writer/user-pp/${this.login}`, { responseType: 'blob', headers }).subscribe((blob: Blob) => {
-            this.ppUrl = URL.createObjectURL(blob);
-          });
-        })
+      this.http.post('http://localhost:3000/db-writer/change-user-pp', {login: this.login, newPp: res.name}).subscribe(() => {
+        this.http.get(`http://localhost:3000/db-writer/user-pp/${this.login}`, { responseType: 'blob' }).subscribe((ppData: Blob) => {
+          this.ppUrl = URL.createObjectURL(ppData);
+        });
       })
-    }
+    })
+  }
 
   change2AF() {
     this.doubleAuth = !this.doubleAuth;

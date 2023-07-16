@@ -50,20 +50,16 @@ export class DbWriterController {
     async uploadFile(@UploadedFile() file: Express.Multer.File) {
         if (!file)
             throw new Error('No file uploaded.');
-        console.log(file);
-        return { message: 'File uploaded successfully.' };
+        return { name: file.originalname };
     }
 
     @Get('user-pp/:login')
     async getUserPp(@Res() res: Response, @Param('login') login: string) {
         const ppName = await this.dbWriter.getUserPp(login)
-        if (ppName === 'https://cdn.intra.42.fr/users/846bb9308137a685db9bae4d9e94d623/small_nlocusso.jpg')
-            return ;
         const pathToPp = `/usr/src/app/upload/${ppName}`;
-        const fileStream = fs.createReadStream(pathToPp);
-        console.log(fileStream);
-        res.set('Content-Type', 'image/*');
-        fileStream.pipe(res)
+        res.setHeader('Content-Type', 'application/octet-stream');
+        res.setHeader('Content-Disposition', `attachment; filename=${ppName}`);
+        res.sendFile(pathToPp);
     }
 
     @Post('change-user-pp')
