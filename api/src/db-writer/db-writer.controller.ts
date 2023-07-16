@@ -5,22 +5,27 @@ import {
   Headers,
   Param,
   Post,
-  Patch,
-  Delete,
+  UseInterceptors,
+  UploadedFile,
+  Res,
 } from '@nestjs/common';
 import { DbWriterService } from 'src/db-writer/db-writer.service';
 import { SkipAuth } from 'src/utils/decorators';
 import { GameData } from 'src/game/models/game.models';
+import { FileInterceptor } from '@nestjs/platform-express';
+import * as fs from 'fs';
+import { Response } from 'express';
 import {
+  NewNotif,
   addFriend,
   changeBlockStatus,
   changePseudo,
   deleteNotif,
   messageData,
   modify2fa,
-  newNotif,
   newPp,
 } from 'src/typeorm/user.entity';
+import { multerOptions } from './multer.config';
 
 @Controller('db-writer')
 export class DbWriterController {
@@ -59,6 +64,29 @@ export class DbWriterController {
     return this.dbWriter.changeUserPseudo(obj);
   }
 
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file', multerOptions))
+  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+    if (!file) throw new Error('No file uploaded.');
+    console.log(file);
+    return { message: 'File uploaded successfully.' };
+  }
+
+  @Get('user-pp/:login')
+  async getUserPp(@Res() res: Response, @Param('login') login: string) {
+    const ppName = await this.dbWriter.getUserPp(login);
+    if (
+      ppName ===
+      'https://cdn.intra.42.fr/users/846bb9308137a685db9bae4d9e94d623/small_nlocusso.jpg'
+    )
+      return;
+    const pathToPp = `/usr/src/app/upload/${ppName}`;
+    const fileStream = fs.createReadStream(pathToPp);
+    console.log(fileStream);
+    res.set('Content-Type', 'image/*');
+    fileStream.pipe(res);
+  }
+
   @Post('change-user-pp')
   changeUserPp(@Body() obj: newPp, @Headers() headers) {
     return this.dbWriter.changeUserPp(obj);
@@ -85,19 +113,13 @@ export class DbWriterController {
   }
 
   @Post('add-notif')
-  addNotif(@Body() obj: newNotif, @Headers() headers) {
+  addNotif(@Body() obj: NewNotif, @Headers() headers) {
     return this.dbWriter.addNotif(obj);
   }
 
   @Post('delete-notif')
   deleteNotif(@Body() obj: deleteNotif, @Headers() headers) {
     return this.dbWriter.deleteNotif(obj);
-  }
-
-  @SkipAuth()
-  @Get('data-pseudos')
-  getAllPseudos() {
-    return this.dbWriter.getAllPseudos();
   }
 
   @SkipAuth()

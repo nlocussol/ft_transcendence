@@ -2,8 +2,8 @@
     <div class="input">
       <form (ngSubmit)="submitRoom()">
         <p>Create a room:</p>
-        <input id="input-case" type="text" [(ngModel)]="roomName" name="roomName" placeholder="Name" />
-        <input id="input-case" type="password" [(ngModel)]="roomPassword" name="roomPassword" placeholder="Password" />
+        <input id="input-name" type="text" [(ngModel)]="roomName" name="roomName" placeholder="Name" />
+        <input id="input-password" type="password" [(ngModel)]="roomPassword" name="roomPassword" placeholder="Password" />
         <button type="submit">Submit</button>
       </form>
       <div class="checkbox">
@@ -27,7 +27,8 @@
     </div>
     <br>
     <div class="select-room" *ngIf="selectedRoom">
-      <div class="chat" *ngIf="roomStatus === 'PUBLIC'">
+      <!-- if is borken add that under *ngIf="roomStatus === 'PUBLIC'" -->
+      <div class="chat">
         <div *ngIf="joined">
           <div class="chat-header">
             Chat in <u>{{ selectedRoom.name }}</u> room
@@ -64,10 +65,11 @@
             <button (click)="sendMessage(newMessage)">Send</button>
           </div>
         </div>
-        <div *ngIf="!joined && allRoomChecked && !isBan()">
+        <div *ngIf="!joined && allRoomChecked && !isBan() && selectedRoom.status != 'PRIVATE'">
           <button type="submit" class="join-button" (click)="joinRoom()">Join</button>
         </div>
-        <div *ngIf="!joined && isBan()" class="chat-messages">You are ban of this room!</div>
+        <div *ngIf="!joined && allRoomChecked && !isBan() && selectedRoom.status === 'PRIVATE'">This room is Private!</div>
+        <div *ngIf="!joined && isBan()">You are ban of this room!</div>
       </div>
       <div *ngIf="roomStatus === 'PROTECTED' && allRoomChecked && selectedRoom" class="input">
         <input type="text" [(ngModel)]="selectedRoomPwd" (keyup.enter)="verifyRoomPwd()" placeholder="Enter the Password of the room to get access!" />

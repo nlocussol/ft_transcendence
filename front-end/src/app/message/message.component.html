@@ -11,6 +11,9 @@
       <div class="name">
         {{ friend.pseudo }}
       </div>
+      <div *ngIf="friend.status === 'ONLINE'" id="status-circle-online"></div>
+      <div *ngIf="friend.status === 'OFFLINE'" id="status-circle-offline"></div>
+      <div *ngIf="friend.status === 'IN_GAME'" id="status-circle-ig"></div>
     </li>
   </ul>
   <div *ngIf="selectedFriend && friends && friends.length" class="chat">
@@ -22,10 +25,13 @@
         Chatting with {{ selectedFriend.pseudo }}
       </div>
       <div class="chat-messages">
-        <button id="block-button" (click)="blockFriend()">Block</button>
         <button id="block-button" (click)="matchFriend()">Match</button>
-        <div *ngFor="let message of conversation.reverse()" class="message">
-          <span class="sender"><em>{{ message.sender }}</em>: </span> {{ message.content }}
+        <button id="block-button" (click)="blockFriend()">Block</button>
+        <button id="block-button" (click)="deleteFriend()">Delete</button>
+        <div *ngIf="conversation">
+          <div *ngFor="let message of conversation.reverse()" class="message">
+            <span class="sender"><em>{{ message.sender }}</em>: </span> {{ message.content }}
+          </div>
         </div>
       </div>
       <div class="chat-input">

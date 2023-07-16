@@ -261,142 +261,6 @@ export class DbWriterService {
     return true;
   }
 
-  async change2fa(change2fa: modify2fa) {
-    // check if the user exist
-    const currentUser = await this.userRepository.findOneBy({
-      login: change2fa.login,
-    });
-    if (!currentUser) {
-      console.log('change2fa: The user does not exist');
-      return null;
-    }
-
-    // change the current 2fa setting to the new one
-    currentUser.doubleAuth = change2fa.doubleAuth;
-    await this.userRepository.save(currentUser);
-    return true;
-  }
-
-  async blockFriend(blockFriend: changeBlockStatus) {
-    // check if the user exist
-
-    const currentUser = await this.userRepository.findOneBy({
-      login: blockFriend.login,
-    });
-    if (!currentUser) {
-      console.log("blockFriend: The user doesn't exist");
-      return null;
-    }
-
-    // search the corresponding friend and set the new parameters
-    for (var i in currentUser.friends) {
-      if (currentUser.friends[i].name == blockFriend.friend) {
-        currentUser.friends[i].blocked = blockFriend.block;
-      }
-    }
-    await this.userRepository.save(currentUser);
-    return true;
-  }
-
-  async fillStats(player: User, matchWinner: string) {
-    player.stats.matchs += 1;
-    if (matchWinner === player.login) {
-      player.stats.win += 1;
-    } else {
-      player.stats.lose += 1;
-    }
-    await this.userRepository.save(player);
-  }
-
-  async fillMatchHistory(gameData: GameData) {
-    // check if the user exist
-    const player1 = await this.userRepository.findOneBy({
-      login: gameData.players[0].login,
-    });
-    if (!player1) {
-      console.log("fillMatchHistory: The user doesn't exist");
-      return null;
-    }
-    const player2 = await this.userRepository.findOneBy({
-      login: gameData.players[1].login,
-    });
-    if (!player2) {
-      console.log("fillMatchHistory: The user doesn't exist");
-      return null;
-    }
-
-    let matchWinner: string;
-    if (gameData.players[0].score == 5) matchWinner = gameData.players[0].login;
-    else matchWinner = gameData.players[1].login;
-
-    let match1: match = {
-      ownScore: gameData.players[0].score,
-      opponentScore: gameData.players[1].score,
-      opponent: gameData.players[1].login,
-      winner: matchWinner,
-    };
-    player1.history.push(match1);
-
-    let match2: match = {
-      ownScore: gameData.players[1].score,
-      opponentScore: gameData.players[0].score,
-      opponent: gameData.players[0].login,
-      winner: matchWinner,
-    };
-    player2.history.push(match2);
-
-    this.fillStats(player1, matchWinner);
-    this.fillStats(player2, matchWinner);
-    return true;
-  }
-
-  async getLeaderboard() {
-    const players = await this.userRepository.find();
-
-    const sortedPlayer = players.sort((a, b) =>
-      a.stats.win - a.stats.lose > b.stats.win - b.stats.lose ? -1 : 1,
-    );
-    return sortedPlayer;
-  }
-
-  async addNotif(newNotif: any) {
-    // check if the user exist
-    // HERE : LOGIN CHANGED INTO PSEUDO BECAUSE neNotif.friend envoie pseudo
-    const currentUser = await this.userRepository.findOneBy({
-      pseudo: newNotif.friend,
-    });
-    if (!currentUser) {
-      console.log('addNotif: The user does not exist');
-      return null;
-    }
-    let notif: notif = {
-      login: newNotif.login,
-      type: newNotif.type,
-      content: newNotif.content,
-    };
-    currentUser.notif.push(notif);
-    await this.userRepository.save(currentUser);
-    return true;
-    // change the current 2fa setting to the new one
-  }
-
-  async deleteNotif(deleteNotif: deleteNotif) {
-    const currentUser = await this.userRepository.findOneBy({
-      login: deleteNotif.login,
-    });
-    if (!currentUser) {
-      console.log('addNotif: The user does not exist');
-      return null;
-    }
-    let i = parseInt(deleteNotif.index);
-
-    if (i > -1) {
-      currentUser.notif.splice(i, 1);
-    }
-    await this.userRepository.save(currentUser);
-    return true;
-  }
-
   async getAllPseudos() {
     return this.userRepository.find({
       select: {
@@ -416,4 +280,201 @@ export class DbWriterService {
     }
     return { pseudoAlreadyExists: true };
   }
+
+
+    async change2fa(change2fa: modify2fa){
+        // check if the user exist
+        const currentUser = await this.userRepository.findOneBy({
+            login: change2fa.login,
+         });
+         if (!currentUser){
+             console.log("change2fa: The user does not exist");
+             return null;
+         }
+ 
+         // change the current 2fa setting to the new one
+         currentUser.doubleAuth = change2fa.doubleAuth;
+         await this.userRepository.save(currentUser)
+        return true;
+    }
+
+    async blockFriend(blockFriend: changeBlockStatus){
+        // check if the user exist
+        
+        const currentUser = await this.userRepository.findOneBy({
+            login: blockFriend.login,
+         });
+         if (!currentUser){
+             console.log("blockFriend: The user doesn't exist");
+             return null;
+         }
+ 
+         // search the corresponding friend and set the new parameters
+        for (var i in currentUser.friends){
+            if (currentUser.friends[i].name == blockFriend.friend){
+                currentUser.friends[i].blocked = blockFriend.block;
+            }
+        }
+        await this.userRepository.save(currentUser)
+        return true;
+    }
+
+    async fillStats(player: User, matchWinner:string){
+        
+        player.stats.matchs += 1;
+        if (matchWinner === player.login){
+            player.stats.win += 1;
+        } else {
+            player.stats.lose += 1;
+        }
+        await this.userRepository.save(player)
+    }
+
+    async fillMatchHistory(gameData: GameData) {
+        // check if the user exist
+        const player1 = await this.userRepository.findOneBy({
+            login: gameData.players[0].login,
+         });
+         if (!player1){
+             console.log("fillMatchHistory: The user doesn't exist");
+             return null;
+         }
+         const player2 = await this.userRepository.findOneBy({
+            login: gameData.players[1].login,
+         });
+         if (!player2){
+             console.log("fillMatchHistory: The user doesn't exist");
+             return null;
+        }
+
+        let matchWinner: string;
+        if (gameData.players[0].score == 5)
+            matchWinner = gameData.players[0].login;
+        else
+            matchWinner = gameData.players[1].login;
+        
+
+        let match1: match = {
+            ownScore: gameData.players[0].score,
+            opponentScore: gameData.players[1].score,
+            opponent: gameData.players[1].login,
+            winner: matchWinner
+        }
+        player1.history.push(match1);
+
+        let match2 :match = {
+            ownScore: gameData.players[1].score,
+            opponentScore: gameData.players[0].score,
+            opponent: gameData.players[0].login,
+            winner: matchWinner
+        }
+        player2.history.push(match2);
+
+        this.fillStats(player1, matchWinner);
+        this.fillStats(player2, matchWinner);
+        return true;
+    }
+
+    async getLeaderboard(){
+        const players = await this.userRepository.find();
+
+        const sortedPlayer = players.sort(
+            (a, b) => (a.stats.win - a.stats.lose > b.stats.win - b.stats.lose ? -1 : 1)
+        )
+        return sortedPlayer
+    }
+
+    async addNotif(newNotif:any){        
+        // check if the user exist
+        // HERE : LOGIN CHANGED INTO PSEUDO BECAUSE neNotif.friend envoie pseudo
+        const currentUser = await this.userRepository.findOneBy({
+            pseudo: newNotif.friend,
+         });
+         if (!currentUser){
+             console.log("addNotif: The user does not exist");
+             return null;
+         }
+         let notif: notif =  {
+            login: newNotif.login,
+            type: newNotif.type,
+            content: newNotif.content,
+        }
+        currentUser.notif.push(notif);
+        await this.userRepository.save(currentUser)
+        return true;
+         // change the current 2fa setting to the new one
+     
+    }
+
+    async deleteNotif(deleteNotif: deleteNotif) {
+        const currentUser = await this.userRepository.findOneBy({
+            login: deleteNotif.login,
+         });
+         if (!currentUser){
+             console.log("addNotif: The user does not exist");
+             return null;
+         }
+        let i = parseInt(deleteNotif.index);
+
+        if (i > -1) {
+            currentUser.notif.splice(i, 1);
+        }
+        await this.userRepository.save(currentUser)
+        return true;
+    }
+
+    async deleteFriendToDb(user: User, friendLogin: string){
+        // check if the friend is not already inside friend list
+        for (var i in user.friends){
+            if (user.friends[i].name == friendLogin){
+                user.friends.splice(user.friends.indexOf(user.friends[i], 0), 1);
+                break ;
+            }
+        }
+        // add a friend to the private message list
+        await this.userRepository.save(user);
+    }
+
+    async deleteFriend(newFriend: addFriend){
+
+        // check if user & friend exist inside db
+        const user = await this.userRepository.findOneBy({
+            login: newFriend.login,
+        });
+        const friend = await this.userRepository.findOneBy({
+            login: newFriend.friend,
+        });
+        if (!user || !friend){
+            console.log("deleteFriend: The friend doesn't exist.");
+            return null;
+        }
+        // add new friend to both users list
+        this.deleteFriendToDb(user, newFriend.friend);
+        this.deleteFriendToDb(friend, user.login);
+        return true;
+    }
+
+    async changeStatus(userStatus: any) {
+        const user = await this.userRepository.findOneBy({
+            login: userStatus.login,
+        });
+        if (!user) {
+            console.log(`changeStatus: this user doesn't not exist.`);
+            return null   
+        }
+        user.status = userStatus.status
+        await this.userRepository.save(user);
+        return true
+    }
+
+    async getUserPp(login: string) {
+        const user = await this.userRepository.findOneBy({
+            login: login,
+        });
+        if (!user) {
+            console.log(`getUserPp: this user doesn't not exist.`);
+            return null   
+        }
+        return user.pp
+    }
 }

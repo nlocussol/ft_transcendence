@@ -111,4 +111,28 @@ export class MyGateway implements OnModuleInit{
         if (res == null)
             return ;
     }
+
+    @SubscribeMessage('delete-friend')
+    async deleteFriend(client: Socket, friendToDelete: any) {
+        const res = await this.dbWriter.deleteFriend(friendToDelete);
+        if (res == null)
+            return ;
+        this.server.emit('friend-deleted', friendToDelete);
+    }
+
+    @SubscribeMessage('room-change-status')
+    async roomChangeStatus(client: Socket, status: any) {
+        const res = await this.dbWriterRoom.changeStatus(status);
+        if (res == null)
+            return ;
+        this.server.emit('room-status-changed', status);
+    }
+
+    @SubscribeMessage('user-change-status')
+    async userChangeStatus(client: Socket, status: any) {
+        const res = await this.dbWriter.changeStatus(status);
+        if (res == null)
+            return ;
+        this.server.emit('user-status-changed', status);
+    }
 }

@@ -16,6 +16,7 @@ import { ProfileService } from './profile.service';
   styleUrls: ['./profile.component.css'],
 })
 export class ProfileComponent implements OnInit, OnDestroy {
+  pathToPp: string = 'http://localhost:3000/upload' // a modif
   doubleAuth!: boolean;
   selectedFile!: File;
   newPseudo!: string;
@@ -23,7 +24,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   profileData!: UserData;
   pseudo!: string;
   login!: string;
-  ppUrl!: string;
+  ppUrl!: any;
   status!: string;
   socket!: Socket;
   notifs!: Notif[];
@@ -50,23 +51,20 @@ export class ProfileComponent implements OnInit, OnDestroy {
   ) {}
 
   onFileSelected(event: any): void {
-    this.selectedFile = event.target.files[0];
-    const reader = new FileReader();
-    reader.onload = (event: any) => {
-      this.ppUrl = event.target.result;
-    };
-    reader.readAsDataURL(this.selectedFile);
-    const body = {
-      login: this.login,
-      newPp: this.selectedFile.name,
-    };
-    const headers = new HttpHeaders().set('Content-type', `application/json`);
-    this.http
-      .post('http://localhost:3000/db-writer/change-user-pp/', body, {
-        headers,
+    const selectedFile = event.target.files[0];
+    const formData: FormData = new FormData();
+    formData.append('file', selectedFile, selectedFile.name);
+    this.http.post('http://localhost:3000/db-writer/upload', formData).subscribe((res: any) => {
+        let headers = new HttpHeaders().set('Content-type', `application/json`);
+        this.ppUrl = `${this.pathToPp}/${res.name}`
+        this.http.post('http://localhost:3000/db-writer/change-user-pp', {login: this.login, newPp: res.name}, { headers }).subscribe(() => {
+          headers = new HttpHeaders().set('Accept', 'image/*');
+          this.http.get(`http://localhost:3000/db-writer/user-pp/${this.login}`, { responseType: 'blob', headers }).subscribe((blob: Blob) => {
+            this.ppUrl = URL.createObjectURL(blob);
+          });
+        })
       })
-      .subscribe();
-  }
+    }
 
   change2AF() {
     this.doubleAuth = !this.doubleAuth;
@@ -107,10 +105,11 @@ export class ProfileComponent implements OnInit, OnDestroy {
           login: this.login,
           friend: body.login,
         };
+        console.log(bodyToSend);
         this.http
           .post(
             'http://localhost:3000/db-writer/add-friend/',
-            bodyToSend as addFriend,
+            bodyToSend,
             { headers }
           )
           .subscribe();
@@ -173,16 +172,19 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.profileData = (await this.http
       .get(`http://localhost:3000/db-writer/data/${this.login}`)
       .toPromise()) as UserData;
-    this.ppUrl = this.profileData.pp;
+    const headers = new HttpHeaders().set('Accept', 'image/jpeg');
     this.notifs = this.profileData.notif;
     this.status = this.profileData.status;
     this.doubleAuth = this.profileData.doubleAuth;
     this.pseudo = this.profileData.pseudo;
+    this.http.get(`http://localhost:3000/db-writer/user-pp/${this.login}`, { responseType: 'blob', headers }).subscribe((blob: Blob) => {
+      this.ppUrl = URL.createObjectURL(blob);
+    });
   }
 
   newNotif() {
     this.socket.on('receive-notif', (data: Notif) => {
-      if (data.friend === this.login) {
+      if (data.friend === this.pseudo || (data.friend === this.login && data.type != 'REQUEST_MATCH')) {
         if (!this.notifs) this.notifs = [];
         if (data.login) this.notifs.push(data);
       }
@@ -190,6 +192,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   handleFriendSubmit() {
+    this.getProfileData()
     const body = {
       friend: this.pseudoFriend,
       login: this.login,
@@ -198,7 +201,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     };
     if (
       this.profileData.friends.find(
-        (friend: Friend) => friend.name === body.login
+        (friend: Friend) => friend.name === this.pseudoFriend
       )
     ) {
       console.log(body.friend, 'is already your friend!');

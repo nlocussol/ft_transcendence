@@ -30,6 +30,8 @@ export class MessageComponent implements OnInit, OnDestroy {
       this.getUserData();
       this.socket = io(environment.SOCKET_ENDPOINT);
       this.receiveMessage()
+      this.deletedFriend()
+      this.statusChanged()
     })
   }
 
@@ -39,6 +41,29 @@ export class MessageComponent implements OnInit, OnDestroy {
 
   constructor(private http: HttpClient, private homeService: HomeService, private router: Router) {}
 
+  deletedFriend() {
+    this.socket.on('friend-deleted', data => {
+      if (data.login === this.login) {
+        const friendIndex = this.friends.findIndex(friend => friend.name === data.friend)
+        if (friendIndex >= 0)
+          this.friends.splice(friendIndex, 1);
+      }
+      else if (data.friend === this.login) {
+        const friendIndex = this.friends.findIndex(friend => friend.name === data.login)
+        if (friendIndex >= 0)
+          this.friends.splice(friendIndex, 1);
+      }
+    })
+  }
+
+  statusChanged() {
+    this.socket.on('user-status-changed', data => {
+        const statusIndex = this.friends.findIndex(friend => friend.name === data.login)
+        if (statusIndex >= 0)
+          this.friends[statusIndex].status = data.status
+    })
+  }
+  
   receiveMessage() {
     this.socket.on('receive-pm', async (data: Message) => {
       let senderData: UserData = await this.http.get(`http://localhost:3000/db-writer/data/${data.sender}`).toPromise() as UserData
@@ -69,6 +94,14 @@ export class MessageComponent implements OnInit, OnDestroy {
       if (friend === this.selectedFriend)
         friend.blocked = false
     })
+  }
+
+  deleteFriend() {
+    const friendToDelete = {
+      login: this.login,
+      friend: this.selectedFriend?.name
+    }
+    this.socket.emit('delete-friend', friendToDelete)
   }
 
   matchFriend() {
@@ -110,8 +143,10 @@ export class MessageComponent implements OnInit, OnDestroy {
     this.userData = await this.http.get(`http://localhost:3000/db-writer/data/${this.login}`).toPromise() as UserData
     this.friends = await this.http.get(`http://localhost:3000/db-writer/friends/${this.login}`).toPromise() as Friend[]
     for (let i in this.friends) {
-      let friendData: UserData = await this.http.get(`http://localhost:3000/db-writer/data/${this.friends[i].name}`).toPromise() as UserData
-      this.friends[i].pseudo = friendData.pseudo;
+      this.http.get(`http://localhost:3000/db-writer/data/${this.friends[i].name}`).subscribe((friendData: UserData | any) => {
+        this.friends[i].pseudo = friendData.pseudo;
+        this.friends[i].status = friendData.status;
+      })
     }
   }
 
