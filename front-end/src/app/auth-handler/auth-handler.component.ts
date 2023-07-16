@@ -44,8 +44,9 @@ export class AuthHandlerComponent implements OnInit {
   handleConnexion(res: any) {
     const userData = {
       login: res.login,
+      pseudo: res.pseudo,
       pp: res.image.versions.small,
-      email: res.email,
+      doubleAuth: false,
     };
 
     this.authHandlerService.sendLogin(userData.login).subscribe({
@@ -63,22 +64,28 @@ export class AuthHandlerComponent implements OnInit {
           dialogConfig.closeOnNavigation = false;
           dialogConfig.width = '500';
           dialogConfig.height = '500';
-          dialogConfig.data = { login: userData.login, pp: userData.pp };
+          dialogConfig.enterAnimationDuration = '500ms'
+          dialogConfig.exitAnimationDuration = '500ms'
+          dialogConfig.data = { pseudo: userData.login, pp: userData.pp };
           const dia = this.dialog.open(DialogFirstLoginComponent, dialogConfig);
           dia.afterClosed().subscribe((res) => {
             // Change below to send right infos
-            this.authHandlerService.sendUserData(userData).subscribe(() => {
-              this.authHandlerService.sendLogin(userData.login).subscribe({
-                next: () => {
-                  this.authHandlerService
-                    .getJwt(userData.login)
-                    .subscribe((res) => {
-                      Emitters.authEmitter.emit(true);
-                      this.router.navigate(['/profile']);
-                    });
-                },
-              });
-            });
+            userData.pseudo = res.pseudo;
+            userData.doubleAuth = res.doubleAuth;
+            // userData.pp = res.pp;
+            console.log("here: ", userData);
+            // this.authHandlerService.createUser(userData).subscribe(() => {
+            //   this.authHandlerService.sendLogin(userData.login).subscribe({
+            //     next: () => {
+            //       this.authHandlerService
+            //         .getJwt(userData.login)
+            //         .subscribe((res) => {
+            //           Emitters.authEmitter.emit(true);
+            //           this.router.navigate(['/profile']);
+            //         });
+            //     },
+            //   });
+            // });
           });
         }
       },

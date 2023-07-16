@@ -15,7 +15,7 @@ import { DbWriterService } from 'src/db-writer/db-writer.service';
 import { SkipAuth } from 'src/utils/decorators';
 import { HttpService } from '@nestjs/axios';
 import { AxiosRequestConfig } from 'axios';
-import { firstValueFrom, lastValueFrom, map } from 'rxjs';
+import { lastValueFrom, map } from 'rxjs';
 
 @Controller('auth')
 export class AuthController {
@@ -28,7 +28,6 @@ export class AuthController {
   @SkipAuth()
   @Get('42')
   async retrieveAndSend42Token(@Query('code') code: string) {
-    // console.log("code= ", code)
     const body = {
       grant_type: process.env.API_GRANT_TYPE,
       client_id: process.env.API_CLIENT_ID,
@@ -52,7 +51,6 @@ export class AuthController {
         }),
       );
     const token42 = await lastValueFrom(response)
-    // console.log("access_token = ", token42);
     return token42;
   }
 
