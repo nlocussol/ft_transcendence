@@ -63,6 +63,7 @@ export class MessageComponent implements OnInit, OnDestroy {
           this.friends[statusIndex].status = data.status
     })
   }
+  
   receiveMessage() {
     this.socket.on('receive-pm', async (data: Message) => {
       let senderData: UserData = await this.http.get(`http://localhost:3000/db-writer/data/${data.sender}`).toPromise() as UserData

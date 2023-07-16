@@ -1,7 +1,9 @@
-import { Body, Controller, Get, Headers, Param, Post, Patch, Delete } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Param, Post, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { DbWriterService } from 'src/db-writer/db-writer.service';
 import { SkipAuth } from 'src/utils/decorators';
 import { GameData } from 'src/game/models/game.models';
+import { FileInterceptor } from '@nestjs/platform-express';
+import * as fs from 'fs';
 import { addFriend, changeBlockStatus, changePseudo, deleteNotif, messageData, modify2fa, newPp } from 'src/typeorm/user.entity';
 
 @Controller('db-writer')
@@ -41,11 +43,25 @@ export class DbWriterController {
         return this.dbWriter.changeUserPseudo(obj);
     }
 
+    @Post('upload')
+    @UseInterceptors(FileInterceptor('file'))
+    async uploadFile(@UploadedFile() file: Express.Multer.File) {
+        const destination = '/usr/src/app/upload';
+        try {
+            const filename = `${file.originalname}`;
+            const filePath = `${destination}/${filename}`;
+            fs.writeFileSync(filePath, file.buffer);
+            return { message: 'File uploaded successfully', name: filename };
+        } catch (error) {
+            return { error: 'Error uploading file' };
+        }
+    }
+
     @Post('change-user-pp')
     changeUserPp(@Body() obj: newPp, @Headers() headers){
         return  this.dbWriter.changeUserPp(obj);
     }
-
+    
     @Post('change-2fa')
     change2fa(@Body() obj: modify2fa, @Headers() headers){
         return  this.dbWriter.change2fa(obj);
@@ -69,5 +85,11 @@ export class DbWriterController {
     @Post('delete-notif')
     deleteNotif(@Body() obj: deleteNotif, @Headers() headers){
         return  this.dbWriter.deleteNotif(obj);
+    }
+
+    @SkipAuth()
+    @Get('get-qrcode/:login')
+    getQrCode(@Param('login') login: string){
+        return this.dbWriter.getQrCode(login);
     }
 }

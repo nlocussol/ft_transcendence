@@ -294,6 +294,8 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
       console.log(`${userToAddRoom} is already in the room`);
       return ;
     }
+    if (!userToAddRoom)
+      return ;
     const body = {
       name: this.selectedRoom?.name,
       friend: userToAddRoom,

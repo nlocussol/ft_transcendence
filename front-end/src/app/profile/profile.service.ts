@@ -1,7 +1,6 @@
-import { io } from 'socket.io-client';
 import { Injectable, OnInit } from '@angular/core';
 import { HomeService } from '../home/service/home.service';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
@@ -22,16 +21,4 @@ export class ProfileService implements OnInit {
   sendPrivateGameData(gameData: any) {
     return this.http.post('http://localhost:3000/game/private-game', gameData);
   }
-
-  // sendPrivateGameData(gameData: any) {
-  //   console.log(gameData);
-  //   this.socket = io(this.API_ENDPOINT_GAME, {
-  //     auth: {
-  //       login: this.login,
-  //       privateGameData: true,
-  //     },
-  //   });
-  //   this.socket.emit('privateGame', gameData);
-  //   this.socket.disconnect();
-  // }
 }

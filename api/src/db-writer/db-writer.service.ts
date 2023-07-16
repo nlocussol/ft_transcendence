@@ -4,6 +4,10 @@ import { Repository } from 'typeorm';
 import { User } from 'src/typeorm';
 import { message, pm, messageData, friend, match, stats, modify2fa, changeBlockStatus, changePseudo, addFriend, newPp, notif, deleteNotif } from 'src/typeorm/user.entity';
 import { GameData } from 'src/game/models/game.models';
+import * as qrcode from 'qrcode';
+import * as speakeasy from 'speakeasy';
+
+
 
 
 @Injectable()
@@ -11,6 +15,28 @@ export class DbWriterService {
     constructor(
         @InjectRepository(User) private readonly userRepository: Repository<User>,
     ){}
+
+    async generateSecret(user: User){
+        let secret = speakeasy.generateSecret({
+            name: `${user.login}`
+        });
+        user.twoFaBase32 = secret.base32;
+
+        const generateQR = async () => {
+            try {
+             return await qrcode.toDataURL(secret.otpauth_url);
+            } catch (err) {
+             return console.error(err);
+            }
+        }
+        await generateQR().then(result => {
+            if (result){
+            user.twoFaQrcode = result;
+            } else {
+            user.twoFaQrcode = null;
+            }
+        });
+    }
 
     async createUser(newUser: User){
 
@@ -25,15 +51,14 @@ export class DbWriterService {
 
         // create an instance of user table & fill it
         const user = new User();
-        user.authCode = crypto.randomUUID();
         user.pseudo = newUser.login;
         user.pp = newUser.pp;
         user.login = newUser.login
-        user.doubleAuth = false;
         user.friends = [];
         user.pm = [];
         user.history = [];
         user.notif = [];
+        await this.generateSecret(user);
 
         let statsInit : stats = {
             lose: 0,
@@ -422,5 +447,27 @@ export class DbWriterService {
         user.status = userStatus.status
         await this.userRepository.save(user);
         return true
+    }
+
+    async getQrCode(login:string){
+        const user = await this.userRepository.findOneBy({
+            login: login,
+        });
+        if (!user) {
+            console.log(`getQrCode: this user doesn't not exist.`);
+            return null   
+        }
+        return user.twoFaQrcode;
+    }
+
+    async getBase32(login:string){
+        const user = await this.userRepository.findOneBy({
+            login: login,
+        });
+        if (!user) {
+            console.log(`getBase32: this user doesn't not exist.`);
+            return null   
+        }
+        return user.twoFaBase32;
     }
 }
