@@ -423,4 +423,15 @@ export class DbWriterService {
         await this.userRepository.save(user);
         return true
     }
+
+    async getUserPp(login: string) {
+        const user = await this.userRepository.findOneBy({
+            login: login,
+        });
+        if (!user) {
+            console.log(`getUserPp: this user doesn't not exist.`);
+            return null   
+        }
+        return user.pp
+    }
 }
