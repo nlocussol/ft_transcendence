@@ -10,7 +10,6 @@ import { GameService } from './service/game.service';
 import { GameData, movement, Player } from './models/game.models';
 import { Socket } from 'socket.io-client';
 import { FontFaceSet } from 'css-font-loading-module';
-import { DataService } from '../services/data.service';
 import { MatDialog } from '@angular/material/dialog';
 import { Dialog } from '@angular/cdk/dialog';
 import { DialogNotLoguedComponent } from '../dialog-not-logued/dialog-not-logued.component';

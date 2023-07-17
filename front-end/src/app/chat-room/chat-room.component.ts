@@ -1,6 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { DataService } from '../services/data.service';
 import { Socket, io } from 'socket.io-client';
 import { environment } from 'src/environment';
 import { Router } from '@angular/router';
@@ -208,6 +207,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
             return ;
           }
           this.socket.emit('send-notif', bodyInvite);
+          this.router.navigate(['/game']);
         })
         break ;
 
@@ -329,6 +329,10 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
           const friendInRoom = friends.findIndex((friend: Friend) => friend.name === roomData.members[i].login)
           if (friendInRoom >= 0)
             friends.splice(friendInRoom, 1)
+        }
+        for (let i in friends) {
+          if (friends[i].blocked)
+            friends.splice(friends.findIndex(friend => friend.name === friends[i].name), 1)
         }
         for (let i in friends)
           this.profileService.getProfileData(friends[i].name).subscribe((friendData: UserData) => friends[i].name = friendData.pseudo)

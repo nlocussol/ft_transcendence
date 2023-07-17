@@ -45,4 +45,8 @@ export class ProfileService implements OnInit {
   getUserFriends(login: string) {
     return this.http.get<Friend[]>(`http://localhost:3000/db-writer/friends/${login}`)
   }
+
+  changeUserPseudo(body: any) {
+    return this.http.post('http://localhost:3000/db-writer/change-user-pseudo/', body, this.basicHeaders)
+  }
 }

@@ -1,6 +1,5 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { DataService } from '../services/data.service';
 import { environment } from 'src/environment';
 import { Socket, io } from 'socket.io-client';
 import { Friend, UserData } from '../chat-room/interfaces/interfaces';
@@ -8,6 +7,7 @@ import { Notif, addFriend } from './interfaces/interfaces';
 import { HomeService } from '../home/service/home.service';
 import { Router } from '@angular/router';
 import { ProfileService } from './profile.service';
+import { ChatRoomService } from '../chat-room/chat-room.service';
 
 @Component({
   selector: 'app-profile',
@@ -47,7 +47,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
     private http: HttpClient,
     private homeService: HomeService,
     private router: Router,
-    private profileService: ProfileService
+    private profileService: ProfileService,
+    private roomService: ChatRoomService
   ) {}
 
   onFileSelected(event: any): void {
@@ -80,13 +81,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
       currentLogin: this.login,
       newPseudo: this.newPseudo,
     };
-    const headers = new HttpHeaders().set('Content-type', `application/json`);
-    const res = await this.http
-      .post('http://localhost:3000/db-writer/change-user-pseudo/', body, {
-        headers,
-      })
-      .toPromise();
-    if (res) this.pseudo = this.newPseudo;
+    this.profileService.changeUserPseudo(body).subscribe((res: any) => {
+      if (res) 
+        this.pseudo = this.newPseudo;
+    })
   }
 
   acceptRequest(body: Notif) {
@@ -121,13 +119,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
           login: this.login,
           pseudo: this.pseudo,
         };
-        this.http
-          .post(
-            'http://localhost:3000/db-writer-room/add-user-room',
-            bodyToSend,
-            { headers }
-          )
-          .subscribe();
+        this.roomService.addUserToRoom(body).subscribe();
         break;
     }
     this.notifs.splice(

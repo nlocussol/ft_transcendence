@@ -32,4 +32,8 @@ export class ChatRoomService {
   checkRoomPass(body: Passwords) {
     return this.http.post('http://localhost:3000/db-writer-room/check-password/', body, this.basicHeaders)
   }
+
+  addUserToRoom(body: any) {
+    return this.http.post('http://localhost:3000/db-writer-room/add-user-room', body, this.basicHeaders)
+  }
 }

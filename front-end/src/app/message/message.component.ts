@@ -1,5 +1,4 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { DataService } from '../services/data.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Socket, io } from 'socket.io-client';
 import { environment } from 'src/environment';
@@ -135,17 +134,21 @@ export class MessageComponent implements OnInit, OnDestroy {
     let bodyNotif = {
       login: this.login,
       friend: this.selectedFriend?.name,
-      content: `${this.login} blocked you!`,
+      content: `${this.pseudo} blocked you!`,
       type: "BLOCK"
     }
     this.socket.emit('send-notif', bodyNotif);
-    bodyNotif.friend = this.login
-    bodyNotif.content = `You blocked ${this.selectedFriend?.name}`
-    this.socket.emit('send-notif', bodyNotif);
-    this.friends.find(friend =>  {
-      if (friend === this.selectedFriend)
-        friend.blocked = true
-    })
+    if (this.selectedFriend) {
+      this.profileService.getProfileData(this.selectedFriend.name).subscribe((friendData: UserData) => {
+        bodyNotif.friend = this.login
+        bodyNotif.content = `You blocked ${friendData.pseudo}`
+        this.socket.emit('send-notif', bodyNotif);
+        this.friends.find(friend =>  {
+          if (friend === this.selectedFriend)
+            friend.blocked = true
+        })
+      })
+    }
   }
 
   getUserData() {
