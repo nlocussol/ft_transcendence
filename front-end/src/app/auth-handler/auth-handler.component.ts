@@ -8,7 +8,7 @@ import { Socket, io } from 'socket.io-client';
 import { environment } from 'src/environment';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import * as qrcode from 'qrcode';
-
+import { ProfileService } from '../profile/profile.service';
 
 @Component({
   selector: 'app-auth-handler',
@@ -27,14 +27,14 @@ export class AuthHandlerComponent implements OnInit, OnDestroy {
     private authHandlerService: AuthHandlerService,
     private router: Router,
     private dialog: MatDialog,
-    private http: HttpClient
+    private http: HttpClient,
+    private profileService: ProfileService
   ) {}
 
   ngOnInit(): void {
     this.socket = io(environment.SOCKET_ENDPOINT);
     const urlQuery = new URLSearchParams(window.location.search);
     const code = urlQuery.get('code');
-    // console.log(code);
     if (code != null || code != undefined) {
       this.authHandlerService.retrieveAccessToken(code).subscribe({
         next: (res) => this.getUserDataFrom42(res),
@@ -46,7 +46,7 @@ export class AuthHandlerComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.socket.disconnect()
+    this.socket.disconnect();
   }
 
   getUserDataFrom42(res: string) {
@@ -56,34 +56,42 @@ export class AuthHandlerComponent implements OnInit, OnDestroy {
     });
   }
 
-  allowTowFa(){
+  allowTowFa() {
     this.twoFa = true;
     this.http
-      .get(`http://localhost:3000/db-writer/get-qrcode/${this.login}`, {responseType: 'text'})
+      .get(`http://localhost:3000/db-writer/get-qrcode/${this.login}`, {
+        responseType: 'text',
+      })
       .subscribe((img: any) => {
         this.qrcode = img;
       });
-  };
+  }
 
-  verifyPin(){
+  verifyPin() {
     const body = {
       pin: this.pin,
       login: this.login,
-    }
-    const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
+    };
+    const headers = new HttpHeaders().set(
+      'Content-type',
+      `application/json; charset=UTF-8`
+    );
     this.http
-    .post(`http://localhost:3000/auth/verify2fa`, body, { headers })
-    .subscribe((verify: any) => {
-      if (verify){
-        this.authHandlerService.getJwt(this.login).subscribe(() => {
-          Emitters.authEmitter.emit(true);
-          //add to error
-          this.socket.emit('user-change-status', {login: this.login, status: 'ONLINE'})
-          this.router.navigate(['/profile']);
-        });
-      }
-    })
-  };
+      .post(`http://localhost:3000/auth/verify2fa`, body, { headers })
+      .subscribe((verify: any) => {
+        if (verify) {
+          this.authHandlerService.getJwt(this.login).subscribe(() => {
+            Emitters.authEmitter.emit(true);
+            //add to error
+            this.socket.emit('user-change-status', {
+              login: this.login,
+              status: 'ONLINE',
+            });
+            this.router.navigate(['/profile']);
+          });
+        }
+      });
+  }
 
   handleConnexion(res: any) {
     const userData = {
@@ -98,17 +106,19 @@ export class AuthHandlerComponent implements OnInit, OnDestroy {
       .get(`http://localhost:3000/db-writer/data/${this.login}`)
       .subscribe((res: any) => {
         this.twoFa = res.doubleAuth;
-    });
+      });
 
     this.authHandlerService.sendLogin(this.login).subscribe({
       next: () => {
-        if (this.twoFa)
-          this.allowTowFa();
-        else{
+        if (this.twoFa) this.allowTowFa();
+        else {
           this.authHandlerService.getJwt(userData.login).subscribe(() => {
             Emitters.authEmitter.emit(true);
             //add to error
-            this.socket.emit('user-change-status', {login: userData.login, status: 'ONLINE'})
+            this.socket.emit('user-change-status', {
+              login: userData.login,
+              status: 'ONLINE',
+            });
             this.router.navigate(['/profile']);
           });
         }
@@ -121,32 +131,48 @@ export class AuthHandlerComponent implements OnInit, OnDestroy {
           dialogConfig.closeOnNavigation = false;
           dialogConfig.width = '500';
           dialogConfig.height = '500';
-          dialogConfig.enterAnimationDuration = '500ms'
-          dialogConfig.exitAnimationDuration = '500ms'
-          dialogConfig.data = { login: userData.login, pseudo: userData.login, pp: userData.pp };
+          dialogConfig.enterAnimationDuration = '500ms';
+          dialogConfig.exitAnimationDuration = '500ms';
+          dialogConfig.data = {
+            login: userData.login,
+            pseudo: userData.login,
+            pp: userData.pp,
+          };
           const dia = this.dialog.open(DialogFirstLoginComponent, dialogConfig);
           dia.afterClosed().subscribe((res) => {
-            // Change below to send right infos
             userData.pseudo = res.pseudo;
             userData.doubleAuth = res.doubleAuth;
             if (res.file) {
-              
+              const imageData: FormData = new FormData();
+              imageData.append('file', res.fileSource, res.fileSource.name);
+              this.profileService.uploadImage(imageData, userData.login).subscribe((res:any) => {
+                userData.pp = res.name
+                this.authHandlerService.createUser(userData).subscribe((res) => {
+                  this.authHandlerService.sendLogin(userData.login).subscribe({
+                    next: () => {
+                      this.authHandlerService.getJwt(userData.login).subscribe(res => {
+                        Emitters.authEmitter.emit(true)
+                        this.router.navigate(['/profile'])
+                      })
+                    }
+                  })
+                })
+              });
             } else {
-              // console.log(userData.pp)
+              this.authHandlerService.sendIntraProfilePicUrl(userData.login, userData.pp).subscribe((ppUrl) => {
+                userData.pp = ppUrl;
+                this.authHandlerService.createUser(userData).subscribe((res) => {
+                  this.authHandlerService.sendLogin(userData.login).subscribe({
+                    next: () => {
+                      this.authHandlerService.getJwt(userData.login).subscribe(res => {
+                        Emitters.authEmitter.emit(true)
+                        this.router.navigate(['/profile'])
+                      })
+                    }
+                  })
+                })
+              })
             }
-            // userData.pp = res.pp;
-            // this.authHandlerService.createUser(userData).subscribe(() => {
-            //   this.authHandlerService.sendLogin(userData.login).subscribe({
-            //     next: () => {
-            //       this.authHandlerService
-            //         .getJwt(userData.login)
-            //         .subscribe((res) => {
-            //           Emitters.authEmitter.emit(true);
-            //           this.router.navigate(['/profile']);
-            //         });
-            //     },
-            //   });
-            // });
           });
         }
       },

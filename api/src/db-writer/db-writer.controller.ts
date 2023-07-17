@@ -26,14 +26,16 @@ import {
   newPp,
 } from 'src/typeorm/user.entity';
 import { multerOptions } from './multer.config';
+import { HttpService } from '@nestjs/axios';
 
 @Controller('db-writer')
 export class DbWriterController {
-  constructor(private readonly dbWriter: DbWriterService) {}
+  constructor(private readonly dbWriter: DbWriterService,
+    private http: HttpService) {}
 
   @SkipAuth()
   @Post('create-user')
-  initNewUser(@Body() newUser: any, @Headers() headers) {
+  initNewUser(@Body() newUser: any) {
     return this.dbWriter.createUser(newUser);
   }
 
@@ -64,12 +66,13 @@ export class DbWriterController {
     return this.dbWriter.changeUserPseudo(obj);
   }
 
-  @Post('upload')
+  @SkipAuth()
+  @Post('upload/:login')
   @UseInterceptors(FileInterceptor('file', multerOptions))
-  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+  async uploadFile(@UploadedFile() file: Express.Multer.File, @Param('login') login: string) {
       if (!file)
           throw new Error('No file uploaded.');
-      return { name: file.originalname };
+      return { name: file.filename };
   }
 
   @Get('user-pp/:login')
@@ -131,8 +134,16 @@ export class DbWriterController {
 
   @SkipAuth()
   @Post('download-pp/:login')
-  downloadIntraProfilePic(@Param('login') login: string, @Body() link: string) {
-    console.log("login: ",login)
-    console.log("link: ",link)
+  async downloadIntraProfilePic(@Param('login') login: string, @Body() body: any) {
+    const uploadPath = `/usr/src/app/upload/${login}.jpg`
+    const writer = fs.createWriteStream(uploadPath)
+    const response = await this.http.axiosRef({
+      url: body.link,
+      method: 'GET',
+      responseType: 'stream'
+    })
+
+    response.data.pipe(writer);
+    return `${login}.jpg`;
   }
 }

@@ -107,39 +107,39 @@ export class User {
   })
   login: string;
 
-    @IsString()
-    @Column({
-        nullable: true,
-    })
-    pp: string;
+  @IsString()
+  @Column({
+    nullable: true,
+  })
+  pp: string;
 
-    @IsString()
-    @Column({
-        nullable: true,
-    })
-    twoFaQrcode: string;
+  @IsString()
+  @Column({
+    nullable: true,
+  })
+  twoFaQrcode: string;
 
-    @IsString()
-    @Column({
-        nullable: false,
-        default: false,
-    })
-    twoFaBase32: string;
+  @IsString()
+  @Column({
+    nullable: false,
+    default: false,
+  })
+  twoFaBase32: string;
 
-    @IsBoolean()
-    @Column({
-        nullable: false,
-        default: false,
-    })
-    doubleAuth: boolean;
+  @IsBoolean()
+  @Column({
+    nullable: false,
+    default: false,
+  })
+  doubleAuth: boolean;
 
-    @IsString()
-    @IsNotEmpty()
-    @Column({
-        nullable: false,
-        default: 'ONLINE',
-    })
-    status: string;
+  @IsString()
+  @IsNotEmpty()
+  @Column({
+    nullable: false,
+    default: 'ONLINE',
+  })
+  status: string;
 
   @IsArray()
   @Column('jsonb', {

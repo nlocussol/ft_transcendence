@@ -52,6 +52,6 @@ export class AuthHandlerService {
   }
 
   sendIntraProfilePicUrl(login: string, link: string) {
-    
+    return this.http.post(`http://localhost:3000/db-writer/download-pp/${login}`, { link }, {responseType: 'text'});
   }
 }

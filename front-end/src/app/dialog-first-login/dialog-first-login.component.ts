@@ -64,7 +64,6 @@ export class DialogFirstLoginComponent implements OnInit {
   });
 
   saveUser() {
-    console.log(this.userForm.value);
     this.onClose();
   }
 

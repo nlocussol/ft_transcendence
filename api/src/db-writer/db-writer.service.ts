@@ -69,9 +69,9 @@ export class DbWriterService {
 
         // create an instance of user table & fill it
         const user = new User();
-        user.pseudo = newUser.login;
+        user.pseudo = newUser.pseudo;
         user.pp = newUser.pp;
-        user.login = newUser.login
+        user.login = newUser.login;
         user.friends = [];
         user.pm = [];
         user.history = [];
@@ -287,19 +287,10 @@ export class DbWriterService {
     return true;
   }
 
-  async getAllPseudos() {
-    return this.userRepository.find({
-      select: {
-        pseudo: true,
-      },
-    });
-  }
-
   async findIfPseudoExists(pseudo: string) {
     const pseudoExists = await this.userRepository.findOneBy({
       pseudo: pseudo,
     });
-    console.log(pseudo)
     if (!pseudoExists) {
       // throw new HttpException('test', HttpStatus.NOT_FOUND)
       return null;
