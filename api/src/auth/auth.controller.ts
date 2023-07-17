@@ -107,18 +107,12 @@ export class AuthController {
   @Post('verify2fa')
   async verify2fa(@Body() doubleFactor: any) {
     let base32 = await this.dbWriterService.getBase32(doubleFactor.login);
-    // const code = speakeasy.totp({
-    //   secret: base32,
-    //   encoding: 'base32'
-    // })
-    // console.log("my pin:", doubleFactor.pin)
-    // console.log("right one:", code)
     const verify = speakeasy.totp.verify({
       secret: base32,
       encoding: 'base32',
-      token: doubleFactor.pin
+      token: doubleFactor.pin,
+      window: 10
     });
-    console.log(verify)
     return verify;
   }
 }
