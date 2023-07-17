@@ -6,6 +6,7 @@ import { message, pm, messageData, friend, match, stats, modify2fa, changeBlockS
 import { GameData } from 'src/game/models/game.models';
 import * as qrcode from 'qrcode';
 import * as speakeasy from 'speakeasy';
+import * as fs from 'fs';
 
 
 
@@ -256,8 +257,11 @@ export class DbWriterService {
          if (!currentUser){
              console.log("changeUserPp: The user does not exist");
              return null;
-         }
- 
+        }
+        fs.unlink(`/usr/src/app/upload/${currentUser.pp}`, (err) => {
+            if (err)
+                console.log(`changeUserPp: can't delete ${currentUser.pp}`)
+        });
          // change the current pp to the new one
          currentUser.pp = newPp.newPp;
          await this.userRepository.save(currentUser)
