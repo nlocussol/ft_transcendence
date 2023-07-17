@@ -17,7 +17,6 @@ export class DialogFirstLoginComponent implements OnInit {
   constructor(@Inject(MAT_DIALOG_DATA) public data: any) {}
 
   ngOnInit(): void {
-    console.log(this.data);
     this.myData.login = this.data.login;
     this.myData.pp = this.data.pp;
   }
