@@ -135,4 +135,20 @@ export class MyGateway implements OnModuleInit{
             return ;
         this.server.emit('user-status-changed', status);
     }
+
+    @SubscribeMessage('user-room-change-status')
+    async userRoomChangeStatus(client: Socket, status: any) {
+        const res = await this.dbWriterRoom.changeMemberStatus(status);
+        if (res == null)
+            return ;
+        this.server.emit('user-room-status-changed', status);
+    }
+
+    @SubscribeMessage('block-friend')
+    async blockFriend(client: Socket, blocked: any) {
+        const res = await this.dbWriter.blockFriend(blocked);
+        if (res == null)
+            return ;
+        this.server.emit('friend-blocked', blocked);
+    }
 }
