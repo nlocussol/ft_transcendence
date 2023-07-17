@@ -25,9 +25,8 @@ export class ProfileService implements OnInit {
     return this.http.post('http://localhost:3000/game/private-game', gameData);
   }
 
-  getProfilePic() {
-    const headers = new HttpHeaders().set('Accept', 'image/*');
-    return this.http.get(`http://localhost:3000/db-writer/user-pp/${this.login}`, { responseType: 'blob', headers })
+  getProfilePic(login: string) {
+    return this.http.get(`http://localhost:3000/db-writer/user-pp/${login}`, { responseType: 'blob' })
   }
 
   deleteNotif(body: any) {
@@ -48,5 +47,17 @@ export class ProfileService implements OnInit {
 
   changeUserPseudo(body: any) {
     return this.http.post('http://localhost:3000/db-writer/change-user-pseudo/', body, this.basicHeaders)
+  }
+
+  uploadImage(formData: FormData) {
+    return this.http.post('http://localhost:3000/db-writer/upload', formData)
+  }
+
+  changeUserPp(obj: any) {
+    return this.http.post('http://localhost:3000/db-writer/change-user-pp', obj)
+  }
+
+  change2FA(body: any) {
+    return this.http.post('http://localhost:3000/db-writer/change-2fa/', body, this.basicHeaders)
   }
 }
