@@ -34,7 +34,7 @@ export class AuthHandlerComponent implements OnInit, OnDestroy {
     this.socket = io(environment.SOCKET_ENDPOINT);
     const urlQuery = new URLSearchParams(window.location.search);
     const code = urlQuery.get('code');
-    console.log(code);
+    // console.log(code);
     if (code != null || code != undefined) {
       this.authHandlerService.retrieveAccessToken(code).subscribe({
         next: (res) => this.getUserDataFrom42(res),
@@ -74,7 +74,6 @@ export class AuthHandlerComponent implements OnInit, OnDestroy {
     this.http
     .post(`http://localhost:3000/auth/verify2fa`, body, { headers })
     .subscribe((verify: any) => {
-      console.log(this.login)
       if (verify){
         this.authHandlerService.getJwt(this.login).subscribe(() => {
           Emitters.authEmitter.emit(true);
