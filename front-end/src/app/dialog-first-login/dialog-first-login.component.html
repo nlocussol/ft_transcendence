@@ -1,4 +1,4 @@
-<p>FIRST TIME LOGIN</p>
+<!-- <p>FIRST TIME LOGIN</p>
 <ol>
   <mat-dialog-content>
 
@@ -6,25 +6,56 @@
     <mat-label>How do you want to be called</mat-label>
 
     <mat-form-field appearance="fill">
-      <input matInput type="text" [(ngModel)]="myData.login" />
+      <input matInput [formControl]="pseudoFormControl" [errorStateMatcher]="matcher" type="text" [(ngModel)]="myData.pseudo" required/>
+      <mat-error *ngIf="pseudoFormControl.hasError('required')">
+        Pseudo cannot be empty
+      </mat-error>
     </mat-form-field>
   </li>
   <li>
     <mat-label>Choose your profile picture, default one is :</mat-label>
-    <img [src]="myData.pp">
-    <!-- <mat-form-field appearance="fill"> -->
-      <input
+    <img [src]="myData.pp"> -->
+<!-- <mat-form-field appearance="fill"> -->
+<!-- <input
       type="file"
       accept=".jpg,.jpeg,.png,.gif"
-      name="input-file"
-      [(ngModel)]="myData.pp"
-    />
-      <!-- <input matInput type="text" /> -->
-    <!-- </mat-form-field> -->
+    /> -->
+<!-- [(ngModel)]="myData.pp" -->
 
-  </li>
+<!-- </li>
 </mat-dialog-content>
 <div class="example">
-<button mat-button [mat-dialog-close]="myData">SAVE INFOS</button>
+<button *ngIf="!pseudoFormControl.hasError('required')" mat-button [mat-dialog-close]="myData">SAVE INFOS</button>
 </div>
-</ol>
+</ol> -->
+<form [formGroup]="userForm" (ngSubmit)="saveUser()">
+  <h1 mat-dialog-title>First time login</h1>
+  <div mat-dialog-content>
+    <mat-form-field>
+      <mat-label>Pseudo</mat-label>
+      <input formControlName="pseudo" matInput />
+      <mat-error *ngIf="pseudo && pseudo.invalid">Invalid pseudonyme</mat-error>
+      <mat-error *ngIf="userForm.get('pseudo')?.hasError('pseudoAlreadyExists')">PSEUDO ALREADY TAKEN</mat-error>
+    </mat-form-field>
+      <mat-checkbox color="primary" formControlName="doubleAuth">Activate 2FA ?</mat-checkbox>
+
+      <!-- <input type="file" (change)="onFileSelected($event)" name="uploadfile" id="img" style="display:none;" accept="image/png, image/jpeg"/>
+      <label for="img"> test
+      </label> -->
+
+
+    <label for="file">Profile Picture (default one is your intra's pic):</label>
+    <input formControlName="file"
+    accept=".jpg,.jpeg,.png,.gif"
+    id="file"
+    type="file"
+    class="form-control"
+    (change)="onFileChange($event)">
+    <img [src]="localProfilePicUrl">
+  </div>
+
+  <div mat-dialog-actions>
+    <button [disabled]="userForm.invalid || userForm.pending" mat-raised-button color="primary" >SAVE INFO</button>
+
+  </div>
+</form>

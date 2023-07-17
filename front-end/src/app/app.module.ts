@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -20,9 +20,12 @@ import { CredentialsInterceptor } from './interceptors/credentials.interceptor';
 import { AuthGuardService } from './auth/auth-guard.service';
 import { AuthHandlerComponent } from './auth-handler/auth-handler.component';
 import { DialogFirstLoginComponent } from './dialog-first-login/dialog-first-login.component';
-import { MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormFieldModule } from '@angular/material/form-field';
-import {MatInputModule} from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { NewUserFormComponent } from './new-user-form/new-user-form.component';
+import { MatButtonModule } from '@angular/material/button';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @NgModule({
   declarations: [
@@ -49,7 +52,11 @@ import { NewUserFormComponent } from './new-user-form/new-user-form.component';
     NoopAnimationsModule,
     MatDialogModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    ReactiveFormsModule,
+    MatButtonModule,
+    BrowserAnimationsModule,
+    MatCheckboxModule,
   ],
   providers: [
     {

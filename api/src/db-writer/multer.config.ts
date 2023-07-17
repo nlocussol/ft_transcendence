@@ -7,7 +7,8 @@ export const multerOptions = {
   storage: diskStorage({
     destination: '/usr/src/app/upload',
     filename: (req, file, cb) => {
-        cb(null, file.originalname); // Save the file with its original name
+      const profilePicName = req.url.substring(req.url.lastIndexOf('/') + 1) + extname(file.originalname);
+        cb(null, profilePicName); // Save the file with its original name
     },
   }),
   limits: {

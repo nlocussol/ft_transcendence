@@ -1,10 +1,13 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable, delay, of } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthHandlerService {
+  private pseudos = ['nlocusso', 'adamiens', 'tgfdp'];
+
   constructor(private http: HttpClient) {}
 
   retrieveAccessToken(code: string) {
@@ -32,11 +35,23 @@ export class AuthHandlerService {
     return this.http.post('http://localhost:3000/auth/login', { login: login });
   }
 
-  sendUserData(body: any) {
+  createUser(body: any) {
     const headers = new HttpHeaders().set(
       'Content-type',
       `application/json; charset=UTF-8`
     );
-    return this.http.post('http://localhost:3000/db-writer/create-user', body, { headers });
+    return this.http.post('http://localhost:3000/db-writer/create-user', body, {
+      headers,
+    });
+  }
+
+  checkIfPseudoExists(pseudo: string) {
+    return this.http.get<{ pseudoAlreadyExists: true }>(
+      `http://localhost:3000/db-writer/pseudo/${pseudo}`
+    );
+  }
+
+  sendIntraProfilePicUrl(login: string, link: string) {
+    return this.http.post(`http://localhost:3000/db-writer/download-pp/${login}`, { link }, {responseType: 'text'});
   }
 }

@@ -49,8 +49,8 @@ export class ProfileService implements OnInit {
     return this.http.post('http://localhost:3000/db-writer/change-user-pseudo/', body, this.basicHeaders)
   }
 
-  uploadImage(formData: FormData) {
-    return this.http.post('http://localhost:3000/db-writer/upload', formData)
+  uploadImage(formData: FormData, login: string) {
+    return this.http.post(`http://localhost:3000/db-writer/upload/${login}`, formData)
   }
 
   changeUserPp(obj: any) {
