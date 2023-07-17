@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { io } from 'socket.io-client';
 import { GameData } from '../models/game.models';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, EMPTY, catchError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -15,10 +15,11 @@ export class GameService {
   );
   constructor(private http: HttpClient) {}
 
-  connectToSocket(login: string) {
+  connectToSocket(login: string, pseudo: string) {
     this.socket = io(this.API_ENDPOINT, {
       auth: {
         login: login,
+        pseudo: pseudo
       },
     });
   }
@@ -54,9 +55,11 @@ export class GameService {
     return this.http.get<any>('http://localhost:3000/auth/user');
   }
 
-  isInGame(login: string) {
+  autoReconnect(login: string) {
     return this.http.get(`http://localhost:3000/game/${login}`, {
       responseType: 'text',
-    });
+    }).pipe(
+      catchError(e => EMPTY)
+    )
   }
 }

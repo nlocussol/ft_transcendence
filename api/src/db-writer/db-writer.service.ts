@@ -76,6 +76,7 @@ export class DbWriterService {
         user.pm = [];
         user.history = [];
         user.notif = [];
+        user.doubleAuth = newUser.doubleAuth;
         await this.generateSecret(user);
 
         let statsInit : stats = {
