@@ -64,29 +64,43 @@ export class DbWriterController {
     return this.dbWriter.changeUserPseudo(obj);
   }
 
+  @SkipAuth()
   @Post('upload')
   @UseInterceptors(FileInterceptor('file', multerOptions))
   async uploadFile(@UploadedFile() file: Express.Multer.File) {
     if (!file) throw new Error('No file uploaded.');
-    console.log(file);
+    // console.log(file);
     return { message: 'File uploaded successfully.' };
   }
 
+  @SkipAuth()
+  @Post('upload/tmp')
+  @UseInterceptors(FileInterceptor('file', multerOptions))
+  async uploadTmpFile(@UploadedFile() file: Express.Multer.File) {
+    if (!file) throw new Error('No file uploaded.');
+    return { message: 'Tmp File uploaded successfully.' };
+  }
+
+  @SkipAuth()
   @Get('user-pp/:login')
   async getUserPp(@Res() res: Response, @Param('login') login: string) {
     const ppName = await this.dbWriter.getUserPp(login);
+    console.log('ppname: ', ppName);
     if (
       ppName ===
-      'https://cdn.intra.42.fr/users/846bb9308137a685db9bae4d9e94d623/small_nlocusso.jpg'
+        'https://cdn.intra.42.fr/users/846bb9308137a685db9bae4d9e94d623/small_nlocusso.jpg' ||
+      ppName ===
+        'https://cdn.intra.42.fr/users/24adf5041bf5fe382a372d4854244194/small_ltruchel.jpg'
     )
       return;
     const pathToPp = `/usr/src/app/upload/${ppName}`;
     const fileStream = fs.createReadStream(pathToPp);
-    console.log(fileStream);
+    // console.log(fileStream);
     res.set('Content-Type', 'image/*');
     fileStream.pipe(res);
   }
 
+  @SkipAuth()
   @Post('change-user-pp')
   changeUserPp(@Body() obj: newPp, @Headers() headers) {
     return this.dbWriter.changeUserPp(obj);
