@@ -1,10 +1,12 @@
-import { Body, Controller, Get, Headers, Param, Post, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Param, Post, UseInterceptors, UploadedFile, Res } from '@nestjs/common';
 import { DbWriterService } from 'src/db-writer/db-writer.service';
 import { SkipAuth } from 'src/utils/decorators';
 import { GameData } from 'src/game/models/game.models';
 import { FileInterceptor } from '@nestjs/platform-express';
 import * as fs from 'fs';
+import { Response } from 'express';
 import { addFriend, changeBlockStatus, changePseudo, deleteNotif, messageData, modify2fa, newPp } from 'src/typeorm/user.entity';
+import { multerOptions } from './multer.config';
 
 @Controller('db-writer')
 export class DbWriterController {
@@ -44,17 +46,20 @@ export class DbWriterController {
     }
 
     @Post('upload')
-    @UseInterceptors(FileInterceptor('file'))
+    @UseInterceptors(FileInterceptor('file', multerOptions))
     async uploadFile(@UploadedFile() file: Express.Multer.File) {
-        const destination = '/usr/src/app/upload';
-        try {
-            const filename = `${file.originalname}`;
-            const filePath = `${destination}/${filename}`;
-            fs.writeFileSync(filePath, file.buffer);
-            return { message: 'File uploaded successfully', name: filename };
-        } catch (error) {
-            return { error: 'Error uploading file' };
-        }
+        if (!file)
+            throw new Error('No file uploaded.');
+        return { name: file.originalname };
+    }
+
+    @Get('user-pp/:login')
+    async getUserPp(@Res() res: Response, @Param('login') login: string) {
+        const ppName = await this.dbWriter.getUserPp(login)
+        const pathToPp = `/usr/src/app/upload/${ppName}`;
+        res.setHeader('Content-Type', 'application/octet-stream');
+        res.setHeader('Content-Disposition', `attachment; filename=${ppName}`);
+        res.sendFile(pathToPp);
     }
 
     @Post('change-user-pp')

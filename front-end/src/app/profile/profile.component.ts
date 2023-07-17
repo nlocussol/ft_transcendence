@@ -16,7 +16,7 @@ import { ProfileService } from './profile.service';
   styleUrls: ['./profile.component.css'],
 })
 export class ProfileComponent implements OnInit, OnDestroy {
-  pathToPp: string = 'http://localhost:3000/upload' // a modif
+  pathToPp!: string //= 'http://localhost:3000/upload' // a modif
   doubleAuth!: boolean;
   selectedFile!: File;
   newPseudo!: string;
@@ -24,7 +24,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   profileData!: UserData;
   pseudo!: string;
   login!: string;
-  ppUrl!: string;
+  ppUrl!: any;
   status!: string;
   socket!: Socket;
   notifs!: Notif[];
@@ -54,18 +54,13 @@ export class ProfileComponent implements OnInit, OnDestroy {
     const selectedFile = event.target.files[0];
     const formData: FormData = new FormData();
     formData.append('file', selectedFile, selectedFile.name);
-    this.http.post('http://localhost:3000/db-writer/upload', formData).subscribe(
-      (res: any) => {
-        console.log('File uploaded successfully');
-        const headers = new HttpHeaders().set('Content-type', `application/json`);
-        this.ppUrl = `${this.pathToPp}/${res.name}`
-        console.log(this.ppUrl);
-        this.http.post('http://localhost:3000/db-writer/change-user-pp', {login: this.login, newPp: res.name}, { headers }).subscribe()
-      },
-      (error) => {
-        console.error('Error uploading file:', error);
-      }
-    );
+    this.http.post('http://localhost:3000/db-writer/upload', formData).subscribe((res: any) => {
+      this.http.post('http://localhost:3000/db-writer/change-user-pp', {login: this.login, newPp: res.name}).subscribe(() => {
+        this.http.get(`http://localhost:3000/db-writer/user-pp/${this.login}`, { responseType: 'blob' }).subscribe((ppData: Blob) => {
+          this.ppUrl = URL.createObjectURL(ppData);
+        });
+      })
+    })
   }
 
   change2AF() {
@@ -174,13 +169,14 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.profileData = (await this.http
       .get(`http://localhost:3000/db-writer/data/${this.login}`)
       .toPromise()) as UserData;
-    // this.ppUrl = this.profileData.pp;
-    this.ppUrl = `${this.pathToPp}/${this.profileData.pp}`
-    console.log(this.ppUrl);
+    const headers = new HttpHeaders().set('Accept', 'image/jpeg');
     this.notifs = this.profileData.notif;
     this.status = this.profileData.status;
     this.doubleAuth = this.profileData.doubleAuth;
     this.pseudo = this.profileData.pseudo;
+    this.http.get(`http://localhost:3000/db-writer/user-pp/${this.login}`, { responseType: 'blob', headers }).subscribe((blob: Blob) => {
+      this.ppUrl = URL.createObjectURL(blob);
+    });
   }
 
   newNotif() {

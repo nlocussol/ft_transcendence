@@ -449,11 +449,22 @@ export class DbWriterService {
         return true
     }
 
-    async getQrCode(login:string){
+    async getUserPp(login: string) {
         const user = await this.userRepository.findOneBy({
             login: login,
         });
         if (!user) {
+            console.log(`getUserPp: this user doesn't not exist.`);
+            return null   
+        }
+        return user.pp
+    }
+
+    async getQrCode(login:string){
+        const user = await this.userRepository.findOneBy({
+            login: login,
+        });
+        if (!user){
             console.log(`getQrCode: this user doesn't not exist.`);
             return null   
         }
