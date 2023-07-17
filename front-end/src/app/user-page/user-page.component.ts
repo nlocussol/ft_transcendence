@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { ProfileService } from '../profile/profile.service';
+import { UserData } from '../chat-room/interfaces/interfaces';
 
 @Component({
   selector: 'app-user-page',
@@ -10,14 +11,13 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 export class UserPageComponent{
   found:boolean = true;
   pseudo:string;
-  profileData: any;
   ppUrl!: string;
   status!: string;
   stats!: any;
   winRate!: string;
   history!: any[];
 
-  constructor (private http: HttpClient, private route: ActivatedRoute){
+  constructor (private route: ActivatedRoute, private profileService: ProfileService){
     this.pseudo = "";
     this.route.params.subscribe(params => {
       this.pseudo = params['pseudo'];
@@ -27,14 +27,16 @@ export class UserPageComponent{
   }
 
   async getProfileData(){
-    this.profileData = await this.http.get(`http://localhost:3000/db-writer/data/${this.pseudo}`).toPromise();
-    if (this.profileData == null)
-      this.found = false;
-    this.ppUrl = this.profileData.pp;
-    this.status = this.profileData.status;
-    this.stats = this.profileData.stats;
-    this.winRate =  (this.stats.win * 100 / this.stats.matchs).toFixed(2);
-    this.history = this.profileData.history;
-    console.log(this.stats)
+    this.profileService.getProfileData(this.pseudo).subscribe((profileData: UserData) => {
+      if (profileData == null)
+        this.found = false;
+      this.profileService.getProfilePic(profileData.login).subscribe((ppData: Blob) => {
+        this.ppUrl = URL.createObjectURL(ppData);
+      });
+      this.status = profileData.status;
+      this.stats = profileData.stats;
+      this.winRate =  (this.stats.win * 100 / this.stats.matchs).toFixed(2);
+      this.history = profileData.history;
+    })
   }
 }

@@ -1,7 +1,7 @@
 import { Injectable, OnInit } from '@angular/core';
 import { HomeService } from '../home/service/home.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Friend, Room, UserData } from '../chat-room/interfaces/interfaces';
+import { Friend, UserData } from '../chat-room/interfaces/interfaces';
 
 @Injectable({
   providedIn: 'root',

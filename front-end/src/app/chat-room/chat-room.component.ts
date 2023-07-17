@@ -186,6 +186,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
         break ;
 
       case '1v1 match':
+        console.log(member.login);
         const bodyInviteMatch = {
           friend: member.login,
           login: this.login,
@@ -193,6 +194,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
           type: 'REQUEST_MATCH'
         }
         this.socket.emit('send-notif', bodyInviteMatch);
+        this.router.navigate(['/game']);
         break ;
       case 'Friend Invite':
         const bodyInvite = {
@@ -207,7 +209,6 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
             return ;
           }
           this.socket.emit('send-notif', bodyInvite);
-          this.router.navigate(['/game']);
         })
         break ;
 
