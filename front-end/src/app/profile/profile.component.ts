@@ -1,4 +1,3 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { environment } from 'src/environment';
 import { Socket, io } from 'socket.io-client';
@@ -44,7 +43,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   constructor(
-    private http: HttpClient,
     private homeService: HomeService,
     private router: Router,
     private profileService: ProfileService,
@@ -102,7 +100,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
         bodyToSend = {
           uuid: crypto.randomUUID(),
           player1: this.login,
+          player1pseudo: this.pseudo,
           player2: body.login,
+          // NATHAN : Need other player pseudo here stp
+          player2pseudo: body.pseudo
         };
         this.profileService.sendPrivateGameData(bodyToSend).subscribe(() => {
           this.router.navigate(['/game']);

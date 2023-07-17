@@ -5,16 +5,12 @@
 
   <div *ngIf="loguedIn">
     <div>
-      <button (click)="enterQueue($event.target)" id="searchBtn" *ngIf="!inGame && !searchingGame">FIND GAME</button>
-      <button (click)="leaveQueue()" id="searchBtn" *ngIf="searchingGame">CANCEL QUEUE</button>
+      <button (click)="enterQueueClassic()" id="searchBtn" *ngIf="!inGame && !searchingGame">FIND CLASSIC GAME</button>
+      <button (click)="enterQueueCustom()" id="searchBtn" *ngIf="!inGame && !searchingGame">FIND CUSTOM GAME</button>
+      <button (click)="leaveQueue()" id="searchBtn" *ngIf="searchingGame && !inGame">CANCEL QUEUE</button>
       <p *ngIf="searchingGame">{{ queueTimeElapsed }}</p>
       <br />
       <br />
     </div>
   </div>
 </div>
-
-<!-- <div *ngFor="let userToAddRoom of friendsToInvite" [value]="userToAddRoom.name">{{ userToAddRoom.name }}>
-  <button (click)="leaveQueue()" id="searchBtn">CANCEL QUEUE</button>
-  <p>{{ queueTimeElapsed }}</p>
-</div> -->

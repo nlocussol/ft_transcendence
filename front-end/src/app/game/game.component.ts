@@ -16,7 +16,12 @@ import { DialogNotLoguedComponent } from '../dialog-not-logued/dialog-not-logued
 import { EMPTY, Subject, map } from 'rxjs';
 import { Emitters } from '../emitters/emitters';
 
-const TICKRATE = 15;
+const TICKRATE = 15,
+  hsl = 'hsl(',
+  hueBlackValues = ', 0%, 0%)',
+  hueWhiteValues = ', 100%, 100%)',
+  hueCustomDetails = ', 70%, 50%)',
+  hueCustomField = ', 50%, 75%)';
 // BALL_SIZE = 10;
 
 @Component({
@@ -67,11 +72,11 @@ export class GameComponent implements OnInit, OnDestroy {
             this.gameService.autoReconnect(res.login).subscribe({
               next: () => {
                 clearInterval(this.autoReconnectInterval);
-                this.enterQueue(undefined);
+                this.enterQueueClassic();
               },
               error: () => {},
             }),
-          500
+          300
         );
       },
       error: () => {
@@ -101,12 +106,14 @@ export class GameComponent implements OnInit, OnDestroy {
     this.gameService.disconnectFromSocket();
   }
 
-  enterQueue(element: any) {
+  enterQueueClassic() {
+    this.context.fillStyle = 'black';
+    this.context.fillRect(0, 0, this.width, this.height);
     this.searchingGame = true;
     this.gameData.inProgress = true;
     this.gameData.isOver = false;
-    this.gameService.enterQueue();
-    this.startTimer();
+    this.gameService.enterQueue('classic');
+    // this.startTimer();
     this.startGame();
   }
 
@@ -119,7 +126,6 @@ export class GameComponent implements OnInit, OnDestroy {
   gameLoop(payload: GameData) {
     if (payload.players.length != 0) {
       this.gameData = payload;
-      console.log(payload)
       if (!this.loadOnce) {
         this.searchingGame = false;
         this.inGame = true;
@@ -127,7 +133,7 @@ export class GameComponent implements OnInit, OnDestroy {
         this.movePlayer();
         this.loadOnce = true;
       }
-      if (!this.gameData.inProgress && this.gameData.isOver) {
+      if (this.gameData.isOver) {
         this.handleEndGame();
         this.loadOnce = false;
       }
@@ -156,20 +162,28 @@ export class GameComponent implements OnInit, OnDestroy {
   animate() {
     this.animationId = window.requestAnimationFrame(this.animate.bind(this));
     if (this.gameData?.players[0] && this.gameData?.players[1]) {
-      this.draw();
+      this.draw(this.gameData.customGameMod as boolean);
     } else {
       this.context.fillStyle = 'black';
       this.context.fillRect(0, 0, this.width, this.height);
     }
   }
 
-  draw() {
+  draw(customGameMod: boolean) {
     // Draw background
-    this.context.fillStyle = 'black';
+    if (!customGameMod) {
+      this.context.fillStyle = hsl + this.gameData.fieldColor + hueBlackValues;
+    } else {
+      this.context.fillStyle = hsl + this.gameData.fieldColor + hueCustomField;
+    }
     this.context.fillRect(0, 0, this.width, this.height);
 
     // Draw players
-    this.context.fillStyle = 'white';
+    if (!customGameMod) {
+      this.context.fillStyle = hsl + this.gameData.fieldColor + hueWhiteValues;
+    }  else {
+      this.context.fillStyle = hsl + this.gameData.detailsColor + hueCustomDetails;
+    }
     this.context.fillRect(
       this.gameData?.players[0].posX! * this.widthPercent,
       this.gameData?.players[0].posY! * this.heightPercent,
@@ -222,6 +236,39 @@ export class GameComponent implements OnInit, OnDestroy {
     }
   }
 
+  drawEndGame() {
+    this.context.fillStyle = 'black';
+    this.context.fillRect(0, 0, this.width, this.height);
+
+    this.context.fillStyle = 'white';
+    this.context.font = this.fontSize + "px 'PressStart2P'";
+    this.context.fillText('Winner', 50, this.height * 0.1);
+    this.context.fillText('Loser', this.width / 2 + 50, this.height * 0.1);
+    if (this.gameData?.players[0].score! > this.gameData?.players[1].score!) {
+      this.context.fillText(
+        String(this.gameData?.players[0].pseudo),
+        50,
+        this.height * 0.2
+      );
+      this.context.fillText(
+        String(this.gameData?.players[1].pseudo),
+        this.width / 2 + 50,
+        this.height * 0.2
+      );
+    } else {
+      this.context.fillText(
+        String(this.gameData?.players[1].pseudo),
+        50,
+        this.height * 0.2
+      );
+      this.context.fillText(
+        String(this.gameData?.players[0].pseudo),
+        this.width / 2 + 50,
+        this.height * 0.2
+      );
+    }
+  }
+
   movePlayer() {
     this.movePlayerInterval = setInterval(() => {
       this.gameService.sendPlayerData({
@@ -234,9 +281,18 @@ export class GameComponent implements OnInit, OnDestroy {
 
   handleEndGame() {
     this.inGame = false;
+    this.searchingGame = false;
+    this.gameData.isOver = true;
     this.gameService.exitRoom();
     clearInterval(this.movePlayerInterval);
-    setTimeout(() => this.stopAnimationFrame(), 300);
+    this.stopAnimationFrame();
+    this.drawEndGame();
+    this.gameData.players.splice(0, 2);
+    // setTimeout(() => {
+    //   this.stopAnimationFrame()
+    //   this.context.fillStyle = 'black';
+    //   this.context.fillRect(0, 0, this.width, this.height);
+    // }, 300);
   }
 
   startAnimationFrame() {
@@ -286,5 +342,15 @@ export class GameComponent implements OnInit, OnDestroy {
       (event.target.innerHeight - this.heightInit) / this.heightInit;
     this.width = this.widthInit * this.widthPercent;
     this.height = this.heightInit * this.heightPercent;
+  }
+
+  enterQueueCustom() {
+    this.context.fillStyle = 'black';
+    this.context.fillRect(0, 0, this.width, this.height);
+    this.searchingGame = true;
+    this.gameData.inProgress = true;
+    this.gameData.isOver = false;
+    this.gameService.enterQueue('custom');
+    this.startGame();
   }
 }

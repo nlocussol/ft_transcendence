@@ -34,4 +34,7 @@ export class GameData {
   matchUUID?: string;
   players: Player[] = [];
   ball?: Ball;
+  customGameMod?: boolean;
+  fieldColor?: number;
+  detailsColor?: number;
 }

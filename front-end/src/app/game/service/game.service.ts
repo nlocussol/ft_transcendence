@@ -28,8 +28,8 @@ export class GameService {
     this.socket.disconnect();
   }
 
-  enterQueue() {
-    this.socket.emit('queue');
+  enterQueue(payload: any) {
+    this.socket.emit('queue', payload);
   }
 
   leaveQueue() {

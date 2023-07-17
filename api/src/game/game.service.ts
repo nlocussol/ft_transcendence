@@ -11,12 +11,13 @@ const GAME_WIDTH = 858,
   PLAYER_INITIAL_HEIGHT = 70,
   PLAYER_INITIAL_SPEED = 5,
   OFFSET_FROM_WALL = 10,
-  MAX_SCORE = 10,
+  MAX_SCORE = 1,
   MAX_AFK_TIME = 20;
 
 @Injectable()
 export class GameService {
   public gameInProgress: GameData[] = [];
+  public customGameInProgress: GameData[] = [];
 
   constructor(private dbWriteService: DbWriterService) {}
 
@@ -29,6 +30,15 @@ export class GameService {
         return this.gameInProgress[i].matchUUID;
       }
     }
+
+    for (let i = 0; i < this.customGameInProgress.length; i++) {
+      if (
+        this.customGameInProgress[i].players[0].login === login ||
+        this.customGameInProgress[i].players[1].login === login
+      ) {
+        return this.customGameInProgress[i].matchUUID;
+      }
+    }
     return undefined;
   }
 
@@ -36,7 +46,9 @@ export class GameService {
     if (this.gameInProgress.length < 1) return undefined;
     let found = this.gameInProgress.find((game) => game.matchUUID === UUID);
     if (found == undefined) {
-      console.log('Les problemes c kan y trouve pa un game par uuuuuuuuuuuuuuuiid');
+      console.log(
+        'Les problemes c kan y trouve pa un game par uuuuuuuuuuuuuuuiid',
+      );
     } else {
       return found;
     }
@@ -62,6 +74,10 @@ export class GameService {
 
   updateGame(game: GameData) {
     if (game.ball.canMove) {
+      if (game.customGameMod) {
+        game.detailsColor += 0.5;
+        game.fieldColor += 0.5;
+      }
       game.ball.posX += game.ball.velX;
       game.ball.posY += game.ball.velY;
       this.handleCollision(game);
@@ -238,9 +254,10 @@ export class GameService {
     }
   }
 
-  createNewGame(): GameData {
+  createNewGame(customGameMod: boolean): GameData {
     let newGame = new GameData();
     newGame.matchUUID = crypto.randomUUID();
+    newGame.customGameMod = customGameMod;
     newGame.players[0] = new Player();
     newGame.players[0].side = side.LEFT;
     newGame.players[0].height = PLAYER_INITIAL_HEIGHT;
@@ -264,6 +281,8 @@ export class GameService {
     newGame.ball.posX = GAME_WIDTH / 2;
     newGame.ball.posY = GAME_HEIGHT / 2;
     newGame.ball.radius = BALL_INITIAL_RADIUS;
+    newGame.fieldColor = 0;
+    newGame.detailsColor = 360;
     if (Math.floor(Math.random() * 2)) {
       newGame.ball.velX = BALL_INITIAL_SPEED;
     } else {
@@ -272,14 +291,19 @@ export class GameService {
     newGame.ball.velY = 0;
     newGame.inProgress = true;
     newGame.isOver = false;
+    if (customGameMod) {
+      // Add custom configuration
+    }
     this.gameInProgress.push(newGame);
     this.startGame(newGame);
     return newGame;
   }
 
   createPrivateGame(gameData: any) {
-    const newGame = this.createNewGame();
+    const newGame = this.createNewGame(false);
     newGame.players[0].login = gameData.player1;
+    newGame.players[0].pseudo = gameData.player1pseudo;
     newGame.players[1].login = gameData.player2;
+    newGame.players[1].pseudo = gameData.player2pseudo;
   }
 }

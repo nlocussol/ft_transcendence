@@ -31,6 +31,7 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
   sockets: Socket[] = [];
   intervalId: any;
   clientQueue: Client[] = [];
+  clientCustomQueue: Client[] = [];
   clients: Client[] = [];
 
   constructor(private gameService: GameService) {}
@@ -57,7 +58,6 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
       this.handleSocketConnection(socket);
 
       socket.on('disconnect', () => {
-        console.log('Disconnect from socket: ', socket.handshake.auth.login);
         const client = this.clients.find((client) => client.id == socket.id);
         this.removePlayerFromQueue(client);
         this.gameService.handleDeconnexion(
@@ -74,7 +74,6 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
         (client) => client.login == socket.handshake.auth.login,
       ) == undefined
     ) {
-      console.log('Connection: ', socket.handshake.auth.login);
       let client = new Client();
       client.login = socket.handshake.auth.login as string;
       client.pseudo = socket.handshake.auth.pseudo as string;
@@ -83,7 +82,6 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
       client.socket = socket;
       this.clients.push(client);
     } else {
-      console.log('Reconnection: ', socket.handshake.auth.login);
       let client = this.clients.find(
         (client) => client.login == socket.handshake.auth.login,
       );
@@ -93,13 +91,17 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
   }
 
   removePlayerFromQueue(client: Client) {
-    const clientIndex = this.clientQueue.indexOf(client, 0);
-    if (clientIndex < 0) {
+    let clientIndex = this.clientQueue.indexOf(client, 0);
+    if (clientIndex >= 0) {
+      this.clientQueue.splice(clientIndex, 0);
       return;
     }
-    this.clientQueue.splice(clientIndex, 0);
+    clientIndex = this.clientCustomQueue.indexOf(client, 0);
+    if (clientIndex >= 0) {
+      this.clientQueue.splice(clientIndex, 0);
+      return;
+    }
   }
-
 
   handleReconnection(client: Client) {
     if (client.room == undefined) {
@@ -110,19 +112,33 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
   }
 
   @SubscribeMessage('queue')
-  handleQueue(socket: Socket) {
+  handleQueue(socket: Socket, queueType: any) {
     let client = this.clients.find((c) => c.socket.id == socket.id);
     if (client == undefined) {
       console.log('GameGatewayHandleQueue: problem');
       return;
     }
-    this.addPlayerToQueue(client);
+
+    // Return if client is already in queue
+    if (
+      this.clientCustomQueue.find((c) => c.socket.id == socket.id) != undefined
+    ) {
+      return;
+    }
+    if (this.clientQueue.find((c) => c.socket.id == socket.id) != undefined) {
+      return;
+    }
+
+    this.addPlayerToQueue(client, queueType);
     if (this.clientQueue.length >= 2) {
-      this.addPlayersToRoom();
+      this.addPlayersToRoom(queueType);
+    }
+    if (this.clientCustomQueue.length >= 2) {
+      this.addPlayersToRoom(queueType);
     }
   }
 
-  addPlayerToQueue(client: Client) {
+  addPlayerToQueue(client: Client, queueType: string) {
     // If the player is already in a game make force it to join said game
     const gameUUID = this.gameService.findGameUUIDWithLogin(client.login);
     if (gameUUID != undefined) {
@@ -130,28 +146,49 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
       this.gameService.handleReconnexion(client.login, gameUUID);
       return;
     }
-
-    if (this.clientQueue.find((c) => c.login == client.login) == undefined) {
+    if (queueType === 'classic') {
+      if (this.clientQueue.find((c) => c.login == client.login) == undefined) {
+        client.state = 'queueing';
+        this.clientQueue.push(client);
+      }
+    } else if (queueType === 'custom') {
       client.state = 'queueing';
-      this.clientQueue.push(client);
+      this.clientCustomQueue.push(client);
     }
   }
 
-  addPlayersToRoom() {
-    console.log('Creating a game...');
-    const game: GameData = this.gameService.createNewGame();
+  addPlayersToRoom(queueType: string) {
+    if (queueType === 'classic') {
+      console.log('Creating a game...');
+      // false means classic game mod, true means custom
+      const game: GameData = this.gameService.createNewGame(false);
 
-    let client: Client = this.clientQueue.shift();
-    client.room = game.matchUUID;
-    game.players[0].login = client.login;
-    game.players[0].pseudo = client.pseudo; 
-    client.socket.join(game.matchUUID);
+      let client: Client = this.clientQueue.shift();
+      client.room = game.matchUUID;
+      game.players[0].login = client.login;
+      game.players[0].pseudo = client.pseudo;
+      client.socket.join(game.matchUUID);
 
-    client = this.clientQueue.shift();
-    client.room = game.matchUUID;
-    game.players[1].login = client.login;
-    game.players[1].pseudo = client.pseudo; 
-    client.socket.join(game.matchUUID);
+      client = this.clientQueue.shift();
+      client.room = game.matchUUID;
+      game.players[1].login = client.login;
+      game.players[1].pseudo = client.pseudo;
+      client.socket.join(game.matchUUID);
+    } else if (queueType === 'custom') {
+      const game: GameData = this.gameService.createNewGame(true);
+
+      let client: Client = this.clientCustomQueue.shift();
+      client.room = game.matchUUID;
+      game.players[0].login = client.login;
+      game.players[0].pseudo = client.pseudo;
+      client.socket.join(game.matchUUID);
+
+      client = this.clientCustomQueue.shift();
+      client.room = game.matchUUID;
+      game.players[1].login = client.login;
+      game.players[1].pseudo = client.pseudo;
+      client.socket.join(game.matchUUID);
+    }
   }
 
   @SubscribeMessage('leaveQueue')
@@ -165,9 +202,9 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
 
   @SubscribeMessage('leaveRoom')
   removePlayerFromRoom(socket: Socket) {
-    // console.log('Want to leave the room: ', socket.handshake.auth.login);
     const client = this.clients.find((client) => (client.id = socket.id));
     client.socket.leave(client.room);
+    client.room = undefined;
   }
 
   // Payload is login and isMovingUp/Down
