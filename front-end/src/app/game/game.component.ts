@@ -13,11 +13,11 @@ import { FontFaceSet } from 'css-font-loading-module';
 import { MatDialog } from '@angular/material/dialog';
 import { Dialog } from '@angular/cdk/dialog';
 import { DialogNotLoguedComponent } from '../dialog-not-logued/dialog-not-logued.component';
-import { Subject, map } from 'rxjs';
+import { EMPTY, Subject, map } from 'rxjs';
 import { Emitters } from '../emitters/emitters';
 
 const TICKRATE = 15;
-  // BALL_SIZE = 10;
+// BALL_SIZE = 10;
 
 @Component({
   selector: 'app-game',
@@ -51,7 +51,7 @@ export class GameComponent implements OnInit, OnDestroy {
   loadOnce: boolean = false;
   ballSize = 10;
   widthPercent = 1;
-  heightPercent = 1
+  heightPercent = 1;
   autoReconnectInterval: any;
 
   constructor(private gameService: GameService, private dialog: MatDialog) {}
@@ -61,14 +61,18 @@ export class GameComponent implements OnInit, OnDestroy {
       next: (res) => {
         this.login = res.login;
         this.loguedIn = true;
-        this.gameService.connectToSocket(this.login as string);
-        this.autoReconnectInterval = setInterval(() => this.gameService.isInGame(res.login).subscribe({
-          next: () => {
-            clearInterval(this.autoReconnectInterval);
-            this.enterQueue(undefined);
-          },
-          error: () => {}
-        }), 300);
+        this.gameService.connectToSocket(this.login as string, res.pseudo);
+        this.autoReconnectInterval = setInterval(
+          () =>
+            this.gameService.autoReconnect(res.login).subscribe({
+              next: () => {
+                clearInterval(this.autoReconnectInterval);
+                this.enterQueue(undefined);
+              },
+              error: () => {},
+            }),
+          500
+        );
       },
       error: () => {
         this.dialog.open(DialogNotLoguedComponent, {
@@ -115,6 +119,7 @@ export class GameComponent implements OnInit, OnDestroy {
   gameLoop(payload: GameData) {
     if (payload.players.length != 0) {
       this.gameData = payload;
+      console.log(payload)
       if (!this.loadOnce) {
         this.searchingGame = false;
         this.inGame = true;
@@ -208,7 +213,12 @@ export class GameComponent implements OnInit, OnDestroy {
   drawCenterLine() {
     let lineHeight = this.height / 17.5;
     for (let i: number = 0; i < this.height; i += lineHeight) {
-      this.context.fillRect(this.width / 2 - lineHeight / 3, i + lineHeight/3, lineHeight/2, lineHeight / 2 + lineHeight / 5 );
+      this.context.fillRect(
+        this.width / 2 - lineHeight / 3,
+        i + lineHeight / 3,
+        lineHeight / 2,
+        lineHeight / 2 + lineHeight / 5
+      );
     }
   }
 
@@ -264,11 +274,17 @@ export class GameComponent implements OnInit, OnDestroy {
 
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
-    if (this.inGame === false || event.target.innerWidth < 1500 || event.target.innerHeight < 1000)
-      return    
-    this.widthPercent = (event.target.innerWidth - this.widthInit) / this.widthInit;
-    this.heightPercent = (event.target.innerHeight - this.heightInit) / this.heightInit;
+    if (
+      this.inGame === false ||
+      event.target.innerWidth < 1500 ||
+      event.target.innerHeight < 1000
+    )
+      return;
+    this.widthPercent =
+      (event.target.innerWidth - this.widthInit) / this.widthInit;
+    this.heightPercent =
+      (event.target.innerHeight - this.heightInit) / this.heightInit;
     this.width = this.widthInit * this.widthPercent;
-    this.height =  this.heightInit * this.heightPercent;
+    this.height = this.heightInit * this.heightPercent;
   }
 }

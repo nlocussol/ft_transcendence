@@ -15,6 +15,7 @@ import { environment } from './environment';
 class Client {
   id: string;
   login: string;
+  pseudo: string;
   room: string;
   state: string;
   socket: Socket;
@@ -76,6 +77,7 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
       console.log('Connection: ', socket.handshake.auth.login);
       let client = new Client();
       client.login = socket.handshake.auth.login as string;
+      client.pseudo = socket.handshake.auth.pseudo as string;
       client.id = socket.id;
       client.state = 'idle';
       client.socket = socket;
@@ -121,7 +123,7 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
   }
 
   addPlayerToQueue(client: Client) {
-    // If the player is already in a game make force him to join it
+    // If the player is already in a game make force it to join said game
     const gameUUID = this.gameService.findGameUUIDWithLogin(client.login);
     if (gameUUID != undefined) {
       client.socket.join(gameUUID);
@@ -142,11 +144,13 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
     let client: Client = this.clientQueue.shift();
     client.room = game.matchUUID;
     game.players[0].login = client.login;
+    game.players[0].pseudo = client.pseudo; 
     client.socket.join(game.matchUUID);
 
     client = this.clientQueue.shift();
     client.room = game.matchUUID;
     game.players[1].login = client.login;
+    game.players[1].pseudo = client.pseudo; 
     client.socket.join(game.matchUUID);
   }
 

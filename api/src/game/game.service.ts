@@ -166,9 +166,6 @@ export class GameService {
     game.players[0].canMove = false;
     game.players[1].canMove = false;
     this.dbWriteService.fillMatchHistory(game);
-    game.players[0].score > game.players[1].score
-      ? console.log(game.players[0].login)
-      : console.log(game.players[1].login);
     clearInterval(game.intervalID);
     setTimeout(() => {
       const gameIndex = this.gameInProgress.indexOf(game, 0);
@@ -210,7 +207,6 @@ export class GameService {
     let timeoutInterval = setInterval(() => {
       game.players[playerIndex].AFKTimer =
         (Date.now() - timeoutStartingTime) / 1000;
-      console.log(game.players[playerIndex].AFKTimer);
       if (game.players[playerIndex].AFK == false || game.isOver) {
         clearInterval(timeoutInterval);
       }

@@ -1,7 +1,7 @@
 <div id="canvasMaster">
   <canvas #canvas width="{{ width }}" height="{{ height }}"></canvas><br />
 
-  <div *ngIf="inGame" id="textDiv">{{gameData.players[0].login}} VS {{gameData.players[1].login}}</div>
+  <div *ngIf="inGame" id="textDiv">{{gameData.players[0].pseudo}} VS {{gameData.players[1].pseudo}}</div>
 
   <div *ngIf="loguedIn">
     <div>
