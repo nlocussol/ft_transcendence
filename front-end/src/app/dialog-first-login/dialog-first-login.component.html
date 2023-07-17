@@ -38,18 +38,24 @@
       <mat-error *ngIf="userForm.get('pseudo')?.hasError('pseudoAlreadyExists')">PSEUDO ALREADY TAKEN</mat-error>
     </mat-form-field>
       <mat-checkbox color="primary" formControlName="doubleAuth">Activate 2FA ?</mat-checkbox>
-<!-- 
-      <input type="file" (change)="onFileSelected($event)" name="uploadfile" id="img" style="display:none;" accept="image/png, image/jpeg"/>
-      <label for="img">
-        <img [src]="profilePic" class="card__image">
+
+      <!-- <input type="file" (change)="onFileSelected($event)" name="uploadfile" id="img" style="display:none;" accept="image/png, image/jpeg"/>
+      <label for="img"> test
       </label> -->
 
 
-    <mat-label>Profile Picture</mat-label>
+    <label for="file">Profile Picture (default one is your intra's pic):</label>
+    <input formControlName="file"
+    accept=".jpg,.jpeg,.png,.gif"
+    id="file"
+    type="file"
+    class="form-control"
+    (change)="onFileChange($event)">
+    <img [src]="localProfilePicUrl">
   </div>
 
   <div mat-dialog-actions>
-    <button [disabled]="userForm.invalid || userForm.pending " mat-raised-button color="primary">SAVE INFO</button>
+    <button [disabled]="userForm.invalid || userForm.pending" mat-raised-button color="primary" >SAVE INFO</button>
 
   </div>
 </form>

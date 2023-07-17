@@ -76,14 +76,16 @@ export class AuthHandlerComponent implements OnInit, OnDestroy {
           dialogConfig.height = '500';
           dialogConfig.enterAnimationDuration = '500ms'
           dialogConfig.exitAnimationDuration = '500ms'
-          dialogConfig.data = { pseudo: userData.login, pp: userData.pp };
+          dialogConfig.data = { login: userData.login, pseudo: userData.login, pp: userData.pp };
           const dia = this.dialog.open(DialogFirstLoginComponent, dialogConfig);
           dia.afterClosed().subscribe((res) => {
             // Change below to send right infos
             userData.pseudo = res.pseudo;
             userData.doubleAuth = res.doubleAuth;
+            if (res.file) {
+              
+            }
             // userData.pp = res.pp;
-            console.log("here: ", userData);
             // this.authHandlerService.createUser(userData).subscribe(() => {
             //   this.authHandlerService.sendLogin(userData.login).subscribe({
             //     next: () => {

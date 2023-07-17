@@ -1,16 +1,14 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import {
   Validators,
-  FormControl,
   FormBuilder,
   FormGroup,
-  AbstractControl,
+  FormControl,
 } from '@angular/forms';
 import { AuthHandlerService } from '../auth-handler/auth-handler.service';
-import { Observable, map } from 'rxjs';
 import { PseudoValidator } from './validator/pseudo.validator';
+import { DialogFirstLoginService } from './dialog-first-login.service';
 
 @Component({
   selector: 'app-dialog-first-login',
@@ -19,27 +17,34 @@ import { PseudoValidator } from './validator/pseudo.validator';
 })
 export class DialogFirstLoginComponent implements OnInit {
   userData = {
+    login: '',
     pseudo: '',
-    pp: '',
+    pp: File,
     doubleAuth: false,
   };
   selectedFile!: File;
-  profilePic!: string;
+  profilePic: string = this.data.pp;
+  localProfilePicUrl: any = this.data.pp
+  imageFile!: {
+    link: string | ArrayBuffer | null;
+    file: any;
+    name: string;
+  };
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     private ref: MatDialogRef<DialogFirstLoginComponent>,
     private fb: FormBuilder,
+    private firstLoginService: DialogFirstLoginService,
     private authHandlerService: AuthHandlerService
-  ) {
-  }
+  ) {}
 
   onClose() {
     this.ref.close(this.userForm.value);
   }
 
   ngOnInit(): void {
-    console.log(this.data);
+    this.userData.login = this.data.login;
   }
 
   userForm: FormGroup = this.fb.group({
@@ -53,7 +58,9 @@ export class DialogFirstLoginComponent implements OnInit {
       ],
       PseudoValidator.createValidator(this.authHandlerService),
     ],
-    twoFa: false,
+    doubleAuth: false,
+    file: new FormControl(''),
+    fileSource: new FormControl(''),
   });
 
   saveUser() {
@@ -65,16 +72,18 @@ export class DialogFirstLoginComponent implements OnInit {
     return this.userForm.get('pseudo');
   }
 
-  // userFormControl = new FormGroup({
-  //   pseudo: new FormControl(this.userData.pseudo, [
-  //     Validators.required,
-  //     Validators.minLength(4),
-  //     Validators.maxLength(16),
-  //   ]),
-  // });
+  onFileChange(event: any) {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+      this.userForm.patchValue({
+        fileSource: file,
+      });
 
-  // pseudoFormControl = new FormControl('', [
-  //   Validators.required,
-  //   Validators.minLength(1),
-  // ]);
+      var reader = new FileReader();
+      reader.onload = (event: ProgressEvent) => {
+        this.localProfilePicUrl = (<FileReader>event.target).result;
+      };
+      reader.readAsDataURL(event.target.files[0]);
+    }
+  }
 }
