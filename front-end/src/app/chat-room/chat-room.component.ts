@@ -162,6 +162,8 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
   }
 
   onMemberClick(member: MemberStatus) {
+    if (member.login === this.selectedRoom?.owner)
+      this.memberOptions = ['watch profil', '1v1 match', 'Friend Invite'];
     this.selectedMember = member;
   }
 

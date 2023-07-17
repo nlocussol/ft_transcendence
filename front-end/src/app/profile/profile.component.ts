@@ -172,25 +172,23 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   handleFriendSubmit() {
-    this.getProfileData()
     const body = {
       friend: this.pseudoFriend,
       login: this.login,
       content: `${this.pseudo} want to be your friend!`,
       type: 'REQUEST_FRIEND',
     };
-    if (
-      this.profileData.friends.find(
-        (friend: Friend) => friend.name === this.pseudoFriend
-      )
-    ) {
-      console.log(body.friend, 'is already your friend!');
-      return;
-    } else if (this.pseudoFriend === this.pseudo) {
-      console.log('You can not send friend request to yourself');
-      return;
-    }
-    this.socket.emit('send-notif', body);
+    this.profileService.getProfileData(this.login).subscribe((userData: UserData) => {
+      this.profileData = userData
+      if (userData.friends.find((friend: Friend) => friend.name === body.friend)) {
+        console.log(body.friend, 'is already your friend!');
+        return;
+      } else if (this.pseudoFriend === this.pseudo) {
+        console.log('You can not send friend request to yourself');
+        return;
+      }
+      this.socket.emit('send-notif', body);
+    })
     this.pseudoFriend = '';
   }
 }
