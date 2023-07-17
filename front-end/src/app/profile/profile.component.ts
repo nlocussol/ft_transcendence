@@ -55,9 +55,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
     const selectedFile = event.target.files[0];
     const formData: FormData = new FormData();
     formData.append('file', selectedFile, selectedFile.name);
-    this.http.post('http://localhost:3000/db-writer/upload', formData).subscribe((res: any) => {
-      this.http.post('http://localhost:3000/db-writer/change-user-pp', {login: this.login, newPp: res.name}).subscribe(() => {
-        this.http.get(`http://localhost:3000/db-writer/user-pp/${this.login}`, { responseType: 'blob' }).subscribe((ppData: Blob) => {
+    this.profileService.uploadImage(formData).subscribe((res: any) => {
+      this.profileService.changeUserPp({login: this.login, newPp: res.name}).subscribe(() => {
+        this.profileService.getProfilePic(this.login).subscribe((ppData: Blob) => {
           this.ppUrl = URL.createObjectURL(ppData);
         });
       })
@@ -70,10 +70,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
       login: this.login,
       doubleAuth: this.doubleAuth,
     };
-    const headers = new HttpHeaders().set('Content-type', `application/json`);
-    this.http
-      .post('http://localhost:3000/db-writer/change-2fa/', body, { headers })
-      .subscribe();
+    this.profileService.change2FA(body).subscribe()
   }
 
   async changeUsername() {
@@ -93,7 +90,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
       index: this.notifs.findIndex((notif) => notif === body),
     };
     let bodyToSend: any;
-    const headers = new HttpHeaders().set('Content-type', `application/json`);
     switch (body.type) {
       case 'REQUEST_FRIEND':
         bodyToSend = {
@@ -148,7 +144,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
       this.status = userData.status;
       this.doubleAuth = userData.doubleAuth;
       this.pseudo = userData.pseudo;
-      this.profileService.getProfilePic().subscribe((blob: Blob) => {
+      this.profileService.getProfilePic(userData.login).subscribe((blob: Blob) => {
         this.ppUrl = URL.createObjectURL(blob);
       });
     })
