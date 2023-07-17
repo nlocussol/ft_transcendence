@@ -410,6 +410,8 @@ export class DbWriterService {
       const currentUser = await this.userRepository.findOneBy({
           login: newNotif.friend,
       });
+      if (!newNotif.friend || !newNotif.friend.length)
+        return null;
       if (!currentUser){
           console.log("addNotif: The user does not exist");
           return null;
