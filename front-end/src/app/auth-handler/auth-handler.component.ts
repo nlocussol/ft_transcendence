@@ -50,7 +50,6 @@ export class AuthHandlerComponent implements OnInit, OnDestroy {
   }
 
   getUserDataFrom42(res: string) {
-    console.log(res);
     this.authHandlerService.getUserData(res).subscribe({
       next: (res) => this.handleConnexion(res),
       error: (err) => console.log(err),
@@ -62,7 +61,6 @@ export class AuthHandlerComponent implements OnInit, OnDestroy {
     this.http
       .get(`http://localhost:3000/db-writer/get-qrcode/${this.login}`, {responseType: 'text'})
       .subscribe((img: any) => {
-        console.log(img)
         this.qrcode = img;
       });
   };
@@ -96,17 +94,24 @@ export class AuthHandlerComponent implements OnInit, OnDestroy {
     };
 
     this.login = res.login;
+    this.http
+      .get(`http://localhost:3000/db-writer/data/${this.login}`)
+      .subscribe((res: any) => {
+        this.twoFa = res.doubleAuth;
+    });
 
     this.authHandlerService.sendLogin(this.login).subscribe({
       next: () => {
-        // if (res.twoFa)
+        if (this.twoFa)
           this.allowTowFa();
-        // this.authHandlerService.getJwt(userData.login).subscribe(() => {
-        //   Emitters.authEmitter.emit(true);
-        //   //add to error
-        //   this.socket.emit('user-change-status', {login: userData.login, status: 'ONLINE'})
-        //   this.router.navigate(['/profile']);
-        // });
+        else{
+          this.authHandlerService.getJwt(userData.login).subscribe(() => {
+            Emitters.authEmitter.emit(true);
+            //add to error
+            this.socket.emit('user-change-status', {login: userData.login, status: 'ONLINE'})
+            this.router.navigate(['/profile']);
+          });
+        }
       },
       error: (err) => {
         if (err.error.message === 'No user with this login') {

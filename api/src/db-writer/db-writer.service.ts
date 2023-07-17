@@ -18,7 +18,7 @@ export class DbWriterService {
 
     async generateSecret(user: User){
         let secret = speakeasy.generateSecret({
-            name: `${user.login}`
+            name: `pozo-pong:${user.login}`
         });
         user.twoFaBase32 = secret.base32;
 
@@ -31,9 +31,9 @@ export class DbWriterService {
         }
         await generateQR().then(result => {
             if (result){
-            user.twoFaQrcode = result;
+                user.twoFaQrcode = result;
             } else {
-            user.twoFaQrcode = null;
+                user.twoFaQrcode = null;
             }
         });
     }
