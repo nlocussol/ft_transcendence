@@ -102,14 +102,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
           login: this.login,
           friend: body.login,
         };
-        console.log(bodyToSend);
-        this.http
-          .post(
-            'http://localhost:3000/db-writer/add-friend/',
-            bodyToSend,
-            { headers }
-          )
-          .subscribe();
+        this.profileService.addFriend(bodyToSend).subscribe();
         break;
       case 'REQUEST_MATCH':
         bodyToSend = {
@@ -141,11 +134,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
       this.notifs.findIndex((request) => body === request),
       1
     );
-    this.http
-      .post('http://localhost:3000/db-writer/delete-notif/', bodyToDelete, {
-        headers,
-      })
-      .subscribe();
+    this.profileService.deleteNotif(bodyToDelete).subscribe();
   }
 
   refuseRequest(body: Notif) {
@@ -153,28 +142,22 @@ export class ProfileComponent implements OnInit, OnDestroy {
       login: this.login,
       index: this.notifs.findIndex((notif) => notif === body),
     };
-    const headers = new HttpHeaders().set('Content-type', `application/json`);
     this.notifs.splice(
       this.notifs.findIndex((request) => body === request),
       1
     );
-    this.http
-      .post('http://localhost:3000/db-writer/delete-notif/', bodyToDelete, {
-        headers,
-      })
-      .subscribe();
+    this.profileService.deleteNotif(bodyToDelete).subscribe();
   }
 
   async getProfileData() {
     this.profileData = (await this.http
       .get(`http://localhost:3000/db-writer/data/${this.login}`)
       .toPromise()) as UserData;
-    const headers = new HttpHeaders().set('Accept', 'image/jpeg');
     this.notifs = this.profileData.notif;
     this.status = this.profileData.status;
     this.doubleAuth = this.profileData.doubleAuth;
     this.pseudo = this.profileData.pseudo;
-    this.http.get(`http://localhost:3000/db-writer/user-pp/${this.login}`, { responseType: 'blob', headers }).subscribe((blob: Blob) => {
+    this.profileService.getProfilePic().subscribe((blob: Blob) => {
       this.ppUrl = URL.createObjectURL(blob);
     });
   }

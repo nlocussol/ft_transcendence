@@ -7,9 +7,11 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
   providedIn: 'root',
 })
 export class ProfileService implements OnInit {
+  BasicHeaders = { headers: new HttpHeaders().set('Content-type', `application/json`) }
   private readonly API_ENDPOINT_GAME = 'http://localhost:3000/game';
   socket: any;
   login!: string;
+
 
   constructor(private homeService: HomeService, private http: HttpClient) {}
 
@@ -21,5 +23,18 @@ export class ProfileService implements OnInit {
 
   sendPrivateGameData(gameData: any) {
     return this.http.post('http://localhost:3000/game/private-game', gameData);
+  }
+
+  getProfilePic() {
+    const headers = new HttpHeaders().set('Accept', 'image/*');
+    return this.http.get(`http://localhost:3000/db-writer/user-pp/${this.login}`, { responseType: 'blob', headers })
+  }
+
+  deleteNotif(body: any) {
+    return this.http.post('http://localhost:3000/db-writer/delete-notif/', body, this.BasicHeaders)
+  }
+
+  addFriend(body: any) {
+    return this.http.post('http://localhost:3000/db-writer/add-friend/', body, this.BasicHeaders)
   }
 }
