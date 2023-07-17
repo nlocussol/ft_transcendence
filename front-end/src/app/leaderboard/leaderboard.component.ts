@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { User } from './interfaces/interfaces';
 
@@ -15,8 +15,9 @@ export class LeaderboardComponent {
   }
 
   async ngOnInit() {
-    this.topUser = await this.http
+    //initial ng on init
+    this.http
       .get(`http://localhost:3000/db-writer/leaderboard/`)
-      .toPromise() as User[]
+      .subscribe((ntm: any) => this.topUser = ntm)
   }
 }

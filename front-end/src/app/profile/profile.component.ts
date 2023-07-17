@@ -1,6 +1,5 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { DataService } from '../services/data.service';
 import { environment } from 'src/environment';
 import { Socket, io } from 'socket.io-client';
 import { Friend, UserData } from '../chat-room/interfaces/interfaces';
@@ -8,6 +7,7 @@ import { Notif, addFriend } from './interfaces/interfaces';
 import { HomeService } from '../home/service/home.service';
 import { Router } from '@angular/router';
 import { ProfileService } from './profile.service';
+import { ChatRoomService } from '../chat-room/chat-room.service';
 
 @Component({
   selector: 'app-profile',
@@ -16,7 +16,7 @@ import { ProfileService } from './profile.service';
   styleUrls: ['./profile.component.css'],
 })
 export class ProfileComponent implements OnInit, OnDestroy {
-  pathToPp: string = 'http://localhost:3000/upload' // a modif
+  pathToPp!: string //= 'http://localhost:3000/upload' // a modif
   doubleAuth!: boolean;
   selectedFile!: File;
   newPseudo!: string;
@@ -47,7 +47,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
     private http: HttpClient,
     private homeService: HomeService,
     private router: Router,
-    private profileService: ProfileService
+    private profileService: ProfileService,
+    private roomService: ChatRoomService
   ) {}
 
   onFileSelected(event: any): void {
@@ -55,16 +56,13 @@ export class ProfileComponent implements OnInit, OnDestroy {
     const formData: FormData = new FormData();
     formData.append('file', selectedFile, selectedFile.name);
     this.http.post('http://localhost:3000/db-writer/upload', formData).subscribe((res: any) => {
-        let headers = new HttpHeaders().set('Content-type', `application/json`);
-        this.ppUrl = `${this.pathToPp}/${res.name}`
-        this.http.post('http://localhost:3000/db-writer/change-user-pp', {login: this.login, newPp: res.name}, { headers }).subscribe(() => {
-          headers = new HttpHeaders().set('Accept', 'image/*');
-          this.http.get(`http://localhost:3000/db-writer/user-pp/${this.login}`, { responseType: 'blob', headers }).subscribe((blob: Blob) => {
-            this.ppUrl = URL.createObjectURL(blob);
-          });
-        })
+      this.http.post('http://localhost:3000/db-writer/change-user-pp', {login: this.login, newPp: res.name}).subscribe(() => {
+        this.http.get(`http://localhost:3000/db-writer/user-pp/${this.login}`, { responseType: 'blob' }).subscribe((ppData: Blob) => {
+          this.ppUrl = URL.createObjectURL(ppData);
+        });
       })
-    }
+    })
+  }
 
   change2AF() {
     this.doubleAuth = !this.doubleAuth;
@@ -83,13 +81,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
       currentLogin: this.login,
       newPseudo: this.newPseudo,
     };
-    const headers = new HttpHeaders().set('Content-type', `application/json`);
-    const res = await this.http
-      .post('http://localhost:3000/db-writer/change-user-pseudo/', body, {
-        headers,
-      })
-      .toPromise();
-    if (res) this.pseudo = this.newPseudo;
+    this.profileService.changeUserPseudo(body).subscribe((res: any) => {
+      if (res) 
+        this.pseudo = this.newPseudo;
+    })
   }
 
   acceptRequest(body: Notif) {
@@ -105,14 +100,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
           login: this.login,
           friend: body.login,
         };
-        console.log(bodyToSend);
-        this.http
-          .post(
-            'http://localhost:3000/db-writer/add-friend/',
-            bodyToSend,
-            { headers }
-          )
-          .subscribe();
+        this.profileService.addFriend(bodyToSend).subscribe();
         break;
       case 'REQUEST_MATCH':
         bodyToSend = {
@@ -131,24 +119,14 @@ export class ProfileComponent implements OnInit, OnDestroy {
           login: this.login,
           pseudo: this.pseudo,
         };
-        this.http
-          .post(
-            'http://localhost:3000/db-writer-room/add-user-room',
-            bodyToSend,
-            { headers }
-          )
-          .subscribe();
+        this.roomService.addUserToRoom(body).subscribe();
         break;
     }
     this.notifs.splice(
       this.notifs.findIndex((request) => body === request),
       1
     );
-    this.http
-      .post('http://localhost:3000/db-writer/delete-notif/', bodyToDelete, {
-        headers,
-      })
-      .subscribe();
+    this.profileService.deleteNotif(bodyToDelete).subscribe();
   }
 
   refuseRequest(body: Notif) {
@@ -156,30 +134,24 @@ export class ProfileComponent implements OnInit, OnDestroy {
       login: this.login,
       index: this.notifs.findIndex((notif) => notif === body),
     };
-    const headers = new HttpHeaders().set('Content-type', `application/json`);
     this.notifs.splice(
       this.notifs.findIndex((request) => body === request),
       1
     );
-    this.http
-      .post('http://localhost:3000/db-writer/delete-notif/', bodyToDelete, {
-        headers,
-      })
-      .subscribe();
+    this.profileService.deleteNotif(bodyToDelete).subscribe();
   }
 
-  async getProfileData() {
-    this.profileData = (await this.http
-      .get(`http://localhost:3000/db-writer/data/${this.login}`)
-      .toPromise()) as UserData;
-    const headers = new HttpHeaders().set('Accept', 'image/jpeg');
-    this.notifs = this.profileData.notif;
-    this.status = this.profileData.status;
-    this.doubleAuth = this.profileData.doubleAuth;
-    this.pseudo = this.profileData.pseudo;
-    this.http.get(`http://localhost:3000/db-writer/user-pp/${this.login}`, { responseType: 'blob', headers }).subscribe((blob: Blob) => {
-      this.ppUrl = URL.createObjectURL(blob);
-    });
+  getProfileData() {
+    this.profileService.getProfileData(this.login).subscribe((userData: UserData) => {
+      this.profileData = userData;
+      this.notifs = userData.notif;
+      this.status = userData.status;
+      this.doubleAuth = userData.doubleAuth;
+      this.pseudo = userData.pseudo;
+      this.profileService.getProfilePic().subscribe((blob: Blob) => {
+        this.ppUrl = URL.createObjectURL(blob);
+      });
+    })
   }
 
   newNotif() {
@@ -192,25 +164,23 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   handleFriendSubmit() {
-    this.getProfileData()
     const body = {
       friend: this.pseudoFriend,
       login: this.login,
       content: `${this.pseudo} want to be your friend!`,
       type: 'REQUEST_FRIEND',
     };
-    if (
-      this.profileData.friends.find(
-        (friend: Friend) => friend.name === this.pseudoFriend
-      )
-    ) {
-      console.log(body.friend, 'is already your friend!');
-      return;
-    } else if (this.pseudoFriend === this.pseudo) {
-      console.log('You can not send friend request to yourself');
-      return;
-    }
-    this.socket.emit('send-notif', body);
+    this.profileService.getProfileData(this.login).subscribe((userData: UserData) => {
+      this.profileData = userData
+      if (userData.friends.find((friend: Friend) => friend.name === body.friend)) {
+        console.log(body.friend, 'is already your friend!');
+        return;
+      } else if (this.pseudoFriend === this.pseudo) {
+        console.log('You can not send friend request to yourself');
+        return;
+      }
+      this.socket.emit('send-notif', body);
+    })
     this.pseudoFriend = '';
   }
 }

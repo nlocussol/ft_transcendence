@@ -23,6 +23,10 @@ import {
   deleteNotif,
 } from 'src/typeorm/user.entity';
 import { GameData } from 'src/game/models/game.models';
+import * as qrcode from 'qrcode';
+import * as speakeasy from 'speakeasy';
+
+
 
 @Injectable()
 export class DbWriterService {
@@ -30,38 +34,60 @@ export class DbWriterService {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
   ) {}
 
-  async createUser(newUser: User) {
-    // search if the user is already inside the data base.
-    const currentUserLogin = await this.userRepository.findOneBy({
-      login: newUser.login,
-    });
-    if (currentUserLogin) {
-      console.log('The user already exist');
-      return null;
+    async generateSecret(user: User){
+        let secret = speakeasy.generateSecret({
+            name: `pozo-pong:${user.login}`
+        });
+        user.twoFaBase32 = secret.base32;
+
+        const generateQR = async () => {
+            try {
+             return await qrcode.toDataURL(secret.otpauth_url);
+            } catch (err) {
+             return console.error(err);
+            }
+        }
+        await generateQR().then(result => {
+            if (result){
+                user.twoFaQrcode = result;
+            } else {
+                user.twoFaQrcode = null;
+            }
+        });
     }
 
-    // create an instance of user table & fill it
-    const user = new User();
-    user.authCode = crypto.randomUUID();
-    user.pseudo = newUser.pseudo;
-    user.pp = newUser.pp;
-    user.login = newUser.login;
-    user.doubleAuth = newUser.doubleAuth;
-    user.friends = [];
-    user.pm = [];
-    user.history = [];
-    user.notif = [];
+    async createUser(newUser: User){
 
-    let statsInit: stats = {
-      lose: 0,
-      win: 0,
-      matchs: 0,
-    };
-    user.stats = statsInit;
+        // search if the user is already inside the data base.
+        const currentUserLogin = await this.userRepository.findOneBy({
+            login: newUser.login,
+         });
+        if (currentUserLogin){
+            console.log("The user already exist");
+            return null;
+        }
 
-    // save in database (shared volume)
-    await this.userRepository.save(user);
-  }
+        // create an instance of user table & fill it
+        const user = new User();
+        user.pseudo = newUser.login;
+        user.pp = newUser.pp;
+        user.login = newUser.login
+        user.friends = [];
+        user.pm = [];
+        user.history = [];
+        user.notif = [];
+        await this.generateSecret(user);
+
+        let statsInit : stats = {
+            lose: 0,
+            win: 0,
+            matchs: 0
+        }
+        user.stats = statsInit;
+
+        // save in database (shared volume)
+        await this.userRepository.save(user)
+      }
 
   async addFriendToDb(
     user: User,
@@ -476,5 +502,27 @@ export class DbWriterService {
             return null   
         }
         return user.pp
+      }
+
+    async getQrCode(login:string){
+        const user = await this.userRepository.findOneBy({
+            login: login,
+        });
+        if (!user){
+            console.log(`getQrCode: this user doesn't not exist.`);
+            return null   
+        }
+        return user.twoFaQrcode;
+    }
+
+    async getBase32(login:string){
+        const user = await this.userRepository.findOneBy({
+            login: login,
+        });
+        if (!user) {
+            console.log(`getBase32: this user doesn't not exist.`);
+            return null   
+        }
+        return user.twoFaBase32;
     }
 }

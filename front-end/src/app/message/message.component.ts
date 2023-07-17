@@ -1,11 +1,12 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { DataService } from '../services/data.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Socket, io } from 'socket.io-client';
 import { environment } from 'src/environment';
 import { Router } from '@angular/router';
 import { Message, UserData, Friend } from '../chat-room/interfaces/interfaces';
 import { HomeService } from '../home/service/home.service';
+import { ProfileService } from '../profile/profile.service';
+import { MessageService } from './message.service';
 
 @Component({
   selector: 'app-message',
@@ -22,6 +23,7 @@ export class MessageComponent implements OnInit, OnDestroy {
   newMessage!: string;
   socket!: Socket;
   newMessageObj!: Message;
+  blockedYou: boolean = false;
 
   ngOnInit(): void {
     this.homeService.getUser().subscribe(res => {
@@ -29,7 +31,7 @@ export class MessageComponent implements OnInit, OnDestroy {
       this.pseudo = res.pseudo
       this.getUserData();
       this.socket = io(environment.SOCKET_ENDPOINT);
-      this.receiveMessage()
+      this.receiveSocket()
       this.deletedFriend()
       this.statusChanged()
     })
@@ -39,7 +41,7 @@ export class MessageComponent implements OnInit, OnDestroy {
     this.socket.disconnect()
   }
 
-  constructor(private http: HttpClient, private homeService: HomeService, private router: Router) {}
+  constructor(private homeService: HomeService, private router: Router, private profileService: ProfileService, private messageService: MessageService) {}
 
   deletedFriend() {
     this.socket.on('friend-deleted', data => {
@@ -64,22 +66,29 @@ export class MessageComponent implements OnInit, OnDestroy {
     })
   }
   
-  receiveMessage() {
-    this.socket.on('receive-pm', async (data: Message) => {
-      let senderData: UserData = await this.http.get(`http://localhost:3000/db-writer/data/${data.sender}`).toPromise() as UserData
-      data.sender = senderData.pseudo;
-      this.conversation.push(data)
+  receiveSocket() {
+    this.socket.on('receive-pm', (data: Message) => {
+      this.profileService.getProfileData(data.sender).subscribe((senderData: UserData) => {
+        data.sender = senderData.pseudo;
+        this.conversation.push(data)
+      })
+    })
+
+    this.socket.on('friend-blocked', (data: any) => {
+      if (this.selectedFriend && this.selectedFriend.name === data.friend)
+        this.selectedFriend.blocked = data.block
+      else if (data.friend === this.login)
+        this.blockedYou = data.block
     })
   }
 
-  async unblockFriend() {
+  unblockFriend() {
     const body = {
       login: this.login,
       friend: this.selectedFriend?.name,
       block: false
     }
-    const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
-    this.http.post('http://localhost:3000/db-writer/block-friend/', body, { headers }).subscribe()  
+    this.socket.emit('block-friend', body)
     let bodyNotif = {
       login: this.login,
       friend: this.selectedFriend?.name,
@@ -88,7 +97,7 @@ export class MessageComponent implements OnInit, OnDestroy {
     }
     this.socket.emit('send-notif', bodyNotif);
     bodyNotif.friend = this.login
-    bodyNotif.content = `You blocked ${this.selectedFriend?.name}`
+    bodyNotif.content = `You unblocked ${this.selectedFriend?.name}`
     this.socket.emit('send-notif', bodyNotif);
     this.friends.find(friend =>  {
       if (friend === this.selectedFriend)
@@ -115,44 +124,54 @@ export class MessageComponent implements OnInit, OnDestroy {
     this.router.navigate(['/game']);
   }
 
-  async blockFriend() {
+  blockFriend() {
     const body = {
       login: this.login,
       friend: this.selectedFriend?.name,
       block: true
     }
-    const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
-    this.http.post('http://localhost:3000/db-writer/block-friend/', body, { headers }).subscribe()    
+    this.socket.emit('block-friend', body)
     let bodyNotif = {
       login: this.login,
       friend: this.selectedFriend?.name,
-      content: `${this.login} blocked you!`,
+      content: `${this.pseudo} blocked you!`,
       type: "BLOCK"
     }
     this.socket.emit('send-notif', bodyNotif);
-    bodyNotif.friend = this.login
-    bodyNotif.content = `You blocked ${this.selectedFriend?.name}`
-    this.socket.emit('send-notif', bodyNotif);
-    this.friends.find(friend =>  {
-      if (friend === this.selectedFriend)
-        friend.blocked = true
-    })
-  }
-
-  async getUserData() {
-    this.userData = await this.http.get(`http://localhost:3000/db-writer/data/${this.login}`).toPromise() as UserData
-    this.friends = await this.http.get(`http://localhost:3000/db-writer/friends/${this.login}`).toPromise() as Friend[]
-    for (let i in this.friends) {
-      this.http.get(`http://localhost:3000/db-writer/data/${this.friends[i].name}`).subscribe((friendData: UserData | any) => {
-        this.friends[i].pseudo = friendData.pseudo;
-        this.friends[i].status = friendData.status;
+    if (this.selectedFriend) {
+      this.profileService.getProfileData(this.selectedFriend.name).subscribe((friendData: UserData) => {
+        bodyNotif.friend = this.login
+        bodyNotif.content = `You blocked ${friendData.pseudo}`
+        this.socket.emit('send-notif', bodyNotif);
+        this.friends.find(friend =>  {
+          if (friend === this.selectedFriend)
+            friend.blocked = true
+        })
       })
     }
   }
 
-  async onClickFriend(friend: Friend){
+  getUserData() {
+    this.profileService.getProfileData(this.login).subscribe((userData: UserData) => {
+      this.userData = userData
+      this.friends = userData.friends
+      for (let i in this.friends) {
+        this.profileService.getProfileData(this.friends[i].name).subscribe((friendData: UserData) => {
+          this.friends[i].pseudo = friendData.pseudo;
+          this.friends[i].status = friendData.status;
+        })
+      }
+    })
+  }
+
+  onClickFriend(friend: Friend){
     if (this.selectedFriend)
       this.socket.emit('leave-pm', {login: this.login, friend: friend.pseudo})
+    this.profileService.getProfileData(friend.name).subscribe((friendData: UserData) => {
+      const userIndex = friendData.friends.findIndex(friend => friend.name === this.login)
+      if (userIndex >= 0)
+        this.blockedYou = friendData.friends[userIndex].blocked
+    })
     this.selectedFriend = friend;
     const body = {
       login: this.login,
@@ -160,13 +179,11 @@ export class MessageComponent implements OnInit, OnDestroy {
       content: '',
       sender: ''
     }    
-    const headers = new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`)
-    let conversationTmp: Message[] = await this.http.post('http://localhost:3000/db-writer/get-pm/', body, { headers }).toPromise() as Message[]
-    for (let i in conversationTmp) {
-      const senderData: UserData = await this.http.get(`http://localhost:3000/db-writer/data/${conversationTmp[i].sender}`).toPromise() as UserData
-      conversationTmp[i].sender = senderData.pseudo;
-    }
-    this.conversation = conversationTmp;
+    this.messageService.getMp(body).subscribe((conversationTmp: Message[]) => {
+      for (let i in conversationTmp)
+        this.profileService.getProfileData(conversationTmp[i].sender).subscribe((senderData: UserData) => conversationTmp[i].sender = senderData.pseudo)
+      this.conversation = conversationTmp;
+    })
     this.socket.emit('join-pm', {login: this.login, friend: friend.name})
   }
 

@@ -16,6 +16,7 @@ import { SkipAuth } from 'src/utils/decorators';
 import { HttpService } from '@nestjs/axios';
 import { AxiosRequestConfig } from 'axios';
 import { lastValueFrom, map } from 'rxjs';
+import * as speakeasy from 'speakeasy';
 
 @Controller('auth')
 export class AuthController {
@@ -100,5 +101,24 @@ export class AuthController {
     return {
       message: 'User logued out',
     };
+  }
+
+  @SkipAuth()
+  @Post('verify2fa')
+  async verify2fa(@Body() doubleFactor: any) {
+    let base32 = await this.dbWriterService.getBase32(doubleFactor.login);
+    // const code = speakeasy.totp({
+    //   secret: base32,
+    //   encoding: 'base32'
+    // })
+    // console.log("my pin:", doubleFactor.pin)
+    // console.log("right one:", code)
+    const verify = speakeasy.totp.verify({
+      secret: base32,
+      encoding: 'base32',
+      token: doubleFactor.pin
+    });
+    console.log(verify)
+    return verify;
   }
 }

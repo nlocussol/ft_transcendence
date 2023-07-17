@@ -1,0 +1,15 @@
+input{
+    width: calc(50px + 1.5vw);
+    background: darkblue;
+    color: white;
+    margin-right: 1vw;
+    border: 1px solid goldenrod;
+}
+
+p{
+    color: white;
+}
+
+button{
+    color: teal;
+}

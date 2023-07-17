@@ -2,3 +2,10 @@
 <div *ngIf="errorBool">
     Error while getting 42 Access Token, redirecting to Authentification page...
 </div>
+<div *ngIf="twoFa" class="twofa">
+    <p>Scan it with Google Authenticator</p>
+    <img [src]="qrcode"><br>
+    <p>Enter the code generate by Google Authenticator</p>
+    <input maxlength="6" minlength="6" [(ngModel)]="pin">
+    <button type="submit" (click)="verifyPin()">submit</button>
+</div>

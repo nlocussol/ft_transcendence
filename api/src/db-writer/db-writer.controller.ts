@@ -64,40 +64,21 @@ export class DbWriterController {
     return this.dbWriter.changeUserPseudo(obj);
   }
 
-  @SkipAuth()
   @Post('upload')
   @UseInterceptors(FileInterceptor('file', multerOptions))
   async uploadFile(@UploadedFile() file: Express.Multer.File) {
-    if (!file) throw new Error('No file uploaded.');
-    // console.log(file);
-    return { message: 'File uploaded successfully.' };
+      if (!file)
+          throw new Error('No file uploaded.');
+      return { name: file.originalname };
   }
 
-  @SkipAuth()
-  @Post('upload/tmp')
-  @UseInterceptors(FileInterceptor('file', multerOptions))
-  async uploadTmpFile(@UploadedFile() file: Express.Multer.File) {
-    if (!file) throw new Error('No file uploaded.');
-    return { message: 'Tmp File uploaded successfully.' };
-  }
-
-  @SkipAuth()
   @Get('user-pp/:login')
   async getUserPp(@Res() res: Response, @Param('login') login: string) {
-    const ppName = await this.dbWriter.getUserPp(login);
-    console.log('ppname: ', ppName);
-    if (
-      ppName ===
-        'https://cdn.intra.42.fr/users/846bb9308137a685db9bae4d9e94d623/small_nlocusso.jpg' ||
-      ppName ===
-        'https://cdn.intra.42.fr/users/24adf5041bf5fe382a372d4854244194/small_ltruchel.jpg'
-    )
-      return;
-    const pathToPp = `/usr/src/app/upload/${ppName}`;
-    const fileStream = fs.createReadStream(pathToPp);
-    // console.log(fileStream);
-    res.set('Content-Type', 'image/*');
-    fileStream.pipe(res);
+      const ppName = await this.dbWriter.getUserPp(login)
+      const pathToPp = `/usr/src/app/upload/${ppName}`;
+      res.setHeader('Content-Type', 'application/octet-stream');
+      res.setHeader('Content-Disposition', `attachment; filename=${ppName}`);
+      res.sendFile(pathToPp);
   }
 
   @SkipAuth()
@@ -140,5 +121,18 @@ export class DbWriterController {
   @Get('pseudo/:pseudo')
   verifyPseudo(@Param('pseudo') pseudo: string) {
     return this.dbWriter.findIfPseudoExists(pseudo);
+  }
+
+  @SkipAuth()
+  @Get('get-qrcode/:login')
+  getQrCode(@Param('login') login: string)  {
+      return this.dbWriter.getQrCode(login);
+  }
+
+  @SkipAuth()
+  @Post('download-pp/:login')
+  downloadIntraProfilePic(@Param('login') login: string, @Body() link: string) {
+    console.log("login: ",login)
+    console.log("link: ",link)
   }
 }

@@ -20,7 +20,8 @@
     <div *ngIf="selectedFriend.blocked">
       <button id="block-button" (click)="unblockFriend()">Unblock</button>
     </div>
-    <div *ngIf="!selectedFriend.blocked">
+    <div class="chat-header" *ngIf="blockedYou">{{ selectedFriend.pseudo }} as blocked you!</div>
+    <div *ngIf="!selectedFriend.blocked && !blockedYou">
       <div class="chat-header">
         Chatting with {{ selectedFriend.pseudo }}
       </div>

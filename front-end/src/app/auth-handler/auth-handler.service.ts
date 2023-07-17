@@ -50,4 +50,8 @@ export class AuthHandlerService {
       `http://localhost:3000/db-writer/pseudo/${pseudo}`
     );
   }
+
+  sendIntraProfilePicUrl(login: string, link: string) {
+    
+  }
 }

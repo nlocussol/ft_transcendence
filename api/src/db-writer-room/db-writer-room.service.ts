@@ -249,7 +249,10 @@ export class DbWriterRoomService {
         name: banMember.name,
         });
         if (!currentRoom){
-            console.log("The room doesn't exist");
+            console.log("banMember: The room doesn't exist");
+            return null;
+        } else if (currentRoom.owner === banMember.login){
+            console.log("banMember: You can't ban the owner <3");
             return null;
         }
         for (let i in currentRoom.members) {
