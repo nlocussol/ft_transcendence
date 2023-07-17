@@ -103,10 +103,22 @@ export class User {
 
     @IsString()
     @Column({
-        nullable: false,
-        default: '',
+        nullable: true,
     })
     pp: string;
+
+    @IsString()
+    @Column({
+        nullable: true,
+    })
+    twoFaQrcode: string;
+
+    @IsString()
+    @Column({
+        nullable: false,
+        default: false,
+    })
+    twoFaBase32: string;
 
     @IsBoolean()
     @Column({
@@ -114,12 +126,6 @@ export class User {
         default: false,
     })
     doubleAuth: boolean;
-
-    @IsString()
-    @Column({
-        nullable: true,
-    })
-    authCode: string;
 
     @IsString()
     @IsNotEmpty()

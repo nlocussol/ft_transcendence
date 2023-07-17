@@ -91,4 +91,10 @@ export class DbWriterController {
     deleteNotif(@Body() obj: deleteNotif, @Headers() headers){
         return  this.dbWriter.deleteNotif(obj);
     }
+
+    @SkipAuth()
+    @Get('get-qrcode/:login')
+    getQrCode(@Param('login') login: string){
+        return this.dbWriter.getQrCode(login);
+    }
 }
