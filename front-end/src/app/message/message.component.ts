@@ -24,6 +24,7 @@ export class MessageComponent implements OnInit, OnDestroy {
   newMessage!: string;
   socket!: Socket;
   newMessageObj!: Message;
+  blockedYou: boolean = false;
 
   ngOnInit(): void {
     this.homeService.getUser().subscribe(res => {
@@ -77,6 +78,8 @@ export class MessageComponent implements OnInit, OnDestroy {
     this.socket.on('friend-blocked', (data: any) => {
       if (this.selectedFriend && this.selectedFriend.name === data.friend)
         this.selectedFriend.blocked = data.block
+      else if (data.friend === this.login)
+        this.blockedYou = data.block
     })
   }
 
@@ -161,6 +164,11 @@ export class MessageComponent implements OnInit, OnDestroy {
   onClickFriend(friend: Friend){
     if (this.selectedFriend)
       this.socket.emit('leave-pm', {login: this.login, friend: friend.pseudo})
+    this.profileService.getProfileData(friend.name).subscribe((friendData: UserData) => {
+      const userIndex = friendData.friends.findIndex(friend => friend.name === this.login)
+      if (userIndex >= 0)
+        this.blockedYou = friendData.friends[userIndex].blocked
+    })
     this.selectedFriend = friend;
     const body = {
       login: this.login,
