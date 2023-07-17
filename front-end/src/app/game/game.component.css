@@ -33,5 +33,14 @@
 
 #textDiv {
     color:white;
+    font-size: calc(20px + 1.5vw);
+    margin-bottom: 1vh;
+}
+
+canvas{
+    margin-top: 1vh;
+    margin-bottom: 1vh;
+    background-color: black;
+    border: goldenrod;
 }
 

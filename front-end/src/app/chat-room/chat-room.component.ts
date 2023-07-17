@@ -417,7 +417,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
   }
 
   async sendMessage(message: string) {
-    if (this.selectedRoom) {
+    if (this.selectedRoom && message && message.length) {
       const body: RoomMessage = {
         sender: this.login,
         name: this.selectedRoom.name,
