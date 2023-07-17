@@ -1,12 +1,13 @@
 import { Injectable, OnInit } from '@angular/core';
 import { HomeService } from '../home/service/home.service';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Friend, Room, UserData } from '../chat-room/interfaces/interfaces';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProfileService implements OnInit {
-  BasicHeaders = { headers: new HttpHeaders().set('Content-type', `application/json`) }
+  basicHeaders = { headers: new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`) }
   private readonly API_ENDPOINT_GAME = 'http://localhost:3000/game';
   socket: any;
   login!: string;
@@ -30,10 +31,18 @@ export class ProfileService implements OnInit {
   }
 
   deleteNotif(body: any) {
-    return this.http.post('http://localhost:3000/db-writer/delete-notif/', body, this.BasicHeaders)
+    return this.http.post('http://localhost:3000/db-writer/delete-notif/', body, this.basicHeaders)
   }
 
   addFriend(body: any) {
-    return this.http.post('http://localhost:3000/db-writer/add-friend/', body, this.BasicHeaders)
+    return this.http.post('http://localhost:3000/db-writer/add-friend/', body, this.basicHeaders)
+  }
+
+  getProfileData(login: string) {
+    return this.http.get<UserData>(`http://localhost:3000/db-writer/data/${login}`)
+  }
+
+  getUserFriends(login: string) {
+    return this.http.get<Friend[]>(`http://localhost:3000/db-writer/friends/${login}`)
   }
 }

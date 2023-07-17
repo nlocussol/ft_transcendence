@@ -149,17 +149,17 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.profileService.deleteNotif(bodyToDelete).subscribe();
   }
 
-  async getProfileData() {
-    this.profileData = (await this.http
-      .get(`http://localhost:3000/db-writer/data/${this.login}`)
-      .toPromise()) as UserData;
-    this.notifs = this.profileData.notif;
-    this.status = this.profileData.status;
-    this.doubleAuth = this.profileData.doubleAuth;
-    this.pseudo = this.profileData.pseudo;
-    this.profileService.getProfilePic().subscribe((blob: Blob) => {
-      this.ppUrl = URL.createObjectURL(blob);
-    });
+  getProfileData() {
+    this.profileService.getProfileData(this.login).subscribe((userData: UserData) => {
+      this.profileData = userData;
+      this.notifs = userData.notif;
+      this.status = userData.status;
+      this.doubleAuth = userData.doubleAuth;
+      this.pseudo = userData.pseudo;
+      this.profileService.getProfilePic().subscribe((blob: Blob) => {
+        this.ppUrl = URL.createObjectURL(blob);
+      });
+    })
   }
 
   newNotif() {
