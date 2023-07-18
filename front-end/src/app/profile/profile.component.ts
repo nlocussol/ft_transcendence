@@ -190,12 +190,14 @@ export class ProfileComponent implements OnInit, OnDestroy {
       content: `${this.pseudo} want to be your friend!`,
       type: 'REQUEST_FRIEND',
     };
-    this.profileService.getProfileData(this.login).subscribe((userData: UserData) => {
+    this.profileService.getProfileData(this.login).subscribe(async (userData: UserData) => {
       this.profileData = userData
-      if (userData.friends.find((friend: Friend) => friend.name === body.friend)) {
-        console.log(body.friend, 'is already your friend!');
-        this.pseudoFriend = '';
-        return;
+      for (let friend of userData.friends) {
+        const userData: UserData = await this.profileService.getProfileData(friend.name).toPromise() as UserData
+        if (userData.pseudo === body.friend) {
+          console.log(`${body.friend} is already your friend`);
+          return ;
+        }
       } 
       this.socket.emit('send-notif', body);
     })

@@ -59,10 +59,14 @@ export class GameComponent implements OnInit, OnDestroy {
   widthPercent = 1;
   heightPercent = 1;
   autoReconnectInterval: any;
+  imgJul = new Image();
+  imgNinho = new Image();
 
   constructor(private gameService: GameService, private dialog: MatDialog) {}
 
   ngOnInit(): void {
+    this.imgJul.src = '../assets/JUL.jpg';
+    this.imgNinho.src = '../assets/NINHO.jpeg';
     this.gameService.getUser().subscribe({
       next: (res) => {
         this.login = res.login;
@@ -112,11 +116,12 @@ export class GameComponent implements OnInit, OnDestroy {
   enterQueueClassic() {
     this.context.fillStyle = 'black';
     this.context.fillRect(0, 0, this.width, this.height);
+    this.context.drawImage(this.imgJul, 0, 0, this.width, this.height);
     this.searchingGame = true;
     this.gameData.inProgress = true;
     this.gameData.isOver = false;
     this.gameService.enterQueue('classic');
-    // this.startTimer();
+    this.startTimer();
     this.startGame();
   }
 
@@ -146,6 +151,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
   // Queue timer
   startTimer() {
+    this.queueTimeElapsed = 0;
     if (this.searchingGame) {
       const startTime = Date.now() - (this.queueTimeElapsed || 0);
       this.queueInterval = setInterval(() => {
@@ -156,6 +162,8 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   leaveQueue() {
+    this.context.fillStyle = 'black';
+    this.context.fillRect(0, 0, this.width, this.height);
     this.searchingGame = false;
     clearInterval(this.queueInterval);
     clearInterval(this.refreshQueueInterval);
@@ -203,12 +211,14 @@ export class GameComponent implements OnInit, OnDestroy {
     );
 
     // Draw ball
-    this.context.fillRect(
-      this.gameData?.ball?.posX! * this.widthPercent,
-      this.gameData?.ball?.posY! * this.heightPercent,
-      this.ballSize,
-      this.ballSize
-    );
+    if (this.gameData.ball?.isVisible) {
+      this.context.fillRect(
+        this.gameData?.ball?.posX! * this.widthPercent,
+        this.gameData?.ball?.posY! * this.heightPercent,
+        this.ballSize,
+        this.ballSize
+      );
+    }
 
     this.drawScore();
     this.drawCenterLine();
@@ -294,11 +304,6 @@ export class GameComponent implements OnInit, OnDestroy {
     this.drawEndGame();
     this.gameData.players.splice(0, 2);
     this.gameService.updateMyStatus(this.login!, 'ONLINE');
-    // setTimeout(() => {
-    //   this.stopAnimationFrame()
-    //   this.context.fillStyle = 'black';
-    //   this.context.fillRect(0, 0, this.width, this.height);
-    // }, 300);
   }
 
   startAnimationFrame() {
@@ -351,10 +356,12 @@ export class GameComponent implements OnInit, OnDestroy {
   enterQueueCustom() {
     this.context.fillStyle = 'black';
     this.context.fillRect(0, 0, this.width, this.height);
+    this.context.drawImage(this.imgNinho, 0, 0, this.width, this.height);
     this.searchingGame = true;
     this.gameData.inProgress = true;
     this.gameData.isOver = false;
     this.gameService.enterQueue('custom');
+    this.startTimer();
     this.startGame();
   }
 }

@@ -26,6 +26,7 @@ import { NewUserFormComponent } from './new-user-form/new-user-form.component';
 import { MatButtonModule } from '@angular/material/button';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import {MatDividerModule} from '@angular/material/divider';
 
 @NgModule({
   declarations: [
@@ -57,6 +58,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     MatButtonModule,
     BrowserAnimationsModule,
     MatCheckboxModule,
+    MatDividerModule
   ],
   providers: [
     {

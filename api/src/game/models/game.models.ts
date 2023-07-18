@@ -10,6 +10,7 @@ export class Ball {
   velY: number;
   radius: number;
   canMove: boolean = false;
+  isVisible: boolean = true;
 }
 
 export class Player {

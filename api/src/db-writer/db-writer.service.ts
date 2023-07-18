@@ -431,10 +431,18 @@ export class DbWriterService {
         content: newNotif.content,
       }
       if (currentUser) {
+        if (currentUser.notif.find(notifs => notifs.type === 'REQUEST_MATCH') && notif.type === 'REQUEST_MATCH') {
+          console.log('You can only have one match request');
+          return ;
+        }
         currentUser.notif.push(notif);
         await this.userRepository.save(currentUser)
       }
       else if (currentPseudo) {
+        if (currentPseudo.notif.find(notifs => notifs.type === 'REQUEST_MATCH') && notif.type === 'REQUEST_MATCH') {
+          console.log('You can only have one match request');
+          return ;
+        }
         currentPseudo.notif.push(notif);
         await this.userRepository.save(currentPseudo)
       }
