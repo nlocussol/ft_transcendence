@@ -6,8 +6,7 @@ import { Observable, delay, of } from 'rxjs';
   providedIn: 'root',
 })
 export class AuthHandlerService {
-  private pseudos = ['nlocusso', 'adamiens', 'tgfdp'];
-
+  basicHeaders = { headers: new HttpHeaders().set('Content-type', `application/json; charset=UTF-8`) }
   constructor(private http: HttpClient) {}
 
   retrieveAccessToken(code: string) {
@@ -36,13 +35,9 @@ export class AuthHandlerService {
   }
 
   createUser(body: any) {
-    const headers = new HttpHeaders().set(
-      'Content-type',
-      `application/json; charset=UTF-8`
-    );
-    return this.http.post('http://localhost:3000/db-writer/create-user', body, {
-      headers,
-    });
+    return this.http.post('http://localhost:3000/db-writer/create-user', body, 
+      this.basicHeaders
+      );
   }
 
   checkIfPseudoExists(pseudo: string) {
@@ -53,5 +48,17 @@ export class AuthHandlerService {
 
   sendIntraProfilePicUrl(login: string, link: string) {
     return this.http.post(`http://localhost:3000/db-writer/download-pp/${login}`, { link }, {responseType: 'text'});
+  }
+
+  getQrCode(login:string){
+    return this.http.get(`http://localhost:3000/db-writer/get-qrcode/${login}`, { responseType: 'text' })
+  }
+
+  verify2fa(body: any){
+    return this.http.post(`http://localhost:3000/auth/verify2fa`, body, this.basicHeaders);
+  }
+
+  getDataUser(login:string){
+    return this.http.get(`http://localhost:3000/db-writer/data/${login}`)
   }
 }
