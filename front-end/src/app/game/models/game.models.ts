@@ -14,6 +14,7 @@ class Ball {
   velX?: number;
   velY?: number;
   radius?: number;
+  isVisible?: boolean;
 }
 
 export class Player {

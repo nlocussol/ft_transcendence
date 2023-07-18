@@ -7,8 +7,7 @@
     <div>
       <button (click)="enterQueueClassic()" id="searchBtn" *ngIf="!inGame && !searchingGame">FIND CLASSIC GAME</button>
       <button (click)="enterQueueCustom()" id="searchBtn" *ngIf="!inGame && !searchingGame">FIND CUSTOM GAME</button>
-      <button (click)="leaveQueue()" id="searchBtn" *ngIf="searchingGame && !inGame">CANCEL QUEUE</button>
-      <p *ngIf="searchingGame">{{ queueTimeElapsed }}</p>
+      <button (click)="leaveQueue()" id="searchBtn" *ngIf="searchingGame && !inGame">CANCEL QUEUE {{ queueTimeElapsed }}</button>
       <br />
       <br />
     </div>

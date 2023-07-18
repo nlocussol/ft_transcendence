@@ -12,7 +12,7 @@ const GAME_WIDTH = 858,
   PLAYER_INITIAL_SPEED = 5,
   OFFSET_FROM_WALL = 10,
   MAX_SCORE = 1,
-  MAX_AFK_TIME = 20;
+  MAX_AFK_TIME = 10;
 
 @Injectable()
 export class GameService {
@@ -80,6 +80,13 @@ export class GameService {
       }
       game.ball.posX += game.ball.velX;
       game.ball.posY += game.ball.velY;
+      if (game.customGameMod) {
+        if (game.ball.posX > 301 && game.ball.posX < 557) {
+          game.ball.isVisible = false;
+        } else {
+          game.ball.isVisible = true;
+        }
+      }
       this.handleCollision(game);
     }
   }
@@ -148,6 +155,12 @@ export class GameService {
   }
 
   handleBallBounce(game: GameData) {
+    if (game.customGameMod) {
+      game.ball.velX *= 1.1;
+      game.ball.velY *= 1.1;
+      game.players[0].velY +=1;
+      game.players[1].velY +=1;
+    }
     if (game.ball.velX < 0) {
       game.ball.velX *= -1;
       const middlePaddleY = game.players[0].posY + game.players[0].height / 2;
@@ -173,6 +186,8 @@ export class GameService {
       game.ball.velX = -BALL_INITIAL_SPEED;
     }
     game.ball.velY = 0;
+    game.players[0].velY = PLAYER_INITIAL_SPEED;
+    game.players[1].velY = PLAYER_INITIAL_SPEED;
   }
 
   handleGameFinish(game: GameData) {
@@ -181,7 +196,9 @@ export class GameService {
     game.ball.canMove = false;
     game.players[0].canMove = false;
     game.players[1].canMove = false;
-    this.dbWriteService.fillMatchHistory(game);
+    if (!game.customGameMod) {
+      this.dbWriteService.fillMatchHistory(game);
+    }
     clearInterval(game.intervalID);
     setTimeout(() => {
       const gameIndex = this.gameInProgress.indexOf(game, 0);
@@ -306,4 +323,5 @@ export class GameService {
     newGame.players[1].login = gameData.player2;
     newGame.players[1].pseudo = gameData.player2pseudo;
   }
+
 }

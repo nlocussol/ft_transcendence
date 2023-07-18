@@ -94,7 +94,6 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
     let clientIndex = this.clientQueue.indexOf(client, 0);
     if (clientIndex >= 0) {
       this.clientQueue.splice(clientIndex, 1);
-      console.log(this.clientQueue);
       return;
     }
     clientIndex = this.clientCustomQueue.indexOf(client, 0);
