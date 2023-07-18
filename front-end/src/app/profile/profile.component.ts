@@ -106,17 +106,18 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.profileService.addFriend(bodyToSend).subscribe();
         break;
       case 'REQUEST_MATCH':
-        bodyToSend = {
-          uuid: crypto.randomUUID(),
-          player1: this.login,
-          player1pseudo: this.pseudo,
-          player2: body.login,
-          // NATHAN : Need other player pseudo here stp
-          player2pseudo: body.pseudo
-        };
-        this.profileService.sendPrivateGameData(bodyToSend).subscribe(() => {
-          this.router.navigate(['/game']);
-        });
+        this.profileService.getProfileData(body.login).subscribe((friendData: UserData) => {
+          bodyToSend = {
+            uuid: crypto.randomUUID(),
+            player1: this.login,
+            player1pseudo: this.pseudo,
+            player2: body.login,
+            player2pseudo: friendData.pseudo
+          };
+          this.profileService.sendPrivateGameData(bodyToSend).subscribe(() => {
+            this.router.navigate(['/game']);
+          });
+        })
         break;
 
       case 'ROOM_INVITE':
@@ -170,7 +171,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   newNotif() {
     this.socket.on('receive-notif', (data: Notif) => {
-      if (data.friend === this.pseudo || (data.friend === this.login && data.type != 'REQUEST_MATCH')) {
+      console.log(data);
+      if (data.friend === this.pseudo || data.friend === this.login) {
         if (!this.notifs) this.notifs = [];
         if (data.login) this.notifs.push(data);
       }
