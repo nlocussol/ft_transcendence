@@ -171,7 +171,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   newNotif() {
     this.socket.on('receive-notif', (data: Notif) => {
-      console.log(data);
       if (data.friend === this.pseudo || data.friend === this.login) {
         if (!this.notifs) this.notifs = [];
         if (data.login) this.notifs.push(data);

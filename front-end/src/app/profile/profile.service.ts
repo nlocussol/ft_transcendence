@@ -34,7 +34,7 @@ export class ProfileService implements OnInit {
   }
 
   addFriend(body: any) {
-    return this.http.post('http://localhost:3000/db-writer/add-friend/', body, this.basicHeaders)
+    return this.http.post('http://localhost:3000/db-writer/add-friend/', body, {'responseType': 'text'})
   }
 
   getProfileData(login: string) {
