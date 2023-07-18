@@ -49,7 +49,7 @@ export class AuthHandlerComponent implements OnInit, OnDestroy {
   }
 
   getUserDataFrom42(res: string) {
-    this.authHandlerService.getUserData(res).subscribe({
+    this.authHandlerService.getUserDataFrom42(res).subscribe({
       next: (res) => this.handleConnexion(res),
       error: (err) => console.log(err),
     });
@@ -58,8 +58,8 @@ export class AuthHandlerComponent implements OnInit, OnDestroy {
   allowTowFa() {
     this.twoFa = true;
     this.authHandlerService.getQrCode(this.login).subscribe((img: any) => {
-        this.qrcode = img;
-      });
+      this.qrcode = img;
+    });
   }
 
   verifyPin() {
@@ -67,20 +67,19 @@ export class AuthHandlerComponent implements OnInit, OnDestroy {
       pin: this.pin,
       login: this.login,
     };
-    this.authHandlerService.verify2fa(body)
-      .subscribe((verify: any) => {
-        if (verify) {
-          this.authHandlerService.getJwt(this.login).subscribe(() => {
-            Emitters.authEmitter.emit(true);
-            //add to error
-            this.socket.emit('user-change-status', {
-              login: this.login,
-              status: 'ONLINE',
-            });
-            this.router.navigate(['/profile']);
+    this.authHandlerService.verify2fa(body).subscribe((verify: any) => {
+      if (verify) {
+        this.authHandlerService.getJwt(this.login).subscribe(() => {
+          Emitters.authEmitter.emit(true);
+          //add to error
+          this.socket.emit('user-change-status', {
+            login: this.login,
+            status: 'ONLINE',
           });
-        }
-      });
+          this.router.navigate(['/profile']);
+        });
+      }
+    });
   }
 
   handleConnexion(res: any) {
@@ -92,12 +91,11 @@ export class AuthHandlerComponent implements OnInit, OnDestroy {
     };
 
     this.login = res.login;
-    this.authHandlerService.getDataUser(this.login)
-      .subscribe((res: any) => {
-        this.twoFa = res.doubleAuth;
-      });
+    this.authHandlerService.getDataUser(this.login).subscribe((res: any) => {
+      this.twoFa = res.doubleAuth;
+    });
 
-    this.authHandlerService.sendLogin(this.login).subscribe({
+    this.authHandlerService.getUserDataFromDb(this.login).subscribe({
       next: () => {
         if (this.twoFa) this.allowTowFa();
         else {
@@ -134,33 +132,49 @@ export class AuthHandlerComponent implements OnInit, OnDestroy {
             if (res.file) {
               const imageData: FormData = new FormData();
               imageData.append('file', res.fileSource, res.fileSource.name);
-              this.profileService.uploadImage(imageData, userData.login).subscribe((res:any) => {
-                userData.pp = res.name
-                this.authHandlerService.createUser(userData).subscribe((res) => {
-                  this.authHandlerService.sendLogin(userData.login).subscribe({
-                    next: () => {
-                      this.authHandlerService.getJwt(userData.login).subscribe(res => {
-                        Emitters.authEmitter.emit(true)
-                        this.router.navigate(['/profile'])
-                      })
-                    }
-                  })
-                })
-              });
+              this.profileService
+                .uploadImage(imageData, userData.login)
+                .subscribe((res: any) => {
+                  userData.pp = res.name;
+                  this.authHandlerService
+                    .createUser(userData)
+                    .subscribe((res) => {
+                      this.authHandlerService
+                        .getUserDataFromDb(userData.login)
+                        .subscribe({
+                          next: () => {
+                            this.authHandlerService
+                              .getJwt(userData.login)
+                              .subscribe((res) => {
+                                Emitters.authEmitter.emit(true);
+                                this.router.navigate(['/profile']);
+                              });
+                          },
+                        });
+                    });
+                });
             } else {
-              this.authHandlerService.sendIntraProfilePicUrl(userData.login, userData.pp).subscribe((ppUrl) => {
-                userData.pp = ppUrl;
-                this.authHandlerService.createUser(userData).subscribe((res) => {
-                  this.authHandlerService.sendLogin(userData.login).subscribe({
-                    next: () => {
-                      this.authHandlerService.getJwt(userData.login).subscribe(res => {
-                        Emitters.authEmitter.emit(true)
-                        this.router.navigate(['/profile'])
-                      })
-                    }
-                  })
-                })
-              })
+              this.authHandlerService
+                .sendIntraProfilePicUrl(userData.login, userData.pp)
+                .subscribe((ppUrl) => {
+                  userData.pp = ppUrl;
+                  this.authHandlerService
+                    .createUser(userData)
+                    .subscribe((res) => {
+                      this.authHandlerService
+                        .getUserDataFromDb(userData.login)
+                        .subscribe({
+                          next: () => {
+                            this.authHandlerService
+                              .getJwt(userData.login)
+                              .subscribe((res) => {
+                                Emitters.authEmitter.emit(true);
+                                this.router.navigate(['/profile']);
+                              });
+                          },
+                        });
+                    });
+                });
             }
           });
         }

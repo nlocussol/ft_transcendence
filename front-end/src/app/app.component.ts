@@ -9,10 +9,8 @@ import { environment } from 'src/environment';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit, OnDestroy{
+export class AppComponent implements OnInit{
   authenticated: boolean = false;
-  title = 'CORSE PONG';
-  socket!: Socket;
   login!: string;
   constructor(private homeService: HomeService) {}
   
@@ -25,16 +23,14 @@ export class AppComponent implements OnInit, OnDestroy{
 
   ngOnInit(): void {
     this.homeService.getUser().subscribe({
-      next: () => {
+      next: (res) => {
+        this.login = res.login;
+        console.log(this.login)
         Emitters.authEmitter.emit(true);
     },
       error: () => {
         Emitters.authEmitter.emit(false);
       }
     })
-  }
-
-  ngOnDestroy(): void {
-  //   this.socket.disconnect()
   }
 }
