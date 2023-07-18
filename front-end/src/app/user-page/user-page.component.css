@@ -113,7 +113,7 @@
   padding: 5% 5%;
   letter-spacing: 0.05rem;
   margin: 1em;
-  width: 13rem;
+  width: 50%;
 }
 
 .btn:focus {
@@ -198,4 +198,13 @@
 
 #notFound{
   color: red;
+}
+
+em{
+  margin-right: 5%;   
+  margin-left: 5%;   
+}
+
+h4, #winnerName{
+  display: flex;
 }

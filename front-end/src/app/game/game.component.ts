@@ -36,7 +36,8 @@ export class GameComponent implements OnInit, OnDestroy {
   context!: CanvasRenderingContext2D;
   width: number = 858;
   height: number = 525;
-  // heightDiff: number = 0;
+  heightDiff: number = 0.5859375;
+  widthDiff: number = 0.446875;
   heightInit: number = 525;
   widthInit: number = 858;
   gameData: GameData = new GameData();
@@ -335,16 +336,14 @@ export class GameComponent implements OnInit, OnDestroy {
 
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
-    if (
-      this.inGame === false ||
-      event.target.innerWidth < 1500 ||
-      event.target.innerHeight < 1000
-    )
-      return;
+    if (this.inGame === false
+      || event.target.innerWidth < 500 || event.target.innerHeight < 250)
+      return ;
+
     this.widthPercent =
-      (event.target.innerWidth - this.widthInit) / this.widthInit;
+      (event.target.innerWidth * this.widthDiff) / this.widthInit;
     this.heightPercent =
-      (event.target.innerHeight - this.heightInit) / this.heightInit;
+      (event.target.innerHeight *  this.heightDiff) / this.heightInit;
     this.width = this.widthInit * this.widthPercent;
     this.height = this.heightInit * this.heightPercent;
   }

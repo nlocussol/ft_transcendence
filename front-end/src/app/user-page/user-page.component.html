@@ -19,8 +19,8 @@
         <ul id="matchlist">
             <li class="history" *ngFor="let match of history.reverse()">
                 <h4 id="nameMatch"> <em>{{ pseudo }}</em> vs <em>{{ match.opponent }}</em></h4>
-                <h6> {{ match.ownScore }} at {{ match.opponentScore }}</h6>
-                <h6> The winner was <em>{{ match.winner }}</em></h6>
+                <h6> {{ match.ownScore }} : {{ match.opponentScore }}</h6>
+                <h6 id="winnerName"> The winner was <em>{{ match.winner }}</em></h6>
                 <br/>
             </li>
           </ul>
