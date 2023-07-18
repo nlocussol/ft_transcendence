@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { environment } from 'src/environment';
 import { Socket, io } from 'socket.io-client';
-import { Friend, UserData } from '../chat-room/interfaces/interfaces';
+import { Friend, JoinLeaveRoom, RoomMessage, UserData } from '../chat-room/interfaces/interfaces';
 import { Notif, addFriend } from './interfaces/interfaces';
 import { HomeService } from '../home/service/home.service';
 import { Router } from '@angular/router';
@@ -120,12 +120,20 @@ export class ProfileComponent implements OnInit, OnDestroy {
         break;
 
       case 'ROOM_INVITE':
-        bodyToSend = {
-          name: body.name,
-          login: this.login,
-          pseudo: this.pseudo,
-        };
-        this.roomService.addUserToRoom(body).subscribe();
+        if (body.name) {
+          bodyToSend = {
+            pseudo: this.pseudo,
+            login: this.login,
+            name: body.name,
+          }
+          this.socket.emit('request-join-room', bodyToSend)
+          const bodyMessage: RoomMessage = {
+            sender: 'BOT',
+            name: body.name,
+            content: `${this.pseudo} has join the room!`,
+          }  
+          this.socket.emit('add-room-msg', bodyMessage);
+        }
         break;
     }
     this.notifs.splice(
@@ -170,6 +178,11 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   handleFriendSubmit() {
+    if (this.pseudoFriend === this.pseudo) {
+      console.log('You can not send friend request to yourself');
+      this.pseudoFriend = '';
+      return 
+    }
     const body = {
       friend: this.pseudoFriend,
       login: this.login,
@@ -180,11 +193,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
       this.profileData = userData
       if (userData.friends.find((friend: Friend) => friend.name === body.friend)) {
         console.log(body.friend, 'is already your friend!');
+        this.pseudoFriend = '';
         return;
-      } else if (this.pseudoFriend === this.pseudo) {
-        console.log('You can not send friend request to yourself');
-        return;
-      }
+      } 
       this.socket.emit('send-notif', body);
     })
     this.pseudoFriend = '';
