@@ -234,9 +234,3 @@ button.active {
   -webkit-text-fill-color: transparent;
   transition: all 265ms ease-in;
 }
-
-.user-status {
-  display: grid;
-  grid-gap: 20px;
-  font-size: 1.2em;
-}

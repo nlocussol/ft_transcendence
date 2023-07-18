@@ -5,9 +5,6 @@
         <img [src]="ppUrl" class="card__image">
       </label>
       <p class="card__name">{{ pseudo }}</p>
-      <div class="user-status">
-        Status: {{ status }}
-      </div>
       <form class="btn draw-border" (ngSubmit)="changeUsername()" #profileForm="ngForm">
         <label for="newPseudo">Change pseudo: </label><br>
         <input type="text" id="newPseudo" name="newPseudo" [(ngModel)]="newPseudo" required>

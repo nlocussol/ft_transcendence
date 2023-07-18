@@ -45,7 +45,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.homeService.getUser().subscribe(res => {
-      this.memberOptions = ['watch profil', '1v1 match', 'Friend Invite'];
+        this.memberOptions = ['watch profil', '1v1 match', 'Friend Invite'];
       this.joined = false;
       this.allRoomChecked = false;
       this.roomStatus = 'PROTECTED';
@@ -104,6 +104,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
       this.socket.on('has-leave-room', (data: JoinLeaveRoom) => {
         const ownerOfRoom: number = this.rooms.findIndex(room => room.owner === data.login)
         if (ownerOfRoom >= 0) {
+          console.log('here');
           this.rooms.splice(ownerOfRoom, 1)
           this.joined = false;
           this.selectedRoom = null;
@@ -145,8 +146,10 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
       })
 
       this.socket.on('room-status-changed', (data: any) => {
-        if (this.selectedRoom && this.selectedRoom.name === data.name)
+        if (this.selectedRoom && this.selectedRoom.name === data.name) {
           this.selectedRoom.status = data.status
+          this.roomStatus = data.status
+        }
         let room = this.rooms.findIndex(room => room.name === data.name)
         this.rooms[room].status = data.status
       })
@@ -174,7 +177,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
       status: this.selectedStatus,
       pwd: this.newPwd,
     }    
-    this.roomService.changeRoomStatus(body).subscribe()
+    this.socket.emit('room-change-status', body)
     this.selectedStatus = '';
     this.newPwd = '';
   }
@@ -430,6 +433,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
   }
 
   onCheckboxChange() {
+    console.log(this.login);
     this.selectedRoom = null;
     if (this.allRoomChecked)
       this.roomService.getAllRoom(null).subscribe((rooms: Room[]) => this.rooms = rooms)
