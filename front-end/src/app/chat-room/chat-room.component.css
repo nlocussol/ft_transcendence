@@ -84,7 +84,6 @@ button[type="submit"]:hover {
 }
 
 .room {
-  /* width: calc(100px + 1.5vw); */
   width: 100%;
   height: calc(20px + 1.5vh);
   border: 1px solid teal;
@@ -115,6 +114,8 @@ button[type="submit"]:hover {
 }
 
 .chat {
+  margin-left: 1vh;
+  margin-right: 1vh;
   flex: 1;
   border: 1px solid teal;
   padding: 2vh;
