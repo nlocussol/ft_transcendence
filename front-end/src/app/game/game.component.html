@@ -4,7 +4,7 @@
   <div *ngIf="inGame" id="textDiv">{{gameData.players[0].pseudo}} VS {{gameData.players[1].pseudo}}</div>
 
   <div *ngIf="loguedIn">
-    <div>
+    <div *ngIf="!privateGameInvit">
       <button (click)="enterQueueClassic()" id="searchBtn" *ngIf="!inGame && !searchingGame">FIND CLASSIC GAME</button>
       <button (click)="enterQueueCustom()" id="searchBtn" *ngIf="!inGame && !searchingGame">FIND CUSTOM GAME</button>
       <button (click)="leaveQueue()" id="searchBtn" *ngIf="searchingGame && !inGame">CANCEL QUEUE {{ queueTimeElapsed }}</button>
