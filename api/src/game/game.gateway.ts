@@ -93,12 +93,13 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
   removePlayerFromQueue(client: Client) {
     let clientIndex = this.clientQueue.indexOf(client, 0);
     if (clientIndex >= 0) {
-      this.clientQueue.splice(clientIndex, 0);
+      this.clientQueue.splice(clientIndex, 1);
+      console.log(this.clientQueue);
       return;
     }
     clientIndex = this.clientCustomQueue.indexOf(client, 0);
     if (clientIndex >= 0) {
-      this.clientQueue.splice(clientIndex, 0);
+      this.clientCustomQueue.splice(clientIndex, 1);
       return;
     }
   }
@@ -124,8 +125,9 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
       this.clientCustomQueue.find((c) => c.socket.id == socket.id) != undefined
     ) {
       return;
-    }
-    if (this.clientQueue.find((c) => c.socket.id == socket.id) != undefined) {
+    } else if (
+      this.clientQueue.find((c) => c.socket.id == socket.id) != undefined
+    ) {
       return;
     }
 
@@ -147,10 +149,8 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
       return;
     }
     if (queueType === 'classic') {
-      if (this.clientQueue.find((c) => c.login == client.login) == undefined) {
-        client.state = 'queueing';
-        this.clientQueue.push(client);
-      }
+      client.state = 'queueing';
+      this.clientQueue.push(client);
     } else if (queueType === 'custom') {
       client.state = 'queueing';
       this.clientCustomQueue.push(client);
@@ -168,6 +168,7 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
       game.players[0].login = client.login;
       game.players[0].pseudo = client.pseudo;
       client.socket.join(game.matchUUID);
+      
 
       client = this.clientQueue.shift();
       client.room = game.matchUUID;

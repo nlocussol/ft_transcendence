@@ -67,6 +67,7 @@ export class GameComponent implements OnInit, OnDestroy {
         this.login = res.login;
         this.loguedIn = true;
         this.gameService.connectToSocket(this.login as string, res.pseudo);
+        this.gameService.connectToStatusWS();
         this.autoReconnectInterval = setInterval(
           () =>
             this.gameService.autoReconnect(res.login).subscribe({
@@ -104,6 +105,7 @@ export class GameComponent implements OnInit, OnDestroy {
     clearInterval(this.movePlayerInterval);
     clearInterval(this.autoReconnectInterval);
     this.gameService.disconnectFromSocket();
+    this.gameService.disconnectFromStatusWS();
   }
 
   enterQueueClassic() {
@@ -129,6 +131,7 @@ export class GameComponent implements OnInit, OnDestroy {
       if (!this.loadOnce) {
         this.searchingGame = false;
         this.inGame = true;
+        this.gameService.updateMyStatus(this.login!, 'IN_GAME');
         this.startAnimationFrame();
         this.movePlayer();
         this.loadOnce = true;
@@ -181,8 +184,9 @@ export class GameComponent implements OnInit, OnDestroy {
     // Draw players
     if (!customGameMod) {
       this.context.fillStyle = hsl + this.gameData.fieldColor + hueWhiteValues;
-    }  else {
-      this.context.fillStyle = hsl + this.gameData.detailsColor + hueCustomDetails;
+    } else {
+      this.context.fillStyle =
+        hsl + this.gameData.detailsColor + hueCustomDetails;
     }
     this.context.fillRect(
       this.gameData?.players[0].posX! * this.widthPercent,
@@ -242,8 +246,8 @@ export class GameComponent implements OnInit, OnDestroy {
 
     this.context.fillStyle = 'white';
     this.context.font = this.fontSize + "px 'PressStart2P'";
-    this.context.fillText('Winner', 50, this.height * 0.1);
-    this.context.fillText('Loser', this.width / 2 + 50, this.height * 0.1);
+    this.context.fillText('WINNER', 50, this.height * 0.1);
+    this.context.fillText('LOSER', this.width / 2 + 50, this.height * 0.1);
     if (this.gameData?.players[0].score! > this.gameData?.players[1].score!) {
       this.context.fillText(
         String(this.gameData?.players[0].pseudo),
@@ -288,6 +292,7 @@ export class GameComponent implements OnInit, OnDestroy {
     this.stopAnimationFrame();
     this.drawEndGame();
     this.gameData.players.splice(0, 2);
+    this.gameService.updateMyStatus(this.login!, 'ONLINE');
     // setTimeout(() => {
     //   this.stopAnimationFrame()
     //   this.context.fillStyle = 'black';
