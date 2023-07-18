@@ -8,18 +8,20 @@ import { BehaviorSubject, EMPTY, catchError } from 'rxjs';
   providedIn: 'root',
 })
 export class GameService {
-  private readonly API_ENDPOINT = 'http://localhost:3000/game';
+  private readonly API_GAME_WEBSOCKET = 'http://localhost:3000/game';
+  private readonly API_WEBSOCKET = 'http://localhost:3000';
   socket: any;
+  socketUpdateStatus: any;
   payload$: BehaviorSubject<GameData> = new BehaviorSubject<GameData>(
     new GameData()
   );
   constructor(private http: HttpClient) {}
 
   connectToSocket(login: string, pseudo: string) {
-    this.socket = io(this.API_ENDPOINT, {
+    this.socket = io(this.API_GAME_WEBSOCKET, {
       auth: {
         login: login,
-        pseudo: pseudo
+        pseudo: pseudo,
       },
     });
   }
@@ -56,10 +58,23 @@ export class GameService {
   }
 
   autoReconnect(login: string) {
-    return this.http.get(`http://localhost:3000/game/${login}`, {
-      responseType: 'text',
-    }).pipe(
-      catchError(e => EMPTY)
-    )
+    return this.http
+      .get(`http://localhost:3000/game/${login}`, {
+        responseType: 'text',
+      })
+      .pipe(catchError((e) => EMPTY));
+  }
+
+  connectToStatusWS() {
+    this.socketUpdateStatus = io(this.API_WEBSOCKET);
+  }
+
+  updateMyStatus(login: string, status: string) {
+    const toSend = { login: login, status: status };
+    this.socketUpdateStatus.emit('user-change-status', toSend);
+  }
+
+  disconnectFromStatusWS() {
+    this.socketUpdateStatus.disconnect();
   }
 }

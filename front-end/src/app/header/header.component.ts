@@ -3,8 +3,6 @@ import { Emitters } from '../emitters/emitters';
 import { HeaderService } from './header.service';
 import { Socket, io } from 'socket.io-client';
 import { environment } from 'src/environment';
-import { Notif, UserData } from '../chat-room/interfaces/interfaces';
-import { HttpClient } from '@angular/common/http';
 import { HomeService } from '../home/service/home.service';
 
 @Component({
@@ -20,7 +18,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   constructor(
     private headerService: HeaderService,
-    private http: HttpClient,
     private homeService: HomeService,
   ) {
     this.socket = io(environment.SOCKET_ENDPOINT);
