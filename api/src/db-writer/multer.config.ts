@@ -8,6 +8,7 @@ export const multerOptions = {
     destination: '/usr/src/app/upload',
     filename: (req, file, cb) => {
       const profilePicName = req.url.substring(req.url.lastIndexOf('/') + 1) + extname(file.originalname);
+        console.log(profilePicName);
         cb(null, profilePicName); // Save the file with its original name
     },
   }),

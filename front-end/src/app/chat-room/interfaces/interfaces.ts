@@ -34,6 +34,7 @@ export interface JoinLeaveRoom {
 export interface Message {
     sender: string,
     content: string,
+    pseudo?: string,
 }
 
 export interface Room {

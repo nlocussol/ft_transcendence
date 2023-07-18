@@ -90,7 +90,6 @@ button[type="submit"]:hover {
   cursor: pointer;
   display: flex;
   align-items: center;
-  overflow: scroll;
   background-color: darkblue;
 }
 
@@ -177,14 +176,6 @@ button[type="submit"]:hover {
   color: white;
   border: teal;
 }
-
-  /*
-  background-color: darkblue;
-  color: white;
-  border: teal;
-  margin-right: 1vw;
-  margin-bottom: 1vh; 
-  */
 
 .members {
   margin-right: 1vw;

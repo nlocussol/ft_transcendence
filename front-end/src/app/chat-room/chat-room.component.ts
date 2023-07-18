@@ -147,7 +147,8 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
       this.socket.on('room-status-changed', (data: any) => {
         if (this.selectedRoom && this.selectedRoom.name === data.name) {
           this.selectedRoom.status = data.status
-          this.roomStatus = data.status
+          if (this.roomStatus != 'PUBLIC')
+            this.roomStatus = data.status
         }
         let room = this.rooms.findIndex(room => room.name === data.name)
         this.rooms[room].status = data.status
@@ -308,13 +309,20 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
     }
     if (!userToAddRoom)
       return ;
-    const body = {
-      name: this.selectedRoom?.name,
-      friend: userToAddRoom,
-      content: `${this.login} has invited you to join the ${this.selectedRoom?.name} room!`,
-      type: "ROOM_INVITE"
+    console.log(this.friendsToInvite);
+    const friendPP = this.friendsToInvite.find(friend => friend.name === userToAddRoom)?.pp as string
+    const friendLogin = friendPP.substring(0, friendPP.lastIndexOf('.'))
+    console.log(friendLogin);
+    if (friendLogin) {
+      const body = {
+        name: this.selectedRoom?.name,
+        friend: friendLogin,
+        login: this.login,
+        content: `${this.pseudo} has invited you to join the ${this.selectedRoom?.name} room!`,
+        type: "ROOM_INVITE"
+      }
+      this.socket.emit('send-notif', body);
     }
-    this.socket.emit('send-notif', body);
   }
 
   async onClickRoom(room: Room) {
@@ -363,9 +371,11 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
         if (roomData.messages[i].sender != 'BOT') {
           this.profileService.getProfileData(roomData.messages[i].sender).subscribe((newMemberData: UserData) => {
             if (this.selectedRoom)
-              roomData.messages[i].sender = newMemberData.pseudo
+              roomData.messages[i].pseudo = newMemberData.pseudo
           })
         }
+        else if (roomData.messages[i].sender === 'BOT')
+          roomData.messages[i].pseudo = 'BOT'
       }
       this.conversation = roomData.messages
     })
@@ -403,7 +413,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
     if (this.selectedRoom && this.selectedRoom.status != 'PRIVATE') {
       this.joined = true;
       const body: JoinLeaveRoom = {
-        pseudo: this.login,
+        pseudo: this.pseudo,
         login: this.login,
         name: this.selectedRoom?.name,
       }    

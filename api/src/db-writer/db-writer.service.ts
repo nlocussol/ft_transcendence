@@ -297,10 +297,12 @@ export class DbWriterService {
             console.log("changeUserPp: The user does not exist");
             return null;
       }
-      fs.unlink(`/usr/src/app/upload/${currentUser.pp}`, (err) => {
-          if (err)
-              console.log(`changeUserPp: can't delete ${currentUser.pp}`)
-      });
+      if (currentUser.pp !== newPp.newPp) {
+        fs.unlink(`/usr/src/app/upload/${currentUser.pp}`, (err) => {
+            if (err)
+                console.log(`changeUserPp: can't delete ${currentUser.pp}`)
+        });
+      }
         // change the current pp to the new one
         currentUser.pp = newPp.newPp;
         await this.userRepository.save(currentUser)
@@ -414,9 +416,12 @@ export class DbWriterService {
       const currentUser = await this.userRepository.findOneBy({
           login: newNotif.friend,
       });
+      const currentPseudo = await this.userRepository.findOneBy({
+        pseudo: newNotif.friend,
+      });
       if (!newNotif.friend || !newNotif.friend.length)
         return null;
-      if (!currentUser){
+      if (!currentUser && !currentPseudo){
           console.log("addNotif: The user does not exist");
           return null;
       }
@@ -425,8 +430,14 @@ export class DbWriterService {
         type: newNotif.type,
         content: newNotif.content,
       }
-      currentUser.notif.push(notif);
-      await this.userRepository.save(currentUser)
+      if (currentUser) {
+        currentUser.notif.push(notif);
+        await this.userRepository.save(currentUser)
+      }
+      else if (currentPseudo) {
+        currentPseudo.notif.push(notif);
+        await this.userRepository.save(currentPseudo)
+      }
       return true;
         // change the current 2fa setting to the new one
     
