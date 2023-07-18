@@ -43,10 +43,10 @@
           <div class="chat-messages" *ngIf="roomStatus === 'PUBLIC' && conversation">
             <div *ngFor="let message of conversation.reverse()" class="message">
               <div *ngIf="!isBlocked(message.sender)">
-                <span class="sender"><em>{{ message.sender }}</em></span>: {{ message.content }}
+                <span class="sender"><em>{{ message.pseudo }}</em></span>: {{ message.content }}
               </div>
               <div *ngIf="isBlocked(message.sender)">
-                <span class="sender"><em>{{ message.sender }}</em></span>: You blocked this user!
+                <span class="sender"><em>{{ message.pseudo }}</em></span>: You blocked this user!
               </div>
             </div>
           </div>

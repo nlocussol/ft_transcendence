@@ -147,7 +147,8 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
       this.socket.on('room-status-changed', (data: any) => {
         if (this.selectedRoom && this.selectedRoom.name === data.name) {
           this.selectedRoom.status = data.status
-          this.roomStatus = data.status
+          if (this.roomStatus != 'PUBLIC')
+            this.roomStatus = data.status
         }
         let room = this.rooms.findIndex(room => room.name === data.name)
         this.rooms[room].status = data.status
@@ -370,9 +371,11 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
         if (roomData.messages[i].sender != 'BOT') {
           this.profileService.getProfileData(roomData.messages[i].sender).subscribe((newMemberData: UserData) => {
             if (this.selectedRoom)
-              roomData.messages[i].sender = newMemberData.pseudo
+              roomData.messages[i].pseudo = newMemberData.pseudo
           })
         }
+        else if (roomData.messages[i].sender === 'BOT')
+          roomData.messages[i].pseudo = 'BOT'
       }
       this.conversation = roomData.messages
     })
