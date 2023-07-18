@@ -7,6 +7,7 @@ import { Message, UserData, Friend } from '../chat-room/interfaces/interfaces';
 import { HomeService } from '../home/service/home.service';
 import { ProfileService } from '../profile/profile.service';
 import { MessageService } from './message.service';
+import { DataService } from '../services/data.service';
 
 @Component({
   selector: 'app-message',
@@ -24,6 +25,7 @@ export class MessageComponent implements OnInit, OnDestroy {
   socket!: Socket;
   newMessageObj!: Message;
   blockedYou: boolean = false;
+  privateGameInvit: boolean = false;
 
   ngOnInit(): void {
     this.homeService.getUser().subscribe(res => {
@@ -41,7 +43,8 @@ export class MessageComponent implements OnInit, OnDestroy {
     this.socket.disconnect()
   }
 
-  constructor(private homeService: HomeService, private router: Router, private profileService: ProfileService, private messageService: MessageService) {}
+  constructor(private homeService: HomeService, private router: Router, private profileService: ProfileService, private messageService: MessageService,
+    private dataService: DataService) {}
 
   deletedFriend() {
     this.socket.on('friend-deleted', data => {
@@ -120,6 +123,7 @@ export class MessageComponent implements OnInit, OnDestroy {
       content: `${this.pseudo} challenges you to a pong duel!`,
       type: 'REQUEST_MATCH'
     }
+    this.dataService.setPrivateGameInvit(true);
     this.socket.emit('send-notif', bodyInviteMatch);
     this.router.navigate(['/game']);
   }

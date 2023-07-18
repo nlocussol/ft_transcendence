@@ -2,19 +2,18 @@ import {
   Component,
   ElementRef,
   HostListener,
+  Input,
   OnDestroy,
   OnInit,
+  Output,
   ViewChild,
 } from '@angular/core';
 import { GameService } from './service/game.service';
-import { GameData, movement, Player } from './models/game.models';
-import { Socket } from 'socket.io-client';
-import { FontFaceSet } from 'css-font-loading-module';
+import { GameData, movement} from './models/game.models';
+import { FontFaceSet } from 'css-font-loading-module'; // DO NOT REMOVE THIS ONE
 import { MatDialog } from '@angular/material/dialog';
-import { Dialog } from '@angular/cdk/dialog';
 import { DialogNotLoguedComponent } from '../dialog-not-logued/dialog-not-logued.component';
-import { EMPTY, Subject, map } from 'rxjs';
-import { Emitters } from '../emitters/emitters';
+import { DataService } from '../services/data.service';
 
 const TICKRATE = 15,
   hsl = 'hsl(',
@@ -61,12 +60,15 @@ export class GameComponent implements OnInit, OnDestroy {
   autoReconnectInterval: any;
   imgJul = new Image();
   imgNinho = new Image();
+  privateGameInvit!: boolean;
 
-  constructor(private gameService: GameService, private dialog: MatDialog) {}
+  constructor(private gameService: GameService, private dialog: MatDialog, private dataService: DataService) {}
 
   ngOnInit(): void {
     this.imgJul.src = '../assets/JUL.jpg';
     this.imgNinho.src = '../assets/NINHO.jpeg';
+    this.privateGameInvit = this.dataService.getPrivateGameInvit();
+    console.log("ICIGROSFDP  ",this.privateGameInvit)
     this.gameService.getUser().subscribe({
       next: (res) => {
         this.login = res.login;

@@ -25,7 +25,6 @@ export class AppComponent implements OnInit{
     this.homeService.getUser().subscribe({
       next: (res) => {
         this.login = res.login;
-        console.log(this.login)
         Emitters.authEmitter.emit(true);
     },
       error: () => {
