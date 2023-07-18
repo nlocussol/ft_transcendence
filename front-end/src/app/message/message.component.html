@@ -5,7 +5,7 @@
   </div>
   <ul>
     <li class="friend" *ngFor="let friend of friends" [class.selected]="friend === selectedFriend" (click)="onClickFriend(friend)">
-      <button id="friendpp" type="submit" (click)=friendProfilePage(friend)>
+      <button *ngIf="friend.ppload === true" id="friendpp" type="submit" (click)=friendProfilePage(friend)>
         <img [src]="friend.pp" />
       </button>
       <div class="name">

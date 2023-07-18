@@ -159,10 +159,11 @@ export class MessageComponent implements OnInit, OnDestroy {
         this.profileService.getProfileData(this.friends[i].name).subscribe((friendData: UserData) => {
           this.friends[i].pseudo = friendData.pseudo;
           this.friends[i].status = friendData.status;
+          this.profileService.getProfilePic(this.friends[i].name).subscribe((ppData: Blob) => {
+            this.friends[i].pp = URL.createObjectURL(ppData);
+            this.friends[i].ppload = true;
+          });
         })
-        this.profileService.getProfilePic(this.friends[i].name).subscribe((ppData: Blob) => {
-          this.friends[i].pp = URL.createObjectURL(ppData);
-        });
       }
     })
   }

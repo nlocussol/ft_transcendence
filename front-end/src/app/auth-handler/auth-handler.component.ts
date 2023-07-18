@@ -6,8 +6,7 @@ import { DialogFirstLoginComponent } from '../dialog-first-login/dialog-first-lo
 import { Emitters } from '../emitters/emitters';
 import { Socket, io } from 'socket.io-client';
 import { environment } from 'src/environment';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import * as qrcode from 'qrcode';
+import { HttpClient } from '@angular/common/http';
 import { ProfileService } from '../profile/profile.service';
 
 @Component({
@@ -58,11 +57,7 @@ export class AuthHandlerComponent implements OnInit, OnDestroy {
 
   allowTowFa() {
     this.twoFa = true;
-    this.http
-      .get(`http://localhost:3000/db-writer/get-qrcode/${this.login}`, {
-        responseType: 'text',
-      })
-      .subscribe((img: any) => {
+    this.authHandlerService.getQrCode(this.login).subscribe((img: any) => {
         this.qrcode = img;
       });
   }
@@ -72,12 +67,7 @@ export class AuthHandlerComponent implements OnInit, OnDestroy {
       pin: this.pin,
       login: this.login,
     };
-    const headers = new HttpHeaders().set(
-      'Content-type',
-      `application/json; charset=UTF-8`
-    );
-    this.http
-      .post(`http://localhost:3000/auth/verify2fa`, body, { headers })
+    this.authHandlerService.verify2fa(body)
       .subscribe((verify: any) => {
         if (verify) {
           this.authHandlerService.getJwt(this.login).subscribe(() => {
@@ -102,8 +92,7 @@ export class AuthHandlerComponent implements OnInit, OnDestroy {
     };
 
     this.login = res.login;
-    this.http
-      .get(`http://localhost:3000/db-writer/data/${this.login}`)
+    this.authHandlerService.getDataUser(this.login)
       .subscribe((res: any) => {
         this.twoFa = res.doubleAuth;
       });

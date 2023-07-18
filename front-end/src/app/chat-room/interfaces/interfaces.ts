@@ -11,6 +11,7 @@ export interface Friend {
     pp: string,
     blocked: boolean,
     status?: string,
+    ppload?: boolean
 }
 
 export interface Passwords {

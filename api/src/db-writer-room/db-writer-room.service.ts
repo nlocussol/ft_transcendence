@@ -28,7 +28,7 @@ export class DbWriterRoomService {
          room.uuid = crypto.randomUUID();
          room.name = newRoom.name;
          room.owner = newRoom.owner;
-         console.log(newRoom.pwd);
+        //  console.log(newRoom.pwd);
          if (newRoom.pwd && newRoom.pwd !== ''){
             const hashPassword = await hash(newRoom.pwd, 10);
             newRoom.pwd = hashPassword;
@@ -60,11 +60,11 @@ export class DbWriterRoomService {
 
     async getAllRoomOfUser(userName: string){
         const allRooms = await this.roomRepository.find();
-        const allRoomsCp = await this.roomRepository.find();
+        const allRoomsCp: Room[] = []
 
         for (var tmp of allRooms){
-            if (!tmp.members.find(member => member.login === userName)) {
-                allRoomsCp.splice(allRoomsCp.indexOf(tmp), 1);
+            if (tmp.members.find(member => member.login === userName)) {
+                allRoomsCp.push(tmp)
             }
         }
         return allRoomsCp;

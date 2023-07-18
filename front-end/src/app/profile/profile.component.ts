@@ -79,6 +79,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.profileService.changeUserPseudo(body).subscribe((res: any) => {
       if (res) 
         this.pseudo = this.newPseudo;
+      this.newPseudo = ''
     })
   }
 

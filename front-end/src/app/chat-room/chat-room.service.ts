@@ -15,10 +15,6 @@ export class ChatRoomService {
     return this.http.get<Room>(`http://localhost:3000/db-writer-room/data-room/${room}`)
   }
 
-  changeRoomStatus(body: any) {
-    return this.http.post('http://localhost:3000/db-writer-room/change-status/', body, this.basicHeaders)
-  }
-    
   getAllRoom(login: string | null) {
     if (login)
       return this.http.get<Room[]>(`http://localhost:3000/db-writer-room/all-room/${login}`)

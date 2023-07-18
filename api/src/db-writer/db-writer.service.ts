@@ -260,6 +260,10 @@ export class DbWriterService {
     const newUserByPseudo = await this.userRepository.findOneBy({
       pseudo: newName.newPseudo,
     });
+    if (!newName.newPseudo || newName.newPseudo.length < 4 || newName.newPseudo.length > 16 ){
+      console.log('changeUserPseudo: The new username has a wrong length');
+      return null;
+    }
     if (
       (newUserByLogin && newUserByLogin.login !== newName.currentLogin) ||
       newUserByPseudo
