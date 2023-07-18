@@ -13,7 +13,7 @@ export class UserPageComponent{
   pseudo:string;
   ppUrl!: string;
   status!: string;
-  stats!: any;
+  stats: any = null;
   winRate!: string;
   history!: any[];
 
@@ -21,7 +21,6 @@ export class UserPageComponent{
     this.pseudo = "";
     this.route.params.subscribe(params => {
       this.pseudo = params['pseudo'];
-      console.log(this.pseudo)
     })
     this.getProfileData();
   }
