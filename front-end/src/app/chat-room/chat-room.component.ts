@@ -104,7 +104,6 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
       this.socket.on('has-leave-room', (data: JoinLeaveRoom) => {
         const ownerOfRoom: number = this.rooms.findIndex(room => room.owner === data.login)
         if (ownerOfRoom >= 0) {
-          console.log('here');
           this.rooms.splice(ownerOfRoom, 1)
           this.joined = false;
           this.selectedRoom = null;
@@ -433,7 +432,6 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
   }
 
   onCheckboxChange() {
-    console.log(this.login);
     this.selectedRoom = null;
     if (this.allRoomChecked)
       this.roomService.getAllRoom(null).subscribe((rooms: Room[]) => this.rooms = rooms)
