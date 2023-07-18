@@ -149,6 +149,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
       login: this.login,
       index: this.notifs.findIndex((notif) => notif === body),
     };
+    if (body.type === 'REQUEST_MATCH')
+      //ask to louis
     this.notifs.splice(
       this.notifs.findIndex((request) => body === request),
       1

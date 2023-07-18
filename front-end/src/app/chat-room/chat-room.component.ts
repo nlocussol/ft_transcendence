@@ -207,11 +207,14 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
           content: `${this.login} want to be your friend!`,
           type: 'REQUEST_FRIEND'
         }
-        this.profileService.getProfileData(this.login).subscribe((profileData: UserData) => {
-          if (profileData.friends.find((friend: Friend) => friend.name === bodyInvite.login)) {
-            console.log(bodyInvite.friend, 'is already your friend!');
-            return ;
-          }
+        this.profileService.getProfileData(this.login).subscribe(async (userData: UserData) => {
+          for (let friend of userData.friends) {
+            const userData: UserData = await this.profileService.getProfileData(friend.name).toPromise() as UserData
+            if (userData.pseudo === bodyInvite.friend || userData.login === bodyInvite.friend) {
+              console.log(`${bodyInvite.friend} is already your friend`);
+              return ;
+            }
+          } 
           this.socket.emit('send-notif', bodyInvite);
         })
         break ;
@@ -398,15 +401,18 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
   }
 
   receiveMessage() {
-    this.socket.on('receive-room-msg', (data: RoomMessage) => {
+    this.socket.on('receive-room-msg', (data: Message) => {
       if (data.sender != 'BOT') {
         this.profileService.getProfileData(data.sender).subscribe((newMemberData: any) => {
           data.sender = newMemberData.pseudo
+          data.pseudo = newMemberData.pseudo
           this.conversation.push(data)
         })
       }
-      else 
+      else {
+        data.pseudo = 'BOT'
         this.conversation.push(data)
+      }
     })
   }
 
