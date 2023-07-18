@@ -54,7 +54,7 @@ export class ProfileService implements OnInit {
   }
 
   changeUserPp(obj: any) {
-    return this.http.post('http://localhost:3000/db-writer/change-user-pp', obj)
+    return this.http.post('http://localhost:3000/db-writer/change-user-pp', obj, this.basicHeaders)
   }
 
   change2FA(body: any) {

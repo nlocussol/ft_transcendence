@@ -77,11 +77,11 @@ export class DbWriterController {
 
   @Get('user-pp/:login')
   async getUserPp(@Res() res: Response, @Param('login') login: string) {
-      const ppName = await this.dbWriter.getUserPp(login)
-      const pathToPp = `/usr/src/app/upload/${ppName}`;
-      res.setHeader('Content-Type', 'application/octet-stream');
-      res.setHeader('Content-Disposition', `attachment; filename=${ppName}`);
-      res.sendFile(pathToPp);
+    const ppName = await this.dbWriter.getUserPp(login)
+    const pathToPp = `/usr/src/app/upload/${ppName}`;
+    res.setHeader('Content-Type', 'application/octet-stream');
+    res.setHeader('Content-Disposition', `attachment; filename=${ppName}`);
+    res.sendFile(pathToPp);
   }
 
   @SkipAuth()

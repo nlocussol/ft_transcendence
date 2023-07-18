@@ -297,10 +297,12 @@ export class DbWriterService {
             console.log("changeUserPp: The user does not exist");
             return null;
       }
-      fs.unlink(`/usr/src/app/upload/${currentUser.pp}`, (err) => {
-          if (err)
-              console.log(`changeUserPp: can't delete ${currentUser.pp}`)
-      });
+      if (currentUser.pp !== newPp.newPp) {
+        fs.unlink(`/usr/src/app/upload/${currentUser.pp}`, (err) => {
+            if (err)
+                console.log(`changeUserPp: can't delete ${currentUser.pp}`)
+        });
+      }
         // change the current pp to the new one
         currentUser.pp = newPp.newPp;
         await this.userRepository.save(currentUser)

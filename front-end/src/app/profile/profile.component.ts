@@ -7,6 +7,8 @@ import { HomeService } from '../home/service/home.service';
 import { Router } from '@angular/router';
 import { ProfileService } from './profile.service';
 import { ChatRoomService } from '../chat-room/chat-room.service';
+import { HeaderService } from '../header/header.service';
+import { AuthHandlerService } from '../auth-handler/auth-handler.service';
 
 @Component({
   selector: 'app-profile',
@@ -46,7 +48,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
     private homeService: HomeService,
     private router: Router,
     private profileService: ProfileService,
-    private roomService: ChatRoomService
+    private roomService: ChatRoomService,
+    private headerService: HeaderService,
+    private authHandlerService: AuthHandlerService
   ) {}
 
   onFileSelected(event: any): void {
@@ -55,7 +59,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     formData.append('file', selectedFile, selectedFile.name);
     this.profileService.uploadImage(formData, this.login).subscribe((res: any) => {
       this.profileService.changeUserPp({login: this.login, newPp: res.name}).subscribe(() => {
-        this.profileService.getProfilePic(this.login).subscribe((ppData: Blob) => {
+        this.profileService.getProfilePic(this.login).subscribe((ppData: any) => {
           this.ppUrl = URL.createObjectURL(ppData);
         });
       })
@@ -77,8 +81,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
       newPseudo: this.newPseudo,
     };
     this.profileService.changeUserPseudo(body).subscribe((res: any) => {
-      if (res) 
+      if (res) {
         this.pseudo = this.newPseudo;
+        this.headerService.logout().subscribe(() => {
+          this.authHandlerService.getJwt(this.login).subscribe()
+        })
+      }
       this.newPseudo = ''
     })
   }
