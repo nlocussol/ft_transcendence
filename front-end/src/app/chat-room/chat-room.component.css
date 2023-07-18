@@ -84,7 +84,8 @@ button[type="submit"]:hover {
 }
 
 .room {
-  width: calc(100px + 1.5vw);
+  /* width: calc(100px + 1.5vw); */
+  width: 100%;
   height: calc(20px + 1.5vh);
   border: 1px solid teal;
   cursor: pointer;
@@ -96,6 +97,7 @@ button[type="submit"]:hover {
 .room .name {
   font-size: calc(10px + 1.5vw);
   margin-left: 0.5vh;
+  width: 100%;
 }
 
 .room.selected {
