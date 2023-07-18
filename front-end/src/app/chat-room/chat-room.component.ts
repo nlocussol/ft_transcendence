@@ -397,15 +397,18 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
   }
 
   receiveMessage() {
-    this.socket.on('receive-room-msg', (data: RoomMessage) => {
+    this.socket.on('receive-room-msg', (data: Message) => {
       if (data.sender != 'BOT') {
         this.profileService.getProfileData(data.sender).subscribe((newMemberData: any) => {
           data.sender = newMemberData.pseudo
+          data.pseudo = newMemberData.pseudo
           this.conversation.push(data)
         })
       }
-      else 
+      else {
+        data.pseudo = 'BOT'
         this.conversation.push(data)
+      }
     })
   }
 
