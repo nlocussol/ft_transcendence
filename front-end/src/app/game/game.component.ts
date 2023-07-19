@@ -311,6 +311,7 @@ export class GameComponent implements OnInit, OnDestroy {
     this.gameData.isOver = true;
     this.gameService.exitRoom();
     this.privateGameInvit = false;
+    this.dataService.setPrivateGameInvit(false);
     clearInterval(this.movePlayerInterval);
     this.stopAnimationFrame();
     this.drawEndGame();
