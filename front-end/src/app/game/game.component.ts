@@ -38,6 +38,8 @@ export class GameComponent implements OnInit, OnDestroy {
   heightDiff: number = 0.5859375;
   widthDiff: number = 0.446875;
   heightInit: number = 525;
+  invisbleLeft: number = 301;
+  invisbleRight: number = 557;
   widthInit: number = 858;
   gameData: GameData = new GameData();
   isMoving: boolean[] = [false, false];
@@ -220,6 +222,11 @@ export class GameComponent implements OnInit, OnDestroy {
         this.ballSize,
         this.ballSize
       );
+    }
+
+    if (this.gameData.customGameMod){
+      this.context.fillRect(this.invisbleLeft, 0, 2, this.height);
+      this.context.fillRect(this.invisbleRight, 0, 2, this.height);
     }
 
     this.drawScore();
