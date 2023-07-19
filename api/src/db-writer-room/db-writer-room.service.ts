@@ -290,7 +290,6 @@ export class DbWriterRoomService {
     }
 
     async checkPassword (pass: Passwords){
-        const result = await compare(pass.inputPassword, pass.roomPassword);
-        return (result)
+        return await compare(pass.inputPassword, pass.roomPassword);
     }
 }
