@@ -8,10 +8,9 @@ import {
 } from '@nestjs/websockets';
 import { Namespace, Socket } from 'socket.io';
 import { GameService } from './game.service';
-import { GameData, side } from './models/game.models';
+import { GameData } from './models/game.models';
 import { OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { environment } from './environment';
-import { MyGateway } from 'src/gateway/gateway';
 
 class Client {
   id: string;
@@ -29,7 +28,7 @@ class Client {
 export class GameGateway implements OnModuleInit, OnModuleDestroy {
   @WebSocketServer()
   io: Namespace;
-  sockets: Socket[] = [];
+  // sockets: Socket[] = [];
   intervalId: any;
   clientQueue: Client[] = [];
   clientCustomQueue: Client[] = [];
@@ -69,7 +68,7 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
   }
 
   handleSocketConnection(socket: Socket) {
-    this.sockets.push(socket);
+    // this.sockets.push(socket);
     if (
       this.clients.find(
         (client) => client.login == socket.handshake.auth.login,
@@ -88,6 +87,7 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
       );
       client.id = socket.id;
       client.socket = socket;
+      client.pseudo = socket.handshake.auth.pseudo;
     }
   }
 

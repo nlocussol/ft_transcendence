@@ -6,15 +6,72 @@ import { addFriend, messageData } from "src/typeorm/user.entity";
 import { DbWriterRoomService } from "src/db-writer-room/db-writer-room.service";
 import { BanUser, NewMessage, UserInRoom, MuteUser } from "src/typeorm/room.entity";
 
+class Client {
+    id: string;
+    login: string;
+    room: string;
+    socket: Socket;
+}
+
 @WebSocketGateway({cors : true})
 export class MyGateway implements OnModuleInit{
     @WebSocketServer()
     server: Server;
+    clients: Client[] = [];
 
     constructor(private dbWriter: DbWriterService, private dbWriterRoom: DbWriterRoomService) {}
 
     onModuleInit() {
-        this.server.on('connection', () => {})
+        this.server.on('connection', async(socket) => {
+            if (socket.handshake.auth.from === 'header') {
+              await this.handleSocketConnection(socket);
+
+              socket.on('disconnect', async () => {
+                const client = this.clients.find((client) => client.id == socket.id);
+                await this.handleSocketDeconnexion(client);
+ 
+            })
+            }
+        })
+    }
+
+    async handleSocketConnection(socket: Socket) {
+        if (
+            this.clients.find(
+              (client) => client.login == socket.handshake.auth.login,
+            ) == undefined
+          ) {
+            let client = new Client();
+            client.login = socket.handshake.auth.login as string;
+            client.id = socket.id;
+            client.socket = socket;
+            this.clients.push(client);
+
+            const status = {login: socket.handshake.auth.login, status: 'ONLINE'}
+            const res = await this.dbWriter.changeStatus(status);
+            if (res == null)
+                return ;
+            this.server.emit('user-status-changed', status);
+          } else {
+            let client = this.clients.find(
+              (client) => client.login == socket.handshake.auth.login,
+            );
+            client.id = socket.id;
+            client.socket = socket;
+            const status = {login: socket.handshake.auth.login, status: 'ONLINE'}
+            const res = await this.dbWriter.changeStatus(status);
+            if (res == null)
+                return ;
+            this.server.emit('user-status-changed', status);
+          }
+    }
+
+    async handleSocketDeconnexion(client: Client) {
+        const status = {login: client.login, status: 'OFFLINE'}
+        const res = await this.dbWriter.changeStatus(status);
+        if (res == null)
+            return ;
+        this.server.emit('user-status-changed', status);
     }
 
     @SubscribeMessage('send-notif')
@@ -132,7 +189,6 @@ export class MyGateway implements OnModuleInit{
 
     @SubscribeMessage('user-change-status')
     async userChangeStatus(client: Socket, status: any) {
-        console.log(status)
         const res = await this.dbWriter.changeStatus(status);
         if (res == null)
             return ;
