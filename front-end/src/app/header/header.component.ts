@@ -10,7 +10,7 @@ import { HomeService } from '../home/service/home.service';
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css'],
 })
-export class HeaderComponent implements OnInit{
+export class HeaderComponent implements OnInit {
   authenticated: boolean = false;
   socket!: Socket;
   notif!: boolean;
@@ -18,9 +18,8 @@ export class HeaderComponent implements OnInit{
 
   constructor(
     private headerService: HeaderService,
-    private homeService: HomeService,
-  ) {
-  }
+    private homeService: HomeService
+  ) {}
 
   ngOnInit(): void {
     Emitters.authEmitter.subscribe((auth: boolean) => {
@@ -28,12 +27,11 @@ export class HeaderComponent implements OnInit{
     });
     this.homeService.getUser().subscribe((res) => {
       this.login = res.login;
-      console.log(this.login)
       this.headerService.connectToStatusWS(this.login as string);
-    })
+    });
   }
 
-  logout(){
+  logout() {
     // this.socket.emit('user-change-status', {login: this.login, status: 'OFFLINE'})
     this.headerService.logout().subscribe(() => {
       this.authenticated = false;

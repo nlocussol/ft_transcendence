@@ -63,7 +63,7 @@ export class GameComponent implements OnInit, OnDestroy {
   imgNinho = new Image();
   privateGameInvit!: boolean;
 
-  constructor(private gameService: GameService, private dialog: MatDialog, private dataService: DataService) {}
+  constructor(private gameService: GameService, private dataService: DataService) {}
 
   ngOnInit(): void {
     this.imgJul.src = '../assets/JUL.jpg';
@@ -95,11 +95,6 @@ export class GameComponent implements OnInit, OnDestroy {
           300
         );
       },
-      // error: () => {
-      //   this.dialog.open(DialogNotLoguedComponent, {
-      //     width: '250px',
-      //   });
-      // },
     });
 
     this.canvas = this.myCanvas.nativeElement;
@@ -315,6 +310,7 @@ export class GameComponent implements OnInit, OnDestroy {
     this.searchingGame = false;
     this.gameData.isOver = true;
     this.gameService.exitRoom();
+    this.privateGameInvit = false;
     clearInterval(this.movePlayerInterval);
     this.stopAnimationFrame();
     this.drawEndGame();
