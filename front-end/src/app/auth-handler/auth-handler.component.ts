@@ -134,25 +134,30 @@ export class AuthHandlerComponent implements OnInit, OnDestroy {
               imageData.append('file', res.fileSource, res.fileSource.name);
               this.profileService
                 .uploadImage(imageData, userData.login)
-                .subscribe((res: any) => {
-                  userData.pp = res.name;
-                  this.authHandlerService
-                    .createUser(userData)
-                    .subscribe((res) => {
+                .subscribe(
+                  {
+                    next: (res: any) => {
+                      userData.pp = res.name;
                       this.authHandlerService
-                        .getUserDataFromDb(userData.login)
-                        .subscribe({
-                          next: () => {
-                            this.authHandlerService
-                              .getJwt(userData.login)
-                              .subscribe((res) => {
-                                Emitters.authEmitter.emit(true);
-                                this.router.navigate(['/profile']);
-                              });
-                          },
+                        .createUser(userData)
+                        .subscribe((res) => {
+                          this.authHandlerService
+                            .getUserDataFromDb(userData.login)
+                            .subscribe({
+                              next: () => {
+                                this.authHandlerService
+                                  .getJwt(userData.login)
+                                  .subscribe((res) => {
+                                    Emitters.authEmitter.emit(true);
+                                    this.router.navigate(['/profile']);
+                                  });
+                              },
+                            });
                         });
-                    });
-                });
+                    },
+                    error: () => {this.router.navigate(['/'])},
+                  }
+                );
             } else {
               this.authHandlerService
                 .sendIntraProfilePicUrl(userData.login, userData.pp)

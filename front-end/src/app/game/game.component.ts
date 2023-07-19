@@ -9,10 +9,7 @@ import {
 import { GameService } from './service/game.service';
 import { GameData, movement} from './models/game.models';
 import { FontFaceSet } from 'css-font-loading-module'; // DO NOT REMOVE THIS ONE => NEED FOR LOADING FONT
-import { MatDialog } from '@angular/material/dialog';
-import { DialogNotLoguedComponent } from '../dialog-not-logued/dialog-not-logued.component';
 import { DataService } from '../services/data.service';
-import { EMPTY } from 'rxjs';
 
 const TICKRATE = 15,
   hsl = 'hsl(',
@@ -232,7 +229,9 @@ export class GameComponent implements OnInit, OnDestroy {
     }
 
     this.drawScore();
-    this.drawCenterLine();
+    if (!this.gameData.customGameMod) {
+      this.drawCenterLine();
+    }
   }
 
   drawScore() {
@@ -245,7 +244,7 @@ export class GameComponent implements OnInit, OnDestroy {
     );
     this.context.fillText(
       String(this.gameData?.players[1].score),
-      this.width / 2 + 100,
+      this.width / 2 + 6,
       50
     );
   }

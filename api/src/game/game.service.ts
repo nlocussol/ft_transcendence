@@ -67,7 +67,7 @@ export class GameService {
       game.intervalID = setInterval(() => {
         this.updateGame(game);
       }, environment.TICKRATE);
-    }, 1000);
+    }, 500);
   }
 
   updateGame(game: GameData) {

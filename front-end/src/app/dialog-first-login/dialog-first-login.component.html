@@ -1,33 +1,3 @@
-<!-- <p>FIRST TIME LOGIN</p>
-<ol>
-  <mat-dialog-content>
-
-  <li>
-    <mat-label>How do you want to be called</mat-label>
-
-    <mat-form-field appearance="fill">
-      <input matInput [formControl]="pseudoFormControl" [errorStateMatcher]="matcher" type="text" [(ngModel)]="myData.pseudo" required/>
-      <mat-error *ngIf="pseudoFormControl.hasError('required')">
-        Pseudo cannot be empty
-      </mat-error>
-    </mat-form-field>
-  </li>
-  <li>
-    <mat-label>Choose your profile picture, default one is :</mat-label>
-    <img [src]="myData.pp"> -->
-<!-- <mat-form-field appearance="fill"> -->
-<!-- <input
-      type="file"
-      accept=".jpg,.jpeg,.png,.gif"
-    /> -->
-<!-- [(ngModel)]="myData.pp" -->
-
-<!-- </li>
-</mat-dialog-content>
-<div class="example">
-<button *ngIf="!pseudoFormControl.hasError('required')" mat-button [mat-dialog-close]="myData">SAVE INFOS</button>
-</div>
-</ol> -->
 <form [formGroup]="userForm" (ngSubmit)="saveUser()">
   <h1 mat-dialog-title>First time login</h1>
   <div mat-dialog-content>
@@ -52,10 +22,11 @@
     class="form-control"
     (change)="onFileChange($event)">
     <img [src]="localProfilePicUrl" width="175">
+    <mat-error *ngIf="imgTooBig">File is too big</mat-error>
   </div>
 
   <div mat-dialog-actions>
-    <button [disabled]="userForm.invalid || userForm.pending" mat-raised-button color="primary" >SAVE INFO</button>
+    <button [disabled]="userForm.invalid || userForm.pending || imgTooBig" mat-raised-button color="primary" >SAVE INFO</button>
 
   </div>
 </form>
