@@ -70,7 +70,6 @@ export class GameComponent implements OnInit, OnDestroy {
     this.imgJul.src = '../assets/JUL.jpg';
     this.imgNinho.src = '../assets/NINHO.jpeg';
     this.privateGameInvit = this.dataService.getPrivateGameInvit();
-    console.log("ICIGROSFDP  ",this.privateGameInvit)
     this.gameService.getUser().subscribe({
       next: (res) => {
         this.login = res.login;
