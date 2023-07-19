@@ -182,7 +182,6 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
         break ;
 
       case '1v1 match':
-        console.log(member.login);
         const bodyInviteMatch = {
           friend: member.login,
           login: this.login,
@@ -308,10 +307,8 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
     }
     if (!userToAddRoom)
       return ;
-    console.log(this.friendsToInvite);
     const friendPP = this.friendsToInvite.find(friend => friend.name === userToAddRoom)?.pp as string
     const friendLogin = friendPP.substring(0, friendPP.lastIndexOf('.'))
-    console.log(friendLogin);
     if (friendLogin) {
       const body = {
         name: this.selectedRoom?.name,

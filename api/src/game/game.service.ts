@@ -46,9 +46,7 @@ export class GameService {
     if (this.gameInProgress.length < 1) return undefined;
     let found = this.gameInProgress.find((game) => game.matchUUID === UUID);
     if (found == undefined) {
-      console.log(
-        'Les problemes c kan y trouve pa un game par uuuuuuuuuuuuuuuiid',
-      );
+      console.log('findGameByUUID: Can not found a match by UUID');
     } else {
       return found;
     }
