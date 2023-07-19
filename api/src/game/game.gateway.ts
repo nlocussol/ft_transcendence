@@ -11,6 +11,7 @@ import { GameService } from './game.service';
 import { GameData, side } from './models/game.models';
 import { OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { environment } from './environment';
+import { MyGateway } from 'src/gateway/gateway';
 
 class Client {
   id: string;
@@ -158,7 +159,6 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
 
   addPlayersToRoom(queueType: string) {
     if (queueType === 'classic') {
-      console.log('Creating a game...');
       // false means classic game mod, true means custom
       const game: GameData = this.gameService.createNewGame(false);
 

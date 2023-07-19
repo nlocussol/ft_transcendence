@@ -1,19 +1,17 @@
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { HomeService } from './home/service/home.service';
 import { Emitters } from './emitters/emitters';
-import { Socket, io } from 'socket.io-client';
-import { environment } from 'src/environment';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.css'],
 })
-export class AppComponent implements OnInit{
+export class AppComponent implements OnInit, OnDestroy {
   authenticated: boolean = false;
   login!: string;
   constructor(private homeService: HomeService) {}
-  
+
   // @HostListener('window:beforeunload', ['$event'])
   // closeSite() {
   //   this.socket = io(environment.SOCKET_ENDPOINT);
@@ -26,10 +24,15 @@ export class AppComponent implements OnInit{
       next: (res) => {
         this.login = res.login;
         Emitters.authEmitter.emit(true);
-    },
+      },
       error: () => {
         Emitters.authEmitter.emit(false);
-      }
-    })
+      },
+    });
+  }
+
+  @HostListener('window:beforeunload', ['$event'])
+  async ngOnDestroy() {
+    
   }
 }

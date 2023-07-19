@@ -9,6 +9,7 @@ import { ProfileService } from './profile.service';
 import { ChatRoomService } from '../chat-room/chat-room.service';
 import { HeaderService } from '../header/header.service';
 import { AuthHandlerService } from '../auth-handler/auth-handler.service';
+import { DataService } from '../services/data.service';
 
 @Component({
   selector: 'app-profile',
@@ -50,7 +51,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
     private profileService: ProfileService,
     private roomService: ChatRoomService,
     private headerService: HeaderService,
-    private authHandlerService: AuthHandlerService
+    private authHandlerService: AuthHandlerService,
+    private dataService: DataService
   ) {}
 
   onFileSelected(event: any): void {
@@ -149,8 +151,15 @@ export class ProfileComponent implements OnInit, OnDestroy {
       login: this.login,
       index: this.notifs.findIndex((notif) => notif === body),
     };
-    if (body.type === 'REQUEST_MATCH')
-      //ask to louis
+    if (body.type === 'REQUEST_MATCH'){
+      const bodyRefuse = {
+        friend: body.login,
+        login: this.login,
+        content: `${this.pseudo} refused your duel!`,
+        type: 'MATCH_REFUSED'
+      }
+      this.socket.emit('send-notif', bodyRefuse);
+    }
     this.notifs.splice(
       this.notifs.findIndex((request) => body === request),
       1
@@ -162,6 +171,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.profileService.getProfileData(this.login).subscribe((userData: UserData) => {
       this.profileData = userData;
       this.notifs = userData.notif;
+      if (this.notifs.find(notif => notif.type === 'MATCH_REFUSED'))
+        this.dataService.setPrivateGameInvit(false)
       this.status = userData.status;
       this.doubleAuth = userData.doubleAuth;
       this.pseudo = userData.pseudo;
@@ -176,6 +187,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
       if (data.friend === this.pseudo || data.friend === this.login) {
         if (!this.notifs) this.notifs = [];
         if (data.login) this.notifs.push(data);
+        if (data.type === 'MATCH_REFUSED') {
+          this.dataService.setPrivateGameInvit(false)
+        }
+
       }
     });
   }
