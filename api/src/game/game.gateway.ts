@@ -116,7 +116,7 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
   handleQueue(socket: Socket, queueType: any) {
     let client = this.clients.find((c) => c.socket.id == socket.id);
     if (client == undefined) {
-      console.log('GameGatewayHandleQueue: problem');
+      console.log('GameGatewayHandleQueue: Can not found client by id');
       return;
     }
 
@@ -195,7 +195,7 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
   handleLeaveQueue(socket: Socket) {
     let client = this.clients.find((c) => c.socket.id == socket.id);
     if (client == undefined) {
-      console.log('GameGatewayRemoveFromQueue: problem');
+      console.log('GameGatewayRemoveFromQueue: Can not found client by id');
     }
     this.removePlayerFromQueue(client);
   }

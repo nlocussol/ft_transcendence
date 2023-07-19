@@ -132,7 +132,6 @@ export class MyGateway implements OnModuleInit{
 
     @SubscribeMessage('user-change-status')
     async userChangeStatus(client: Socket, status: any) {
-        console.log(status)
         const res = await this.dbWriter.changeStatus(status);
         if (res == null)
             return ;
