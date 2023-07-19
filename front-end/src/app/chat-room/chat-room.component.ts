@@ -43,6 +43,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
   allRoomChecked!: boolean;
   socket!: Socket;
   joined!: boolean;
+  blockList: any[] = [];
 
   ngOnInit(): void {
     this.homeService.getUser().subscribe(res => {
@@ -52,6 +53,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
       this.roomStatus = 'PROTECTED';
       this.socket = io(environment.SOCKET_ENDPOINT);
       this.login = res.login;
+      this.getBlockedList();
       this.pseudo = res.pseudo;
       this.onCheckboxChange()
       this.onSocket();
@@ -66,6 +68,18 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
   }
 
   constructor(private homeService: HomeService, private router: Router, private roomService: ChatRoomService, private profileService: ProfileService, private dataService: DataService) {}
+
+  getBlockedList() {
+    this.profileService.getProfileData(this.login).subscribe(async (userData: UserData) => {
+      for (let friend of userData.friends) {
+        if (friend.blocked) {
+          const friendData: UserData | undefined= await this.profileService.getProfileData(friend.name).toPromise()
+          if (friendData)
+            this.blockList.push({login: friend.name, pseudo: friendData.pseudo})
+        }
+      }
+    })
+  }
 
   getNewMember() {
     this.socket.on('join-room', (data: JoinLeaveRoom) => {
@@ -89,16 +103,15 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
         }
         if (this.selectedRoom?.messages)
           this.conversation = this.selectedRoom.messages
-        // this.conversation =  as Message[]
       })
   }
 
   isBlocked(member: string) {
     if (member === this.pseudo)
       return false
-    let friend: Friend | undefined = this.friends.find(friend => friend.name === member)
-    if (friend)
-      return friend.blocked
+    if (this.blockList.find((block: any) => block.pseudo === member)
+      || this.blockList.find((block: any) => block.login === member))
+      return true
     return false
   }
 
@@ -342,6 +355,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
   async onClickRoom(room: Room) {
     if (this.selectedRoom)
       this.socket.emit('socket-leave-room', this.selectedRoom.name)
+    this.getBlockedList()
     this.newPwd = '';
     this.selectedStatus = '';
     this.options = ['PUBLIC', 'PROTECTED', 'PRIVATE'];
