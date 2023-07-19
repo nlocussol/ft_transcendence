@@ -84,7 +84,12 @@ export interface NewNotif {
 }
 
 export interface deleteNotif {
-  index: string;
+  index: number;
+  login: string;
+}
+
+export interface deleteNotifs {
+  index: number[];
   login: string;
 }
 
