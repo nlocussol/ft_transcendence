@@ -12,7 +12,8 @@ export const multerOptions = {
     },
   }),
   limits: {
-    fileSize: 1024 * 1024 * 10, // 10MB
+    // fileSize: 1024 * 1024 * 10, // 10MB
+    fileSize: 1024 * 1024 * 2, // 2MB
   },
   fileFilter: (req, file, cb) => {
     const ext = extname(file.originalname).toLowerCase();

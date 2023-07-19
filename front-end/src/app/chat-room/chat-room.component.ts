@@ -77,7 +77,19 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
       }
       if (this.selectedRoom && data.name === this.selectedRoom.name && this.selectedRoom.ban
         && !this.selectedRoom.ban.find((ban: any) => ban.login === data.login))
-        this.conversation = this.selectedRoom?.messages as Message[]
+        for (let i in this.selectedRoom?.messages) {
+          if (this.selectedRoom?.messages[i].sender != 'BOT') {
+            this.profileService.getProfileData(this.selectedRoom?.messages[i].sender).subscribe((newMemberData: UserData) => {
+              if (this.selectedRoom)
+                this.selectedRoom.messages[i].pseudo = newMemberData.pseudo
+            })
+          }
+          else if (this.selectedRoom?.messages[i].sender === 'BOT')
+            this.selectedRoom.messages[i].pseudo = 'BOT'
+        }
+        if (this.selectedRoom?.messages)
+          this.conversation = this.selectedRoom.messages
+        // this.conversation =  as Message[]
       })
   }
 
@@ -109,6 +121,12 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
           this.joined = false;
           this.selectedRoom = null;
           return ;
+        }
+        if (this.rooms.find(room => room.name === data.name) && data.login === this.login) {
+          if (!this.allRoomChecked)
+            this.rooms.splice(this.rooms.findIndex((room: Room) => room.name === data.name), 1)
+          this.joined = false;
+          this.selectedRoom = null;
         }
         if (this.selectedRoom?.name === data.name)
           this.members.splice(this.members.findIndex((roomMember: MemberStatus) => roomMember.login === data.login), 1)
