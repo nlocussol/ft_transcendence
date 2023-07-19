@@ -413,6 +413,8 @@ export class DbWriterService {
 
   async addNotif(newNotif:any){        
       // check if the user exist
+      console.log('NEWNOTIF LOGIN', newNotif.login);
+      const allUser = await this.userRepository.find()
       const currentUser = await this.userRepository.findOneBy({
           login: newNotif.friend,
       });
@@ -425,24 +427,30 @@ export class DbWriterService {
           console.log("addNotif: The user does not exist");
           return null;
       }
+      let cnt: number = 0;
+      for (let user of allUser) {
+        for (let notification of user.notif) {
+          console.log(notification.login);
+          if (notification.type === 'REQUEST_MATCH' && notification.login === newNotif.login) {
+            cnt++;
+            if (cnt > 0) {
+              console.log('addNotif: You are authorize to only one match request by user!');
+              return null
+            }
+          }
+        }
+      }
+
       let notif: notif =  {
         login: newNotif.login,
         type: newNotif.type,
         content: newNotif.content,
       }
       if (currentUser) {
-        if (currentUser.notif.find(notifs => notifs.type === 'REQUEST_MATCH') && notif.type === 'REQUEST_MATCH') {
-          console.log('You can only have one match request');
-          return ;
-        }
         currentUser.notif.push(notif);
         await this.userRepository.save(currentUser)
       }
       else if (currentPseudo) {
-        if (currentPseudo.notif.find(notifs => notifs.type === 'REQUEST_MATCH') && notif.type === 'REQUEST_MATCH') {
-          console.log('You can only have one match request');
-          return ;
-        }
         currentPseudo.notif.push(notif);
         await this.userRepository.save(currentPseudo)
       }

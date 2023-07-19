@@ -103,7 +103,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
 
       this.socket.on('has-leave-room', (data: JoinLeaveRoom) => {
         const ownerOfRoom: number = this.rooms.findIndex(room => room.owner === data.login)
-        if (ownerOfRoom >= 0) {
+        if (ownerOfRoom >= 0 && data.login != this.login) {
           this.rooms.splice(ownerOfRoom, 1)
           this.joined = false;
           this.selectedRoom = null;
@@ -111,15 +111,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
         }
         if (this.selectedRoom?.name === data.name)
           this.members.splice(this.members.findIndex((roomMember: MemberStatus) => roomMember.login === data.login), 1)
-        if (data.login === this.login && !this.allRoomChecked) {
-          this.rooms.splice(this.rooms.findIndex((room: Room) => room.name === data.name), 1)
-          this.joined = false;
-          this.selectedRoom = null;
-        }
-        if (this.allRoomChecked && this.selectedRoom?.name === data.name && data.login === this.login) {
-          this.joined = false;
-          this.selectedRoom = null;
-        }
+  
       })
 
       this.socket.on('ban-member-room', (data: JoinLeaveRoom) => {
@@ -284,6 +276,8 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
       }  
       this.socket.emit('add-room-msg', bodyMessage);
     }
+    if (!this.allRoomChecked)
+      this.rooms.splice(this.rooms.findIndex((room: Room) => room.name === body.name), 1)
     this.joined = false;
     this.selectedRoom = null;
   }
