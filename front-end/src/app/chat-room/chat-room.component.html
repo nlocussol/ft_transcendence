@@ -82,7 +82,7 @@
             <select [(ngModel)]="memberOption">
               <option *ngFor="let memberOptions of memberOptions" [value]="memberOptions"> {{ memberOptions }}</option>
             </select>
-            <input class="input" *ngIf="memberOption === 'Mute'" type="text" [(ngModel)]="muteTime" placeholder="Time to mute in second" />
+            <input *ngIf="memberOption === 'Mute'" type="text" [(ngModel)]="muteTime" placeholder="Time to mute in second" />
             <button id="send-request" (click)="handleMemberOption(memberOption, member)">Send</button>
           </div>    
       </div>

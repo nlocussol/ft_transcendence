@@ -272,6 +272,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
           time: muteInSecond,
         }
         this.socket.emit('mute-member', bodyMute)
+        this.muteTime = '';
         break ;
 
       case 'Kick':
