@@ -292,7 +292,7 @@ export class GameService {
     newGame.players[1].side = side.RIGHT;
     newGame.players[1].height = PLAYER_INITIAL_HEIGHT;
     newGame.players[1].width = PLAYER_INITIAL_WIDTH;
-    newGame.players[1].posX = GAME_WIDTH - OFFSET_FROM_WALL;
+    newGame.players[1].posX = GAME_WIDTH - OFFSET_FROM_WALL - PLAYER_INITIAL_WIDTH;
     newGame.players[1].posY = GAME_HEIGHT / 2 - PLAYER_INITIAL_HEIGHT / 2;
     newGame.players[1].score = 0;
     newGame.players[1].canMove = false;

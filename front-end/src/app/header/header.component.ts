@@ -2,8 +2,8 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Emitters } from '../emitters/emitters';
 import { HeaderService } from './header.service';
 import { Socket} from 'socket.io-client';
-import { HomeService } from '../home/service/home.service';
 import { Router } from '@angular/router';
+import { DataService } from '../services/data.service';
 
 @Component({
   selector: 'app-header',
@@ -18,17 +18,17 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   constructor(
     private headerService: HeaderService,
-    private homeService: HomeService,
-    private router: Router
+    private router: Router,
+    private dataService: DataService
   ) {}
 
   ngOnInit(): void {
     Emitters.authEmitter.subscribe((auth: boolean) => {
       this.authenticated = auth;
-    });
-    this.homeService.getUser().subscribe((res) => {
-      this.login = res.login;
-      this.headerService.connectToStatusWS(this.login as string);
+      if (auth) {
+        this.login = this.dataService.getUserLogin();
+        this.headerService.connectToStatusWS(this.login as string);
+      }
     });
   }
 
