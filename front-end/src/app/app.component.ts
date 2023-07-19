@@ -20,15 +20,15 @@ export class AppComponent implements OnInit {
   // }
 
   ngOnInit(): void {
-    this.homeService.getUser().subscribe({
-      next: (res) => {
-        this.login = res.login;
-        Emitters.authEmitter.emit(true);
-      },
-      error: () => {
-        Emitters.authEmitter.emit(false);
-      },
-    });
+    // this.homeService.getUser().subscribe({
+    //   next: (res) => {
+    //     this.login = res.login;
+    //     Emitters.authEmitter.emit(true);
+    //   },
+    //   error: () => {
+    //     Emitters.authEmitter.emit(false);
+    //   },
+    // });
   }
 
 

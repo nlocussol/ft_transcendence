@@ -19,7 +19,7 @@
           <a routerLink="/profile">PROFILE</a>
         </li>
         <li *ngIf="authenticated">
-          <a routerLink="/auth" (click)="logout()">LOGOUT</a>
+          <a (click)="logout()">LOGOUT</a>
         </li>
       </ul>
     </nav>

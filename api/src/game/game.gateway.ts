@@ -1,7 +1,4 @@
 import {
-  OnGatewayConnection,
-  OnGatewayDisconnect,
-  OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
@@ -17,7 +14,6 @@ class Client {
   login: string;
   pseudo: string;
   room: string;
-  state: string;
   socket: Socket;
 }
 
@@ -28,7 +24,6 @@ class Client {
 export class GameGateway implements OnModuleInit, OnModuleDestroy {
   @WebSocketServer()
   io: Namespace;
-  // sockets: Socket[] = [];
   intervalId: any;
   clientQueue: Client[] = [];
   clientCustomQueue: Client[] = [];
@@ -58,27 +53,29 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
       this.handleSocketConnection(socket);
 
       socket.on('disconnect', () => {
-        const client = this.clients.find((client) => client.id == socket.id);
-        this.removePlayerFromQueue(client);
-        this.gameService.handleDeconnexion(
-          socket.handshake.auth.login as string,
-        );
+        const client = this.clients.find((client) => client.pseudo == socket.handshake.auth.pseudo);
+
+        if (client != undefined) {
+          // console.log('DisconnectGateway: ', client.pseudo);
+          this.removePlayerFromQueue(client);
+          this.gameService.handleDeconnexion(
+            socket.handshake.auth.login as string,
+          );
+        }
       });
     });
   }
 
   handleSocketConnection(socket: Socket) {
-    // this.sockets.push(socket);
     if (
       this.clients.find(
         (client) => client.login == socket.handshake.auth.login,
       ) == undefined
     ) {
       let client = new Client();
-      client.login = socket.handshake.auth.login as string;
-      client.pseudo = socket.handshake.auth.pseudo as string;
+      client.login = socket.handshake.auth.login;
+      client.pseudo = socket.handshake.auth.pseudo;
       client.id = socket.id;
-      client.state = 'idle';
       client.socket = socket;
       this.clients.push(client);
     } else {
@@ -149,10 +146,8 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
       return;
     }
     if (queueType === 'classic') {
-      client.state = 'queueing';
       this.clientQueue.push(client);
     } else if (queueType === 'custom') {
-      client.state = 'queueing';
       this.clientCustomQueue.push(client);
     }
   }
@@ -167,7 +162,6 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
       game.players[0].login = client.login;
       game.players[0].pseudo = client.pseudo;
       client.socket.join(game.matchUUID);
-      
 
       client = this.clientQueue.shift();
       client.room = game.matchUUID;
