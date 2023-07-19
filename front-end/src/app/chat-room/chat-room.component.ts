@@ -8,6 +8,7 @@ import { HomeService } from '../home/service/home.service';
 import { Emitters } from '../emitters/emitters';
 import { ChatRoomService } from './chat-room.service';
 import { ProfileService } from '../profile/profile.service';
+import { DataService } from '../services/data.service';
 
 @Component({
   selector: 'app-chat-room',
@@ -64,7 +65,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
     this.socket.disconnect()
   }
 
-  constructor(private homeService: HomeService, private router: Router, private roomService: ChatRoomService, private profileService: ProfileService) {}
+  constructor(private homeService: HomeService, private router: Router, private roomService: ChatRoomService, private profileService: ProfileService, private dataService: DataService) {}
 
   getNewMember() {
     this.socket.on('join-room', (data: JoinLeaveRoom) => {
@@ -196,7 +197,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
           content: `${this.pseudo} challenges you to a pong duel!`,
           type: 'REQUEST_MATCH'
         }
-        Emitters.privateGameInvit.emit(true);
+        this.dataService.setPrivateGameInvit(true);
         this.socket.emit('send-notif', bodyInviteMatch);
         this.router.navigate(['/game']);
         break ;

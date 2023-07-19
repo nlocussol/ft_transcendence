@@ -2,15 +2,13 @@ import {
   Component,
   ElementRef,
   HostListener,
-  Input,
   OnDestroy,
   OnInit,
-  Output,
   ViewChild,
 } from '@angular/core';
 import { GameService } from './service/game.service';
 import { GameData, movement} from './models/game.models';
-import { FontFaceSet } from 'css-font-loading-module'; // DO NOT REMOVE THIS ONE
+import { FontFaceSet } from 'css-font-loading-module'; // DO NOT REMOVE THIS ONE => NEED FOR LOADING FONT
 import { MatDialog } from '@angular/material/dialog';
 import { DialogNotLoguedComponent } from '../dialog-not-logued/dialog-not-logued.component';
 import { DataService } from '../services/data.service';
@@ -68,7 +66,6 @@ export class GameComponent implements OnInit, OnDestroy {
     this.imgJul.src = '../assets/JUL.jpg';
     this.imgNinho.src = '../assets/NINHO.jpeg';
     this.privateGameInvit = this.dataService.getPrivateGameInvit();
-    console.log("ICIGROSFDP  ",this.privateGameInvit)
     this.gameService.getUser().subscribe({
       next: (res) => {
         this.login = res.login;
@@ -107,6 +104,7 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.gameService.updateMyStatus(this.login!, 'ONLINE');
     clearInterval(this.queueInterval);
     clearInterval(this.refreshQueueInterval);
     clearInterval(this.movePlayerInterval);
@@ -139,9 +137,9 @@ export class GameComponent implements OnInit, OnDestroy {
       if (!this.loadOnce) {
         this.searchingGame = false;
         this.inGame = true;
-        this.gameService.updateMyStatus(this.login!, 'IN_GAME');
         this.startAnimationFrame();
         this.movePlayer();
+        this.gameService.updateMyStatus(this.login!, "IN_GAME");
         this.loadOnce = true;
       }
       if (this.gameData.isOver) {
@@ -304,8 +302,11 @@ export class GameComponent implements OnInit, OnDestroy {
     clearInterval(this.movePlayerInterval);
     this.stopAnimationFrame();
     this.drawEndGame();
-    this.gameData.players.splice(0, 2);
-    this.gameService.updateMyStatus(this.login!, 'ONLINE');
+    setTimeout(() => {
+      this.gameData.players.splice(0, 2);
+      this.gameService.updateMyStatus(this.login!, 'ONLINE');
+    }, 1000)
+
   }
 
   startAnimationFrame() {
