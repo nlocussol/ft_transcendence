@@ -495,7 +495,9 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
     this.roomService.checkRoomPass(body).subscribe((res) => {
       if (res == true){
         this.roomStatus = 'PUBLIC'
-      this.selectedRoomPwd = ''
+        this.selectedRoomPwd = ''
+      }else {
+        console.log('Wrong password');
       }
     })
   }

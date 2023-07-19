@@ -26,12 +26,12 @@ export class DbWriterRoomController {
     }
 
     @Post('change-member-status')
-    changeMemberStatus(@Body() obj: UserStatus, @Headers() headers){
+    changeMemberStatus(@Body() obj: UserStatus){
         return this.dbWriterRoom.changeMemberStatus(obj);
     }
 
     @Post('check-password')
-    CheckPassword(@Body() obj: Passwords, @Headers() headers){
+    CheckPassword(@Body() obj: Passwords){
         return this.dbWriterRoom.checkPassword(obj);
     }
 }

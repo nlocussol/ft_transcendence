@@ -62,7 +62,6 @@ export class GameService {
       .get(`http://localhost:3000/game/${login}`, {
         responseType: 'text',
       })
-      .pipe(catchError((e) => EMPTY));
   }
 
   connectToStatusWS() {
