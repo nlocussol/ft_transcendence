@@ -21,6 +21,7 @@ import {
   changeBlockStatus,
   changePseudo,
   deleteNotif,
+  deleteNotifs,
   messageData,
   modify2fa,
   newPp,
@@ -118,6 +119,11 @@ export class DbWriterController {
   @Post('delete-notif')
   deleteNotif(@Body() obj: deleteNotif, @Headers() headers) {
     return this.dbWriter.deleteNotif(obj);
+  }
+
+  @Post('delete-notifs')
+  deleteNotifs(@Body() obj: deleteNotifs, @Headers() headers) {
+    return this.dbWriter.deleteNotifs(obj);
   }
 
   @SkipAuth()
