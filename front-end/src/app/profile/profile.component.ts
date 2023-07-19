@@ -30,11 +30,13 @@ export class ProfileComponent implements OnInit, OnDestroy {
   status!: string;
   socket!: Socket;
   notifs!: Notif[];
+  myUserPage!: string;
 
   ngOnInit(): void {
     this.homeService.getUser().subscribe((res) => {
       this.login = res.login;
       this.pseudo = res.pseudo;
+      this.myUserPage = `/user-page/${res.login}`
       this.getProfileData();
       this.socket = io(environment.SOCKET_ENDPOINT);
       this.newNotif();
