@@ -7,7 +7,7 @@ import { Emitters } from './emitters/emitters';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
 })
-export class AppComponent implements OnInit, OnDestroy {
+export class AppComponent implements OnInit {
   authenticated: boolean = false;
   login!: string;
   constructor(private homeService: HomeService) {}
@@ -31,8 +31,5 @@ export class AppComponent implements OnInit, OnDestroy {
     });
   }
 
-  @HostListener('window:beforeunload', ['$event'])
-  async ngOnDestroy() {
-    
-  }
+
 }
