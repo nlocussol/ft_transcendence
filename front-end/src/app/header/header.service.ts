@@ -16,7 +16,7 @@ export class HeaderService {
   }
 
   connectToStatusWS(login: string) {
-    this.socket = io('http://localhost:3000', {
+    this.socket = io('http://localhost:3000/update-status', {
       auth: {
         login: login,
         from: "header"

@@ -13,7 +13,6 @@ import { GameComponent } from './game/game.component';
 import { MessageComponent } from './message/message.component';
 import { ChatRoomComponent } from './chat-room/chat-room.component';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { DialogNotLoguedComponent } from './dialog-not-logued/dialog-not-logued.component';
 import { UserPageComponent } from './user-page/user-page.component';
 import { LeaderboardComponent } from './leaderboard/leaderboard.component';
 import { CredentialsInterceptor } from './interceptors/credentials.interceptor';
@@ -38,7 +37,6 @@ import {MatDividerModule} from '@angular/material/divider';
     ProfileComponent,
     MessageComponent,
     ChatRoomComponent,
-    DialogNotLoguedComponent,
     UserPageComponent,
     LeaderboardComponent,
     AuthHandlerComponent,

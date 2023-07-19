@@ -1,8 +1,7 @@
-import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Emitters } from '../emitters/emitters';
 import { HeaderService } from './header.service';
-import { Socket, io } from 'socket.io-client';
-import { environment } from 'src/environment';
+import { Socket} from 'socket.io-client';
 import { HomeService } from '../home/service/home.service';
 
 @Component({
