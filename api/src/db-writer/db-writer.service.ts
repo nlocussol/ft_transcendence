@@ -413,7 +413,6 @@ export class DbWriterService {
 
   async addNotif(newNotif:any){        
       // check if the user exist
-      console.log('NEWNOTIF LOGIN', newNotif.login);
       const allUser = await this.userRepository.find()
       const currentUser = await this.userRepository.findOneBy({
           login: newNotif.friend,
@@ -430,7 +429,6 @@ export class DbWriterService {
       let cnt: number = 0;
       for (let user of allUser) {
         for (let notification of user.notif) {
-          console.log(notification.login);
           if (notification.type === 'REQUEST_MATCH' && notification.login === newNotif.login) {
             cnt++;
             if (cnt > 0) {

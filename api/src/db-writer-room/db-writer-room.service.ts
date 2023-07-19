@@ -28,7 +28,6 @@ export class DbWriterRoomService {
          room.uuid = crypto.randomUUID();
          room.name = newRoom.name;
          room.owner = newRoom.owner;
-        //  console.log(newRoom.pwd);
          if (newRoom.pwd && newRoom.pwd !== ''){
             const hashPassword = await hash(newRoom.pwd, 10);
             newRoom.pwd = hashPassword;
@@ -99,8 +98,6 @@ export class DbWriterRoomService {
             .createQueryBuilder('room')
             .where('room.name LIKE :keyword', { keyword: `%${roomName}%` })
             .getMany();
-         console.log(roomList);
-
          if (!roomList){
              console.log("The room doesn't exist");
              return null;
@@ -293,7 +290,6 @@ export class DbWriterRoomService {
     }
 
     async checkPassword (pass: Passwords){
-        const result = await compare(pass.inputPassword, pass.roomPassword);
-        return (result)
+        return await compare(pass.inputPassword, pass.roomPassword);
     }
 }

@@ -59,12 +59,15 @@ export class ProfileComponent implements OnInit, OnDestroy {
     const selectedFile = event.target.files[0];
     const formData: FormData = new FormData();
     formData.append('file', selectedFile, selectedFile.name);
-    this.profileService.uploadImage(formData, this.login).subscribe((res: any) => {
-      this.profileService.changeUserPp({login: this.login, newPp: res.name}).subscribe(() => {
-        this.profileService.getProfilePic(this.login).subscribe((ppData: any) => {
-          this.ppUrl = URL.createObjectURL(ppData);
-        });
-      })
+    this.profileService.uploadImage(formData, this.login).subscribe({
+      next: (res: any) => {
+        this.profileService.changeUserPp({login: this.login, newPp: res.name}).subscribe(() => {
+          this.profileService.getProfilePic(this.login).subscribe((ppData: any) => {
+            this.ppUrl = URL.createObjectURL(ppData);
+          });
+        })
+      },
+      error: (error: any) => console.log('ERROR', error)
     })
   }
 

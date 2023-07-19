@@ -12,6 +12,7 @@ import { FontFaceSet } from 'css-font-loading-module'; // DO NOT REMOVE THIS ONE
 import { MatDialog } from '@angular/material/dialog';
 import { DialogNotLoguedComponent } from '../dialog-not-logued/dialog-not-logued.component';
 import { DataService } from '../services/data.service';
+import { EMPTY } from 'rxjs';
 
 const TICKRATE = 15,
   hsl = 'hsl(',
@@ -77,20 +78,28 @@ export class GameComponent implements OnInit, OnDestroy {
         this.autoReconnectInterval = setInterval(
           () =>
             this.gameService.autoReconnect(res.login).subscribe({
-              next: () => {
-                clearInterval(this.autoReconnectInterval);
-                this.enterQueueClassic();
+              next: (data: string) => {
+                if (data && data.length){
+                  clearInterval(this.autoReconnectInterval);
+                  this.enterQueueClassic();
+                }
               },
-              error: () => {},
+              error: (err) => {
+                if (err.status === 403){
+                    console.log("Forbidden error occurred. Retrying...")
+                } else {
+                  console.log("Error to find the game:")
+                }
+              },
             }),
           300
         );
       },
-      error: () => {
-        this.dialog.open(DialogNotLoguedComponent, {
-          width: '250px',
-        });
-      },
+      // error: () => {
+      //   this.dialog.open(DialogNotLoguedComponent, {
+      //     width: '250px',
+      //   });
+      // },
     });
 
     this.canvas = this.myCanvas.nativeElement;
