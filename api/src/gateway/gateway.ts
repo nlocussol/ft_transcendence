@@ -19,7 +19,9 @@ export class MyGateway implements OnModuleInit{
 
     @SubscribeMessage('send-notif')
     async sendFriendRequest(client: Socket, friendToAdd: any) {
-        this.dbWriter.addNotif(friendToAdd);
+        const res = await this.dbWriter.addNotif(friendToAdd);
+        if (res == null)
+            return ;
         this.server.emit('receive-notif', friendToAdd)
     }
 
