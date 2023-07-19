@@ -34,8 +34,9 @@ export class GameComponent implements OnInit, OnDestroy {
   heightDiff: number = 0.5859375;
   widthDiff: number = 0.446875;
   heightInit: number = 525;
-  invisbleLeft: number = 301;
-  invisbleRight: number = 557;
+  initialWidthPadding: number = 571;
+  invisibleLeft: number = 301;
+  invisibleRight: number = 557;
   widthInit: number = 858;
   gameData: GameData = new GameData();
   isMoving: boolean[] = [false, false];
@@ -229,8 +230,8 @@ export class GameComponent implements OnInit, OnDestroy {
     }
 
     if (this.gameData.customGameMod) {
-      this.context.fillRect(this.invisbleLeft, 0, 2, this.height);
-      this.context.fillRect(this.invisbleRight, 0, 2, this.height);
+      this.context.fillRect(this.invisibleLeft, 0, 2, this.height);
+      this.context.fillRect(this.invisibleRight, 0, 2, this.height);
     }
 
     this.drawScore();
@@ -366,10 +367,9 @@ export class GameComponent implements OnInit, OnDestroy {
     )
       return;
 
-    this.widthPercent =
-      (event.target.innerWidth * this.widthDiff) / this.widthInit;
-    this.heightPercent =
-      (event.target.innerHeight * this.heightDiff) / this.heightInit;
+    const widthPadding = this.initialWidthPadding * event.target.innerWidth / this.widthInit;
+    this.widthPercent = widthPadding / this.widthInit;
+    this.heightPercent = (event.target.innerHeight * this.heightDiff) / this.heightInit;
     this.width = this.widthInit * this.widthPercent;
     this.height = this.heightInit * this.heightPercent;
     if (!this.inGame && !this.searchingGame) {
