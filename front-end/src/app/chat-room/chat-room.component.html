@@ -27,13 +27,13 @@
     </div>
     <br>
     <div *ngIf="selectedRoom" class="select-room">
-      <!-- if is borken add that under *ngIf="roomStatus === 'PUBLIC'" -->
       <div *ngIf="selectedRoom" class="chat">
         <div *ngIf="joined && selectedRoom">
           <div class="chat-header">
             Chat in <u>{{ selectedRoom.name }}</u> room
           </div>
           <div>
+            <input *ngIf="selectedRoom.owner === login && selectedRoom.status === 'PROTECTED'" [(ngModel)]="newPwd" type="password" (keyup.enter)="newRoomPwd()" placeholder="Change room password"><br>
             <label for="lang">Invite a friend: </label>
             <select id="user-list" [(ngModel)]="friendInviteRoom">
               <option *ngFor="let userToAddRoom of friendsToInvite" [value]="userToAddRoom.name">{{ userToAddRoom.name }}</option>
@@ -43,10 +43,10 @@
           <div class="chat-messages" *ngIf="roomStatus === 'PUBLIC' && conversation">
             <div *ngFor="let message of conversation.reverse()" class="message">
               <div *ngIf="!isBlocked(message.sender)">
-                <span class="sender"><em>{{ message.pseudo }}</em></span>: {{ message.content }}
+                <span class="sender"><em>{{ message.pseudo }}</em></span> :  {{ message.content }}
               </div>
               <div *ngIf="isBlocked(message.sender)">
-                <span class="sender"><em>{{ message.pseudo }}</em></span>: You blocked this user!
+                <span class="sender"><em>{{ message.pseudo }}</em></span> :  You blocked this user!
               </div>
             </div>
           </div>
@@ -77,7 +77,9 @@
     </div>
     <div *ngIf="joined && selectedRoom">
       <div *ngFor="let member of members" class="members" [class.selected]="member === selectedMember"(click)="onMemberClick(member)">
-          {{ member.pseudo }}
+          <div *ngIf="member.login === selectedRoom.owner">{{ member.pseudo }} [OWNER]</div>
+          <div *ngIf="member.status !== 'NORMAL' && member.login !== selectedRoom.owner">{{ member.pseudo }} [{{ member.status }}]</div>
+          <div *ngIf="member.status == 'NORMAL'">{{ member.pseudo }}</div>
           <div *ngIf="member.login !== login && member === selectedMember" >
             <select [(ngModel)]="memberOption">
               <option *ngFor="let memberOptions of memberOptions" [value]="memberOptions"> {{ memberOptions }}</option>
