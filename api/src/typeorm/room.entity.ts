@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { message } from "./user.entity"
-import { IsArray, IsEmpty, IsNotEmpty, IsString, IsStrongPassword } from 'class-validator';
+import { IsArray, IsEmpty, IsNotEmpty, IsString } from 'class-validator';
 
 
 
