@@ -78,7 +78,6 @@ export class Room {
     })
     owner: string;
 
-    // @IsStrongPassword()
     @IsEmpty()
     @IsString()
     @Column({

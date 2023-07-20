@@ -8,7 +8,7 @@ import { User } from 'src/typeorm';
 import { HttpModule } from '@nestjs/axios';
 
 
-// Change secret to be in env file ///
+// Change secret to be in env file //
 @Module({
   imports: [
     JwtModule.register({

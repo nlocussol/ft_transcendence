@@ -62,7 +62,6 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
         );
 
         if (client != undefined) {
-          // console.log('DisconnectGateway: ', client.pseudo);
           this.removePlayerFromQueue(client);
           this.gameService.handleDeconnexion(client.login);
         }
