@@ -67,6 +67,8 @@ export class MyGateway implements OnModuleInit{
     }
 
     async handleSocketDeconnexion(client: Client) {
+        if (!client || !client.login)
+            return null;
         const status = {login: client.login, status: 'OFFLINE'}
         const res = await this.dbWriter.changeStatus(status);
         if (res == null)
