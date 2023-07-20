@@ -55,7 +55,7 @@ export class DialogFirstLoginComponent implements OnInit {
         Validators.required,
         Validators.minLength(4),
         Validators.maxLength(16),
-        Validators.pattern('[a-zA-Z1-9]*'),
+        Validators.pattern('[a-zA-Z0-9]*'),
       ],
       PseudoValidator.createValidator(this.authHandlerService),
     ],
