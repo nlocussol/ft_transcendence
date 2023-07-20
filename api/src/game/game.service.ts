@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Ball, GameData, Player, side } from './models/game.models';
 import { environment } from './environment';
 import { DbWriterService } from 'src/db-writer/db-writer.service';
+import { GatewayService } from 'src/gateway/gateway.service';
 
 const GAME_WIDTH = 858,
   GAME_HEIGHT = 525,
@@ -19,7 +20,7 @@ export class GameService {
   public gameInProgress: GameData[] = [];
   public customGameInProgress: GameData[] = [];
 
-  constructor(private dbWriteService: DbWriterService) {}
+  constructor(private dbWriteService: DbWriterService, private gatewayService: GatewayService) {}
 
   findGameUUIDWithLogin(login: string): string {
     for (let i = 0; i < this.gameInProgress.length; i++) {
@@ -198,6 +199,8 @@ export class GameService {
     game.ball.canMove = false;
     game.players[0].canMove = false;
     game.players[1].canMove = false;
+    this.gatewayService.updateUserStatus(game.players[0].login, 'ONLINE');
+    this.gatewayService.updateUserStatus(game.players[1].login, 'ONLINE');
     if (!game.customGameMod) {
       this.dbWriteService.fillMatchHistory(game);
     }

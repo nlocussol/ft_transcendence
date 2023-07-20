@@ -77,7 +77,7 @@ export class GameComponent implements OnInit, OnDestroy {
         this.login = res.login;
         this.loguedIn = true;
         this.gameService.connectToSocket(this.login as string, res.pseudo);
-        this.gameService.connectToStatusWS();
+        // this.gameService.connectToStatusWS();
         this.autoReconnectInterval = setInterval(
           () =>
             this.gameService.autoReconnect(res.login).subscribe({
@@ -113,13 +113,13 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.gameService.updateMyStatus(this.login!, 'ONLINE');
+    // this.gameService.updateMyStatus(this.login!, 'ONLINE');
     clearInterval(this.queueInterval);
     clearInterval(this.refreshQueueInterval);
     clearInterval(this.movePlayerInterval);
     clearInterval(this.autoReconnectInterval);
     this.gameService.disconnectFromSocket();
-    this.gameService.disconnectFromStatusWS();
+    // this.gameService.disconnectFromStatusWS();
   }
 
   enterQueueClassic() {
@@ -148,7 +148,7 @@ export class GameComponent implements OnInit, OnDestroy {
         this.inGame = true;
         this.startAnimationFrame();
         this.movePlayer();
-        this.gameService.updateMyStatus(this.login!, 'IN_GAME');
+        // this.gameService.updateMyStatus(this.login!, 'IN_GAME');
         this.loadOnce = true;
       }
       if (this.gameData.isOver) {
@@ -322,7 +322,7 @@ export class GameComponent implements OnInit, OnDestroy {
     this.drawEndGame();
     setTimeout(() => {
       this.gameData.players.splice(0, 2);
-      this.gameService.updateMyStatus(this.login!, 'ONLINE');
+      // this.gameService.updateMyStatus(this.login!, 'ONLINE');
     }, 1000);
   }
 
