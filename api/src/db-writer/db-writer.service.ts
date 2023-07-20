@@ -445,6 +445,8 @@ export class DbWriterService {
         type: newNotif.type,
         content: newNotif.content,
       }
+      if (newNotif.name)
+        notif.name = newNotif.name
       if (currentUser) {
         currentUser.notif.push(notif);
         await this.userRepository.save(currentUser)

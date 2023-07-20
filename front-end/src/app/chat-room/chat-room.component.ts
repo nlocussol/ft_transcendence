@@ -327,6 +327,10 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
   async submitRoom() {
     if (!this.roomName)
       return ;
+    const regex = new RegExp(/[a-zA-Z0-9]*/)
+    const regArray = regex.exec(this.roomName);
+    if (this.roomName.length > 16 || regArray?.[0] !== regArray?.input)
+      return ;
     let roomStatus = "PUBLIC"
     if (this.roomPassword && this.roomPassword !== "")
       roomStatus = "PROTECTED"

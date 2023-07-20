@@ -17,7 +17,6 @@ const TICKRATE = 15,
   hueWhiteValues = ', 100%, 100%)',
   hueCustomDetails = ', 70%, 50%)',
   hueCustomField = ', 50%, 75%)';
-// BALL_SIZE = 10;
 
 @Component({
   selector: 'app-game',
@@ -36,11 +35,11 @@ export class GameComponent implements OnInit, OnDestroy {
   heightInit: number = 525;
   initialWidthPadding: number = 571;
   invisibleLeft: number = 301;
-  invisibleRight: number = 557;
+  // invisibleRight: number = 557;
   widthInit: number = 858;
   gameData: GameData = new GameData();
   isMoving: boolean[] = [false, false];
-  fontSize: number = 30;
+  fontSize: number = 25;
   myFont!: FontFace;
   searchingGame: boolean = false;
   inGame: boolean = false;
@@ -230,8 +229,7 @@ export class GameComponent implements OnInit, OnDestroy {
     }
 
     if (this.gameData.customGameMod) {
-      this.context.fillRect(this.invisibleLeft, 0, 2, this.height);
-      this.context.fillRect(this.invisibleRight, 0, 2, this.height);
+      this.context.fillRect(this.invisibleLeft * this.widthPercent, 0, 256 * this.widthPercent, this.height);
     }
 
     this.drawScore();
@@ -241,17 +239,17 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   drawScore() {
-    this.context.font = this.fontSize + "px 'PressStart2P'";
+    this.context.font = this.fontSize * this.widthPercent + "px 'PressStart2P'";
 
     this.context.fillText(
       String(this.gameData?.players[0].score),
-      this.width / 2 - 50,
-      50
+      this.width / 2 - (50 * this.widthPercent),
+      50 * this.widthPercent
     );
     this.context.fillText(
       String(this.gameData?.players[1].score),
-      this.width / 2 + 20,
-      50
+      this.width / 2 + (20 * this.widthPercent),
+      50 * this.widthPercent
     );
   }
 
@@ -272,29 +270,29 @@ export class GameComponent implements OnInit, OnDestroy {
     this.context.fillRect(0, 0, this.width, this.height);
 
     this.context.fillStyle = 'white';
-    this.context.font = this.fontSize + "px 'PressStart2P'";
-    this.context.fillText('WINNER', 50, this.height * 0.1);
-    this.context.fillText('LOSER', this.width / 2 + 50, this.height * 0.1);
+    this.context.font = this.fontSize * this.widthPercent + "px 'PressStart2P'";
+    this.context.fillText('WINNER', 50 * this.widthPercent, this.height * 0.1);
+    this.context.fillText('LOSER', this.width / 2 + (50 * this.widthPercent), this.height * 0.1);
     if (this.gameData?.players[0].score! > this.gameData?.players[1].score!) {
       this.context.fillText(
         String(this.gameData?.players[0].pseudo),
-        50,
+        50 * this.widthPercent,
         this.height * 0.2
       );
       this.context.fillText(
         String(this.gameData?.players[1].pseudo),
-        this.width / 2 + 50,
+        this.width / 2 + (50 * this.widthPercent),
         this.height * 0.2
       );
     } else {
       this.context.fillText(
         String(this.gameData?.players[1].pseudo),
-        50,
+        (50 * this.widthPercent),
         this.height * 0.2
       );
       this.context.fillText(
         String(this.gameData?.players[0].pseudo),
-        this.width / 2 + 50,
+        this.width / 2 + (50 * this.widthPercent),
         this.height * 0.2
       );
     }

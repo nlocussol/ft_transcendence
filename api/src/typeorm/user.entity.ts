@@ -71,6 +71,7 @@ export interface changeBlockStatus {
 }
 
 export interface notif {
+  name?: string;
   login: string;
   type: string;
   content: string;

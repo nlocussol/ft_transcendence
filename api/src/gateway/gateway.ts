@@ -56,6 +56,15 @@ export class MyGateway implements OnModuleInit{
     //       }
     // }
 
+    async handleSocketDeconnexion(client: Client) {
+        if (!client || !client.login)
+            return ;
+        const status = {login: client.login, status: 'OFFLINE'}
+        const res = await this.dbWriter.changeStatus(status);
+        if (res == null)
+            return ;
+        this.server.emit('user-status-changed', status);
+    }
     // async handleSocketDeconnexion(client: Client) {
     //     const status = {login: client.login, status: 'OFFLINE'}
     //     const res = await this.dbWriter.changeStatus(status);
