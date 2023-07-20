@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Emitters } from '../emitters/emitters';
 import { HeaderService } from './header.service';
-import { Socket} from 'socket.io-client';
+import { Socket } from 'socket.io-client';
 import { Router } from '@angular/router';
 import { DataService } from '../services/data.service';
 
@@ -15,6 +15,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   socket!: Socket;
   notif!: boolean;
   login!: string;
+  pingStatusInterval: any;
 
   constructor(
     private headerService: HeaderService,
@@ -27,17 +28,29 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.authenticated = auth;
       if (auth) {
         this.login = this.dataService.getUserLogin();
+        this.statusPing();
       }
     });
   }
 
+  statusPing() {
+    setInterval(() => {
+      this.login = this.dataService.getUserLogin();
+      this.headerService.pingApi(this.login).subscribe();
+    }, 500);
+  }
+
   ngOnDestroy(): void {
+    clearInterval(this.pingStatusInterval);
   }
 
   logout() {
+    clearInterval(this.pingStatusInterval);
     this.headerService.logout().subscribe((res) => {
+      this.login = '';
+      this.dataService.setUserLogin(this.login);
       this.authenticated = false;
-      this.router.navigate(['/auth'])
+      this.router.navigate(['/auth']);
     });
   }
 }

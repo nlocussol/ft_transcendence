@@ -16,7 +16,7 @@ class Client {
 @WebSocketGateway({cors : true})
 export class MyGateway implements OnModuleInit{
     @WebSocketServer()
-    server: Server;
+    public server: Server;
     clients: Client[] = [];
 
     constructor(private dbWriter: DbWriterService, private dbWriterRoom: DbWriterRoomService) {}
@@ -186,13 +186,13 @@ export class MyGateway implements OnModuleInit{
         this.server.emit('room-status-changed', status);
     }
 
-    @SubscribeMessage('user-change-status')
-    async userChangeStatus(client: Socket, status: any) {
-        const res = await this.dbWriter.changeStatus(status);
-        if (res == null)
-            return ;
-        this.server.emit('user-status-changed', status);
-    }
+    // @SubscribeMessage('user-change-status')
+    // async userChangeStatus(client: Socket, status: any) {
+    //     const res = await this.dbWriter.changeStatus(status);
+    //     if (res == null)
+    //         return ;
+    //     this.server.emit('user-status-changed', status);
+    // }
 
     @SubscribeMessage('user-room-change-status')
     async userRoomChangeStatus(client: Socket, status: any) {

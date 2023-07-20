@@ -8,6 +8,7 @@ import { GameService } from './game.service';
 import { GameData } from './models/game.models';
 import { OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { environment } from './environment';
+import { GatewayService } from 'src/gateway/gateway.service';
 
 class Client {
   id: string;
@@ -29,7 +30,10 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
   clientCustomQueue: Client[] = [];
   clients: Client[] = [];
 
-  constructor(private gameService: GameService) {}
+  constructor(
+    private gameService: GameService,
+    private gatewayService: GatewayService,
+  ) {}
 
   onModuleInit() {
     this.intervalId = setInterval(() => {
@@ -53,14 +57,14 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
       this.handleSocketConnection(socket);
 
       socket.on('disconnect', () => {
-        const client = this.clients.find((client) => client.login == socket.handshake.auth.login);
+        const client = this.clients.find(
+          (client) => client.login == socket.handshake.auth.login,
+        );
 
         if (client != undefined) {
           // console.log('DisconnectGateway: ', client.pseudo);
           this.removePlayerFromQueue(client);
-          this.gameService.handleDeconnexion(
-            client.login,
-          );
+          this.gameService.handleDeconnexion(client.login);
         }
       });
     });
@@ -162,12 +166,14 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
       game.players[0].login = client.login;
       game.players[0].pseudo = client.pseudo;
       client.socket.join(game.matchUUID);
+      this.gatewayService.updateUserStatus(client.login, 'IN_GAME');
 
       client = this.clientQueue.shift();
       client.room = game.matchUUID;
       game.players[1].login = client.login;
       game.players[1].pseudo = client.pseudo;
       client.socket.join(game.matchUUID);
+      this.gatewayService.updateUserStatus(client.login, 'IN_GAME');
     } else if (queueType === 'custom') {
       const game: GameData = this.gameService.createNewGame(true);
 
