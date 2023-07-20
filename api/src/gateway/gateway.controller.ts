@@ -17,7 +17,7 @@ export class GatewayController {
 
   @SkipAuth()
   @Get()
-  Uwu() {
-
+  Test() {
+    return;
   }
 }
