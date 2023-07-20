@@ -9,6 +9,8 @@ import {
 import { GameService } from './service/game.service';
 import { GameData, movement } from './models/game.models';
 import { DataService } from '../services/data.service';
+import { FontFaceSet } from 'css-font-loading-module';
+
 
 const TICKRATE = 15,
   hsl = 'hsl(',
