@@ -397,6 +397,7 @@ export class DbWriterService {
 
       this.fillStats(player1, matchWinner);
       this.fillStats(player2, matchWinner);
+      // console.log("Match added to history")
       return true;
   }
 
