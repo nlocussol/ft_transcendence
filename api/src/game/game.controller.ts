@@ -16,7 +16,6 @@ export class GameController {
       return this.gameService.findGameUUIDWithLogin(login);
     } else {
       return ""
-      // throw new HttpException('You are not in a game', HttpStatus.FORBIDDEN)
     }
   }
 }
