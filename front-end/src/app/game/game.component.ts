@@ -35,7 +35,6 @@ export class GameComponent implements OnInit, OnDestroy {
   heightInit: number = 525;
   initialWidthPadding: number = 571;
   invisibleLeft: number = 301;
-  // invisibleRight: number = 557;
   widthInit: number = 858;
   gameData: GameData = new GameData();
   isMoving: boolean[] = [false, false];
@@ -76,7 +75,6 @@ export class GameComponent implements OnInit, OnDestroy {
         this.login = res.login;
         this.loguedIn = true;
         this.gameService.connectToSocket(this.login as string, res.pseudo);
-        // this.gameService.connectToStatusWS();
         this.autoReconnectInterval = setInterval(
           () =>
             this.gameService.autoReconnect(res.login).subscribe({
@@ -112,13 +110,11 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    // this.gameService.updateMyStatus(this.login!, 'ONLINE');
     clearInterval(this.queueInterval);
     clearInterval(this.refreshQueueInterval);
     clearInterval(this.movePlayerInterval);
     clearInterval(this.autoReconnectInterval);
     this.gameService.disconnectFromSocket();
-    // this.gameService.disconnectFromStatusWS();
   }
 
   enterQueueClassic() {
@@ -146,8 +142,6 @@ export class GameComponent implements OnInit, OnDestroy {
         this.searchingGame = false;
         this.inGame = true;
         this.startAnimationFrame();
-        this.movePlayer();
-        // this.gameService.updateMyStatus(this.login!, 'IN_GAME');
         this.loadOnce = true;
         clearInterval(this.queueInterval);
       }
@@ -321,7 +315,6 @@ export class GameComponent implements OnInit, OnDestroy {
     this.drawEndGame();
     setTimeout(() => {
       this.gameData.players.splice(0, 2);
-      // this.gameService.updateMyStatus(this.login!, 'ONLINE');
     }, 1000);
   }
 

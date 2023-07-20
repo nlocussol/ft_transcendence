@@ -8,7 +8,6 @@ import {
 } from '@angular/forms';
 import { AuthHandlerService } from '../auth-handler/auth-handler.service';
 import { PseudoValidator } from './validator/pseudo.validator';
-import { DialogFirstLoginService } from './dialog-first-login.service';
 
 @Component({
   selector: 'app-dialog-first-login',
@@ -36,7 +35,6 @@ export class DialogFirstLoginComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any,
     private ref: MatDialogRef<DialogFirstLoginComponent>,
     private fb: FormBuilder,
-    private firstLoginService: DialogFirstLoginService,
     private authHandlerService: AuthHandlerService
   ) {}
 
@@ -84,8 +82,7 @@ export class DialogFirstLoginComponent implements OnInit {
         this.localProfilePicUrl = (<FileReader>event.target).result;
       };
       reader.readAsDataURL(event.target.files[0]);
-      console.log(file.size)
-      if (file.size > 10000000) {
+      if (file.size > 1024*1024*10) {
         this.imgTooBig = true;
       } else {
         this.imgTooBig = false;

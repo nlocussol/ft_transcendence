@@ -110,7 +110,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   acceptRequest(body: Notif) {
-    console.log(body);
     const bodyToDelete = {
       login: this.login,
       index: this.notifs.findIndex((notif) => notif === body),

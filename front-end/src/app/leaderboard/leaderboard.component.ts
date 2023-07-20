@@ -15,7 +15,7 @@ export class LeaderboardComponent {
   }
 
   async ngOnInit() {
-    //initial ng on init
+    //initial on ng init
     this.http
       .get(`http://localhost:3000/db-writer/leaderboard/`)
       .subscribe((ntm: any) => this.topUser = ntm)

@@ -6,7 +6,6 @@ import { DialogFirstLoginComponent } from '../dialog-first-login/dialog-first-lo
 import { Emitters } from '../emitters/emitters';
 import { Socket, io } from 'socket.io-client';
 import { environment } from 'src/environment';
-import { HttpClient } from '@angular/common/http';
 import { ProfileService } from '../profile/profile.service';
 import { DataService } from '../services/data.service';
 
@@ -72,11 +71,6 @@ export class AuthHandlerComponent implements OnInit, OnDestroy {
       if (verify) {
         this.authHandlerService.getJwt(this.login).subscribe(() => {
           Emitters.authEmitter.emit(true);
-          //add to error
-          this.socket.emit('user-change-status', {
-            login: this.login,
-            status: 'ONLINE',
-          });
           this.router.navigate(['/profile']);
         });
       }
@@ -103,11 +97,6 @@ export class AuthHandlerComponent implements OnInit, OnDestroy {
           this.authHandlerService.getJwt(userData.login).subscribe(() => {
           this.dataService.setUserLogin(this.login);
             Emitters.authEmitter.emit(true);
-            //add to error
-            this.socket.emit('user-change-status', {
-              login: userData.login,
-              status: 'ONLINE',
-            });
             this.router.navigate(['/profile']);
           });
         }
@@ -141,14 +130,14 @@ export class AuthHandlerComponent implements OnInit, OnDestroy {
                     userData.pp = res.name;
                     this.authHandlerService
                       .createUser(userData)
-                      .subscribe((res) => {
+                      .subscribe(() => {
                         this.authHandlerService
                           .getUserDataFromDb(userData.login)
                           .subscribe({
                             next: () => {
                               this.authHandlerService
                                 .getJwt(userData.login)
-                                .subscribe((res) => {
+                                .subscribe(() => {
                                   this.dataService.setUserLogin(userData.login);
                                   Emitters.authEmitter.emit(true);
                                   this.router.navigate(['/profile']);
@@ -168,14 +157,15 @@ export class AuthHandlerComponent implements OnInit, OnDestroy {
                   userData.pp = ppUrl;
                   this.authHandlerService
                     .createUser(userData)
-                    .subscribe((res) => {
+                    .subscribe(() => {
                       this.authHandlerService
                         .getUserDataFromDb(userData.login)
                         .subscribe({
                           next: () => {
                             this.authHandlerService
                               .getJwt(userData.login)
-                              .subscribe((res) => {
+                              .subscribe(() => {
+                                this.dataService.setUserLogin(userData.login);
                                 Emitters.authEmitter.emit(true);
                                 this.router.navigate(['/profile']);
                               });
