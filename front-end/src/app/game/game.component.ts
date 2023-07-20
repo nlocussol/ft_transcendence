@@ -149,6 +149,7 @@ export class GameComponent implements OnInit, OnDestroy {
         this.movePlayer();
         this.gameService.updateMyStatus(this.login!, 'IN_GAME');
         this.loadOnce = true;
+        clearInterval(this.queueInterval);
       }
       if (this.gameData.isOver) {
         this.handleEndGame();
@@ -223,8 +224,8 @@ export class GameComponent implements OnInit, OnDestroy {
       this.context.fillRect(
         this.gameData?.ball?.posX! * this.widthPercent,
         this.gameData?.ball?.posY! * this.heightPercent,
-        this.ballSize,
-        this.ballSize
+        this.ballSize * this.widthPercent,
+        this.ballSize * this.heightPercent
       );
     }
 
@@ -364,7 +365,6 @@ export class GameComponent implements OnInit, OnDestroy {
       event.target.innerHeight < 250
     )
       return;
-
     const widthPadding = this.initialWidthPadding * event.target.innerWidth / this.widthInit;
     this.widthPercent = widthPadding / this.widthInit;
     this.heightPercent = (event.target.innerHeight * this.heightDiff) / this.heightInit;
