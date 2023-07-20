@@ -7,15 +7,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Room, User } from 'src/typeorm';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { MyGateway } from 'src/gateway/gateway';
-import { GatewayService } from 'src/gateway/gateway.service';
 import { DbWriterRoomService } from 'src/db-writer-room/db-writer-room.service';
 import { GatewayModule } from 'src/gateway/gateway.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User]), TypeOrmModule.forFeature([Room]), GatewayModule],
   providers: [
-    GatewayService,
     GameGateway,
     GameService,
     DbWriterService,
