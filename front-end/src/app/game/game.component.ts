@@ -75,7 +75,7 @@ export class GameComponent implements OnInit, OnDestroy {
         this.login = res.login;
         this.loguedIn = true;
         this.gameService.connectToSocket(this.login as string, res.pseudo);
-        this.gameService.connectToStatusWS();
+        // this.gameService.connectToStatusWS();
         this.autoReconnectInterval = setInterval(
           () =>
             this.gameService.autoReconnect(res.login).subscribe({
@@ -111,13 +111,13 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.gameService.updateMyStatus(this.login!, 'ONLINE');
+    // this.gameService.updateMyStatus(this.login!, 'ONLINE');
     clearInterval(this.queueInterval);
     clearInterval(this.refreshQueueInterval);
     clearInterval(this.movePlayerInterval);
     clearInterval(this.autoReconnectInterval);
     this.gameService.disconnectFromSocket();
-    this.gameService.disconnectFromStatusWS();
+    // this.gameService.disconnectFromStatusWS();
   }
 
   enterQueueClassic() {
@@ -146,8 +146,9 @@ export class GameComponent implements OnInit, OnDestroy {
         this.inGame = true;
         this.startAnimationFrame();
         this.movePlayer();
-        this.gameService.updateMyStatus(this.login!, 'IN_GAME');
+        // this.gameService.updateMyStatus(this.login!, 'IN_GAME');
         this.loadOnce = true;
+        clearInterval(this.queueInterval);
       }
       if (this.gameData.isOver) {
         this.handleEndGame();
@@ -222,8 +223,8 @@ export class GameComponent implements OnInit, OnDestroy {
       this.context.fillRect(
         this.gameData?.ball?.posX! * this.widthPercent,
         this.gameData?.ball?.posY! * this.heightPercent,
-        this.ballSize,
-        this.ballSize
+        this.ballSize * this.widthPercent,
+        this.ballSize * this.heightPercent
       );
     }
 
@@ -319,7 +320,7 @@ export class GameComponent implements OnInit, OnDestroy {
     this.drawEndGame();
     setTimeout(() => {
       this.gameData.players.splice(0, 2);
-      this.gameService.updateMyStatus(this.login!, 'ONLINE');
+      // this.gameService.updateMyStatus(this.login!, 'ONLINE');
     }, 1000);
   }
 
@@ -363,7 +364,6 @@ export class GameComponent implements OnInit, OnDestroy {
       event.target.innerHeight < 250
     )
       return;
-
     const widthPadding = this.initialWidthPadding * event.target.innerWidth / this.widthInit;
     this.widthPercent = widthPadding / this.widthInit;
     this.heightPercent = (event.target.innerHeight * this.heightDiff) / this.heightInit;

@@ -27,4 +27,8 @@ export class HeaderService {
   disconnectFromStatusWS() {
     this.socket.disconnect();
   }
+
+  pingApi(login: string) {
+    return this.http.get<any>(`http://localhost:3000/ping/${login}`);
+  }
 }

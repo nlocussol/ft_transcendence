@@ -8,6 +8,7 @@ import { Socket, io } from 'socket.io-client';
 import { environment } from 'src/environment';
 import { HttpClient } from '@angular/common/http';
 import { ProfileService } from '../profile/profile.service';
+import { DataService } from '../services/data.service';
 
 @Component({
   selector: 'app-auth-handler',
@@ -26,8 +27,8 @@ export class AuthHandlerComponent implements OnInit, OnDestroy {
     private authHandlerService: AuthHandlerService,
     private router: Router,
     private dialog: MatDialog,
-    private http: HttpClient,
-    private profileService: ProfileService
+    private profileService: ProfileService,
+    private dataService: DataService
   ) {}
 
   ngOnInit(): void {
@@ -100,6 +101,7 @@ export class AuthHandlerComponent implements OnInit, OnDestroy {
         if (this.twoFa) this.allowTowFa();
         else {
           this.authHandlerService.getJwt(userData.login).subscribe(() => {
+          this.dataService.setUserLogin(this.login);
             Emitters.authEmitter.emit(true);
             //add to error
             this.socket.emit('user-change-status', {
@@ -134,30 +136,31 @@ export class AuthHandlerComponent implements OnInit, OnDestroy {
               imageData.append('file', res.fileSource, res.fileSource.name);
               this.profileService
                 .uploadImage(imageData, userData.login)
-                .subscribe(
-                  {
-                    next: (res: any) => {
-                      userData.pp = res.name;
-                      this.authHandlerService
-                        .createUser(userData)
-                        .subscribe((res) => {
-                          this.authHandlerService
-                            .getUserDataFromDb(userData.login)
-                            .subscribe({
-                              next: () => {
-                                this.authHandlerService
-                                  .getJwt(userData.login)
-                                  .subscribe((res) => {
-                                    Emitters.authEmitter.emit(true);
-                                    this.router.navigate(['/profile']);
-                                  });
-                              },
-                            });
-                        });
-                    },
-                    error: () => {this.router.navigate(['/'])},
-                  }
-                );
+                .subscribe({
+                  next: (res: any) => {
+                    userData.pp = res.name;
+                    this.authHandlerService
+                      .createUser(userData)
+                      .subscribe((res) => {
+                        this.authHandlerService
+                          .getUserDataFromDb(userData.login)
+                          .subscribe({
+                            next: () => {
+                              this.authHandlerService
+                                .getJwt(userData.login)
+                                .subscribe((res) => {
+                                  this.dataService.setUserLogin(userData.login);
+                                  Emitters.authEmitter.emit(true);
+                                  this.router.navigate(['/profile']);
+                                });
+                            },
+                          });
+                      });
+                  },
+                  error: () => {
+                    this.router.navigate(['/']);
+                  },
+                });
             } else {
               this.authHandlerService
                 .sendIntraProfilePicUrl(userData.login, userData.pp)

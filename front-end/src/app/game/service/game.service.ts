@@ -64,16 +64,16 @@ export class GameService {
       })
   }
 
-  connectToStatusWS() {
-    this.socketUpdateStatus = io(this.API_WEBSOCKET);
-  }
+  // connectToStatusWS() {
+  //   this.socketUpdateStatus = io(this.API_WEBSOCKET);
+  // }
 
-  updateMyStatus(login: string, status: string) {
-    const toSend = { login: login, status: status };
-    this.socketUpdateStatus.emit('user-change-status', toSend);
-  }
+  // updateMyStatus(login: string, status: string) {
+  //   const toSend = { login: login, status: status };
+  //   this.socketUpdateStatus.emit('user-change-status', toSend);
+  // }
 
-  disconnectFromStatusWS() {
-    this.socketUpdateStatus.disconnect();
-  }
+  // disconnectFromStatusWS() {
+  //   this.socketUpdateStatus.disconnect();
+  // }
 }
