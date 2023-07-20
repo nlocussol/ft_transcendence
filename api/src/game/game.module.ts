@@ -10,11 +10,11 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { MyGateway } from 'src/gateway/gateway';
 import { GatewayService } from 'src/gateway/gateway.service';
 import { DbWriterRoomService } from 'src/db-writer-room/db-writer-room.service';
+import { GatewayModule } from 'src/gateway/gateway.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), TypeOrmModule.forFeature([Room])],
+  imports: [TypeOrmModule.forFeature([User]), TypeOrmModule.forFeature([Room]), GatewayModule],
   providers: [
-    MyGateway,
     GatewayService,
     GameGateway,
     GameService,

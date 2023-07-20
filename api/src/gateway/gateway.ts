@@ -23,6 +23,7 @@ export class MyGateway implements OnModuleInit{
 
     onModuleInit() {
         this.server.on('connection', () => {})
+        console.log("FFFFFFF")
     }
 
     @SubscribeMessage('send-notif')
