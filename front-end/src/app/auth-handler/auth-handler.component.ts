@@ -37,7 +37,7 @@ export class AuthHandlerComponent implements OnInit, OnDestroy {
     if (code != null || code != undefined) {
       this.authHandlerService.retrieveAccessToken(code).subscribe({
         next: (res) => this.getUserDataFrom42(res),
-        error: (err) => this.handleErrorPost42Api(err),
+        error: () => this.handleErrorPost42Api(),
       });
     } else {
       this.router.navigate(['/home']);
@@ -110,7 +110,7 @@ export class AuthHandlerComponent implements OnInit, OnDestroy {
           });
         }
       },
-      error: (err) => {
+      error: (err) => {        
         if (err.error.message === 'No user with this login') {
           const dialogConfig = new MatDialogConfig();
           dialogConfig.disableClose = true;
@@ -182,8 +182,8 @@ export class AuthHandlerComponent implements OnInit, OnDestroy {
     });
   }
 
-  handleErrorPost42Api(err: string) {
-    console.log('Error while 42 POST Api call: ', err);
+  handleErrorPost42Api() {
+    console.log('Error while 42 POST Api call');
     this.errorBool = true;
     setTimeout(() => {
       this.router.navigate(['/auth']);

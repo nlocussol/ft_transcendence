@@ -95,11 +95,6 @@ export class GameComponent implements OnInit, OnDestroy {
           300
         );
       },
-      // error: () => {
-      //   this.dialog.open(DialogNotLoguedComponent, {
-      //     width: '250px',
-      //   });
-      // },
     });
 
     this.canvas = this.myCanvas.nativeElement;
