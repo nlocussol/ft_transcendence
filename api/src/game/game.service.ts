@@ -241,7 +241,6 @@ export class GameService {
     game.players[1].canMove = false;
 
     let playerIndex = this.findPlayerIndex(game, login);
-    // console.log("handleDcService: ", game.players[playerIndex].pseudo)
     game.players[playerIndex].AFK = true;
 
     let timeoutStartingTime = Date.now();
@@ -268,7 +267,6 @@ export class GameService {
     if (game == undefined) return;
 
     let playerIndex = this.findPlayerIndex(game, login);
-    // console.log("handleReco: ", game.players[playerIndex].pseudo)
     if (game.players[playerIndex].AFK) {
       game.players[playerIndex].AFK = false;
     }

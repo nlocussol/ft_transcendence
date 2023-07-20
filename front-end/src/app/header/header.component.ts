@@ -5,6 +5,8 @@ import { Socket } from 'socket.io-client';
 import { Router } from '@angular/router';
 import { DataService } from '../services/data.service';
 
+const TIMEBETWEENPINGTOBACK = 1000;
+
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
@@ -37,7 +39,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     setInterval(() => {
       this.login = this.dataService.getUserLogin();
       this.headerService.pingApi(this.login).subscribe();
-    }, 500);
+    }, TIMEBETWEENPINGTOBACK);
   }
 
   ngOnDestroy(): void {

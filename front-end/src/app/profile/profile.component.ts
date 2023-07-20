@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { environment } from 'src/environment';
 import { Socket, io } from 'socket.io-client';
-import { Friend, JoinLeaveRoom, RoomMessage, UserData } from '../chat-room/interfaces/interfaces';
+import { RoomMessage, UserData } from '../chat-room/interfaces/interfaces';
 import { Notif, addFriend } from './interfaces/interfaces';
 import { HomeService } from '../home/service/home.service';
 import { Router } from '@angular/router';

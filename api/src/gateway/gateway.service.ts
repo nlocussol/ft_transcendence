@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { DbWriterService } from 'src/db-writer/db-writer.service';
 import { MyGateway } from './gateway';
 
-const TIMEBEFOREOFFLINE: number = 1000;
+const TIMEBEFOREOFFLINE: number = 2500;
 
 @Injectable()
 export class GatewayService {

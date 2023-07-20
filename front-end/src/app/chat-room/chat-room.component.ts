@@ -5,7 +5,6 @@ import { environment } from 'src/environment';
 import { Router } from '@angular/router';
 import { Friend, JoinLeaveRoom, MemberStatus, NewRoom, Room, Message, UserData, RoomMessage, Passwords } from './interfaces/interfaces';
 import { HomeService } from '../home/service/home.service';
-import { Emitters } from '../emitters/emitters';
 import { ChatRoomService } from './chat-room.service';
 import { ProfileService } from '../profile/profile.service';
 import { DataService } from '../services/data.service';

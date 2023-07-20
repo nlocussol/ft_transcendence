@@ -8,7 +8,6 @@ import {
 } from '@angular/core';
 import { GameService } from './service/game.service';
 import { GameData, movement } from './models/game.models';
-import { FontFaceSet } from 'css-font-loading-module'; // DO NOT REMOVE THIS ONE => NEED FOR LOADING FONT
 import { DataService } from '../services/data.service';
 
 const TICKRATE = 15,

@@ -121,6 +121,7 @@ export class DbWriterController {
     return this.dbWriter.deleteNotif(obj);
   }
 
+  @SkipAuth()
   @Post('delete-notifs')
   deleteNotifs(@Body() obj: deleteNotifs, @Headers() headers) {
     return this.dbWriter.deleteNotifs(obj);

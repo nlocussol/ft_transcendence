@@ -1,4 +1,4 @@
-import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { HomeService } from './home/service/home.service';
 import { Emitters } from './emitters/emitters';
 import { DataService } from './services/data.service';

@@ -1,5 +1,4 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Socket, io } from 'socket.io-client';
 import { environment } from 'src/environment';
 import { Router } from '@angular/router';

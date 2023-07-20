@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, HttpException, HttpStatus, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { GameService } from './game.service';
 
 @Controller('game')
@@ -16,7 +16,6 @@ export class GameController {
       return this.gameService.findGameUUIDWithLogin(login);
     } else {
       return ""
-      // throw new HttpException('You are not in a game', HttpStatus.FORBIDDEN)
     }
   }
 }
