@@ -1,6 +1,5 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { delay } from 'rxjs';
 import { Socket, io } from 'socket.io-client';
 
 @Injectable({

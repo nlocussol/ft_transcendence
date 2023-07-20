@@ -8,7 +8,6 @@ import {
 } from '@angular/forms';
 import { AuthHandlerService } from '../auth-handler/auth-handler.service';
 import { PseudoValidator } from './validator/pseudo.validator';
-import { DialogFirstLoginService } from './dialog-first-login.service';
 
 @Component({
   selector: 'app-dialog-first-login',
@@ -36,7 +35,6 @@ export class DialogFirstLoginComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any,
     private ref: MatDialogRef<DialogFirstLoginComponent>,
     private fb: FormBuilder,
-    private firstLoginService: DialogFirstLoginService,
     private authHandlerService: AuthHandlerService
   ) {}
 
