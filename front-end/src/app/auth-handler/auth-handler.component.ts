@@ -86,7 +86,7 @@ export class AuthHandlerComponent implements OnInit, OnDestroy {
     const userData = {
       login: res.login,
       pseudo: res.pseudo,
-      pp: res.image.versions.small,
+      pp: res.image.versions.medium,
       doubleAuth: false,
     };
 
