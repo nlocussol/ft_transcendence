@@ -30,11 +30,13 @@ export class ProfileComponent implements OnInit, OnDestroy {
   status!: string;
   socket!: Socket;
   notifs!: Notif[];
+  myUserPage!: string;
 
   ngOnInit(): void {
     this.homeService.getUser().subscribe((res) => {
       this.login = res.login;
       this.pseudo = res.pseudo;
+      this.myUserPage = `/user-page/${res.login}`
       this.getProfileData();
       this.socket = io(environment.SOCKET_ENDPOINT);
       this.newNotif();
@@ -43,6 +45,13 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.socket.disconnect();
+    let index: number[] = [];
+    for (let notif of this.notifs) {
+      if (notif.type === 'MATCH_REFUSED' || notif.type === 'BLOCK')
+        index.push(this.notifs.findIndex(notifs => notifs === notif))
+    }
+    index.reverse()
+    this.profileService.deleteNotifs({login: this.login, index: index}).subscribe()
   }
 
   constructor(
@@ -193,7 +202,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
         if (data.type === 'MATCH_REFUSED') {
           this.dataService.setPrivateGameInvit(false)
         }
-
       }
     });
   }

@@ -84,7 +84,7 @@ button[type="submit"]:hover {
 }
 
 .room {
-  width: 100%;
+  width: calc(50px + 100%);
   height: calc(20px + 1.5vh);
   border: 1px solid teal;
   cursor: pointer;

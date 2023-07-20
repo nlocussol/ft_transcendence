@@ -7,12 +7,9 @@ import {
   ViewChild,
 } from '@angular/core';
 import { GameService } from './service/game.service';
-import { GameData, movement} from './models/game.models';
+import { GameData, movement } from './models/game.models';
 import { FontFaceSet } from 'css-font-loading-module'; // DO NOT REMOVE THIS ONE => NEED FOR LOADING FONT
-import { MatDialog } from '@angular/material/dialog';
-import { DialogNotLoguedComponent } from '../dialog-not-logued/dialog-not-logued.component';
 import { DataService } from '../services/data.service';
-import { EMPTY } from 'rxjs';
 
 const TICKRATE = 15,
   hsl = 'hsl(',
@@ -37,8 +34,9 @@ export class GameComponent implements OnInit, OnDestroy {
   heightDiff: number = 0.5859375;
   widthDiff: number = 0.446875;
   heightInit: number = 525;
-  invisbleLeft: number = 301;
-  invisbleRight: number = 557;
+  initialWidthPadding: number = 571;
+  invisibleLeft: number = 301;
+  invisibleRight: number = 557;
   widthInit: number = 858;
   gameData: GameData = new GameData();
   isMoving: boolean[] = [false, false];
@@ -61,13 +59,18 @@ export class GameComponent implements OnInit, OnDestroy {
   autoReconnectInterval: any;
   imgJul = new Image();
   imgNinho = new Image();
+  imgNaza = new Image();
   privateGameInvit!: boolean;
 
-  constructor(private gameService: GameService, private dialog: MatDialog, private dataService: DataService) {}
+  constructor(
+    private gameService: GameService,
+    private dataService: DataService
+  ) {}
 
   ngOnInit(): void {
     this.imgJul.src = '../assets/JUL.jpg';
     this.imgNinho.src = '../assets/NINHO.jpeg';
+    this.imgNaza.src = '../assets/NAZA.jpeg';
     this.privateGameInvit = this.dataService.getPrivateGameInvit();
     this.gameService.getUser().subscribe({
       next: (res) => {
@@ -79,16 +82,16 @@ export class GameComponent implements OnInit, OnDestroy {
           () =>
             this.gameService.autoReconnect(res.login).subscribe({
               next: (data: string) => {
-                if (data && data.length){
+                if (data && data.length) {
                   clearInterval(this.autoReconnectInterval);
                   this.enterQueueClassic();
                 }
               },
               error: (err) => {
-                if (err.status === 403){
-                    console.log("Forbidden error occurred. Retrying...")
+                if (err.status === 403) {
+                  console.log('Forbidden error occurred. Retrying...');
                 } else {
-                  console.log("Error to find the game:")
+                  console.log('Error to find the game:');
                 }
               },
             }),
@@ -145,7 +148,7 @@ export class GameComponent implements OnInit, OnDestroy {
         this.inGame = true;
         this.startAnimationFrame();
         this.movePlayer();
-        this.gameService.updateMyStatus(this.login!, "IN_GAME");
+        this.gameService.updateMyStatus(this.login!, 'IN_GAME');
         this.loadOnce = true;
       }
       if (this.gameData.isOver) {
@@ -226,13 +229,15 @@ export class GameComponent implements OnInit, OnDestroy {
       );
     }
 
-    if (this.gameData.customGameMod){
-      this.context.fillRect(this.invisbleLeft, 0, 2, this.height);
-      this.context.fillRect(this.invisbleRight, 0, 2, this.height);
+    if (this.gameData.customGameMod) {
+      this.context.fillRect(this.invisibleLeft, 0, 2, this.height);
+      this.context.fillRect(this.invisibleRight, 0, 2, this.height);
     }
 
     this.drawScore();
-    this.drawCenterLine();
+    if (!this.gameData.customGameMod) {
+      this.drawCenterLine();
+    }
   }
 
   drawScore() {
@@ -240,12 +245,12 @@ export class GameComponent implements OnInit, OnDestroy {
 
     this.context.fillText(
       String(this.gameData?.players[0].score),
-      this.width / 2 - 100,
+      this.width / 2 - 50,
       50
     );
     this.context.fillText(
       String(this.gameData?.players[1].score),
-      this.width / 2 + 100,
+      this.width / 2 + 20,
       50
     );
   }
@@ -310,14 +315,15 @@ export class GameComponent implements OnInit, OnDestroy {
     this.searchingGame = false;
     this.gameData.isOver = true;
     this.gameService.exitRoom();
+    this.privateGameInvit = false;
+    this.dataService.setPrivateGameInvit(false);
     clearInterval(this.movePlayerInterval);
     this.stopAnimationFrame();
     this.drawEndGame();
     setTimeout(() => {
       this.gameData.players.splice(0, 2);
       this.gameService.updateMyStatus(this.login!, 'ONLINE');
-    }, 1000)
-
+    }, 1000);
   }
 
   startAnimationFrame() {
@@ -355,16 +361,21 @@ export class GameComponent implements OnInit, OnDestroy {
 
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
-    if (this.inGame === false
-      || event.target.innerWidth < 500 || event.target.innerHeight < 250)
-      return ;
+    if (
+      event.target.innerWidth < 500 ||
+      event.target.innerHeight < 250
+    )
+      return;
 
-    this.widthPercent =
-      (event.target.innerWidth * this.widthDiff) / this.widthInit;
-    this.heightPercent =
-      (event.target.innerHeight *  this.heightDiff) / this.heightInit;
+    const widthPadding = this.initialWidthPadding * event.target.innerWidth / this.widthInit;
+    this.widthPercent = widthPadding / this.widthInit;
+    this.heightPercent = (event.target.innerHeight * this.heightDiff) / this.heightInit;
     this.width = this.widthInit * this.widthPercent;
     this.height = this.heightInit * this.heightPercent;
+    if (!this.inGame && !this.searchingGame) {
+      this.context.fillStyle = 'black';
+      this.context.fillRect(0, 0, this.width, this.height)
+    }
   }
 
   enterQueueCustom() {

@@ -33,6 +33,10 @@ export class ProfileService implements OnInit {
     return this.http.post('http://localhost:3000/db-writer/delete-notif/', body, this.basicHeaders)
   }
 
+  deleteNotifs(body: any) {
+    return this.http.post('http://localhost:3000/db-writer/delete-notifs/', body, this.basicHeaders)
+  }
+
   addFriend(body: any) {
     return this.http.post('http://localhost:3000/db-writer/add-friend/', body, {'responseType': 'text'})
   }

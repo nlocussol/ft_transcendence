@@ -5,6 +5,7 @@ import { Injectable } from '@angular/core';
 })
 export class DataService {
   privateGameInvit: boolean = false;
+  userLogin: string = '';
   constructor() {}
 
   setPrivateGameInvit(privateGameInvit: boolean) {
@@ -13,5 +14,13 @@ export class DataService {
 
   getPrivateGameInvit(): boolean {
     return this.privateGameInvit;
+  }
+
+  setUserLogin(login: string) {
+    this.userLogin = login;
+  }
+
+  getUserLogin() {
+    return this.userLogin;
   }
 }

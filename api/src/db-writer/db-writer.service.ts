@@ -1,7 +1,5 @@
 import {
   BadRequestException,
-  HttpException,
-  HttpStatus,
   Injectable,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -426,14 +424,16 @@ export class DbWriterService {
           console.log("addNotif: The user does not exist");
           return null;
       }
-      let cnt: number = 0;
-      for (let user of allUser) {
-        for (let notification of user.notif) {
-          if (notification.type === 'REQUEST_MATCH' && notification.login === newNotif.login) {
-            cnt++;
-            if (cnt > 0) {
-              console.log('addNotif: You are authorize to only one match request by user!');
-              return null
+      if (newNotif.type === 'REQUEST_MATCH') {
+        let cnt: number = 0;
+        for (let user of allUser) {
+          for (let notification of user.notif) {
+            if (notification.type === 'REQUEST_MATCH' && notification.login === newNotif.login) {
+              cnt++;
+              if (cnt > 0) {
+                console.log('addNotif: You are authorize to only one match request by user!');
+                return null
+              }
             }
           }
         }
@@ -454,24 +454,37 @@ export class DbWriterService {
       }
       return true;
         // change the current 2fa setting to the new one
-    
   }
 
   async deleteNotif(deleteNotif: deleteNotif) {
       const currentUser = await this.userRepository.findOneBy({
-          login: deleteNotif.login,
-        });
-        if (!currentUser){
-            console.log("addNotif: The user does not exist");
-            return null;
-        }
-      let i = parseInt(deleteNotif.index);
-
-      if (i > -1) {
-          currentUser.notif.splice(i, 1);
+        login: deleteNotif.login,
+      });
+      if (!currentUser){
+          console.log("addNotif: The user does not exist");
+          return null;
+      }
+      if (deleteNotif.index > -1) {
+          currentUser.notif.splice(deleteNotif.index, 1);
       }
       await this.userRepository.save(currentUser)
       return true;
+  }
+
+  async deleteNotifs(deleteNotif: any) {
+    const currentUser = await this.userRepository.findOneBy({
+      login: deleteNotif.login,
+    });
+    if (!currentUser){
+        console.log("addNotif: The user does not exist");
+        return null;
+    }
+    for (let i of deleteNotif.index) {
+      if (i > -1)
+        currentUser.notif.splice(i, 1);
+    }
+    await this.userRepository.save(currentUser)
+    return true;
   }
 
   async deleteFriendToDb(user: User, friendLogin: string){

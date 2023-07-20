@@ -53,8 +53,9 @@ export class GameService {
   }
 
   findPlayerIndex(game: GameData, login: string): number {
-    if (game.players[0].login == login) return 0;
-    if (game.players[1].login == login) return 1;
+    let playerIndex: number
+    game.players[0].login == login ? playerIndex = 0 : playerIndex = 1
+    return playerIndex
   }
 
   startGame(game: GameData) {
@@ -67,7 +68,7 @@ export class GameService {
       game.intervalID = setInterval(() => {
         this.updateGame(game);
       }, environment.TICKRATE);
-    }, 1000);
+    }, 500);
   }
 
   updateGame(game: GameData) {
@@ -158,6 +159,9 @@ export class GameService {
       game.ball.velY *= 1.1;
       game.players[0].velY +=1;
       game.players[1].velY +=1;
+    } else {
+      game.ball.velX *= 1.05;
+      game.ball.velY *= 1.05;
     }
     if (game.ball.velX < 0) {
       game.ball.velX *= -1;
@@ -201,7 +205,7 @@ export class GameService {
     setTimeout(() => {
       const gameIndex = this.gameInProgress.indexOf(game, 0);
       this.gameInProgress.splice(gameIndex, 1);
-    }, 200);
+    }, 1000);
   }
 
   movePlayer(
@@ -233,6 +237,7 @@ export class GameService {
     game.players[1].canMove = false;
 
     let playerIndex = this.findPlayerIndex(game, login);
+    // console.log("handleDcService: ", game.players[playerIndex].pseudo)
     game.players[playerIndex].AFK = true;
     let timeoutStartingTime = Date.now();
     let timeoutInterval = setInterval(() => {
@@ -258,6 +263,7 @@ export class GameService {
     if (game == undefined) return;
 
     let playerIndex = this.findPlayerIndex(game, login);
+    // console.log("handleReco: ", game.players[playerIndex].pseudo)
     if (game.players[playerIndex].AFK) {
       game.players[playerIndex].AFK = false;
     }
@@ -286,7 +292,7 @@ export class GameService {
     newGame.players[1].side = side.RIGHT;
     newGame.players[1].height = PLAYER_INITIAL_HEIGHT;
     newGame.players[1].width = PLAYER_INITIAL_WIDTH;
-    newGame.players[1].posX = GAME_WIDTH - OFFSET_FROM_WALL;
+    newGame.players[1].posX = GAME_WIDTH - OFFSET_FROM_WALL - PLAYER_INITIAL_WIDTH;
     newGame.players[1].posY = GAME_HEIGHT / 2 - PLAYER_INITIAL_HEIGHT / 2;
     newGame.players[1].score = 0;
     newGame.players[1].canMove = false;

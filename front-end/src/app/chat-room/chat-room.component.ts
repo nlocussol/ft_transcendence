@@ -89,20 +89,20 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
           this.selectedRoom?.members.push({pseudo: newMemberData.pseudo, login: data.login, status: 'NORMAL'})
         })
       }
-      if (this.selectedRoom && data.name === this.selectedRoom.name && this.selectedRoom.ban
-        && !this.selectedRoom.ban.find((ban: any) => ban.login === data.login))
-        for (let i in this.selectedRoom?.messages) {
-          if (this.selectedRoom?.messages[i].sender != 'BOT') {
-            this.profileService.getProfileData(this.selectedRoom?.messages[i].sender).subscribe((newMemberData: UserData) => {
-              if (this.selectedRoom)
-                this.selectedRoom.messages[i].pseudo = newMemberData.pseudo
-            })
+      this.roomService.getRoomData(data.name).subscribe((roomData: Room) => {
+        if (this.selectedRoom && data.name === this.selectedRoom.name && this.selectedRoom.ban
+          && !this.selectedRoom.ban.find((ban: any) => ban.login === data.login))
+          for (let i in roomData.messages) {
+            if (roomData.messages[i].sender != 'BOT') {
+              this.profileService.getProfileData(roomData.messages[i].sender).subscribe((newMemberData: UserData) => {
+                roomData.messages[i].pseudo = newMemberData.pseudo
+              })
+            }
+            else if (roomData.messages[i].sender === 'BOT')
+              roomData.messages[i].pseudo = 'BOT'
           }
-          else if (this.selectedRoom?.messages[i].sender === 'BOT')
-            this.selectedRoom.messages[i].pseudo = 'BOT'
-        }
-        if (this.selectedRoom?.messages)
-          this.conversation = this.selectedRoom.messages
+          this.conversation = roomData.messages
+        })
       })
   }
 
@@ -171,7 +171,13 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
       this.socket.on('room-status-changed', (data: any) => {
         if (this.selectedRoom && this.selectedRoom.name === data.name) {
           this.selectedRoom.status = data.status
-          if (this.roomStatus != 'PUBLIC')
+          if (data.pwd) {
+            this.roomService.getRoomData(data.name).subscribe((roomData: Room) => {
+              if (this.selectedRoom)
+                this.selectedRoom.pwd = roomData.pwd
+            })
+          }
+          if (this.roomStatus != 'PUBLIC' || !this.joined)
             this.roomStatus = data.status
         }
         let room = this.rooms.findIndex(room => room.name === data.name)
@@ -188,8 +194,10 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
   }
 
   onMemberClick(member: MemberStatus) {
-    if (member.login === this.selectedRoom?.owner)
+    if (member.login === this.selectedRoom?.owner || member.status === 'ADMIN')
       this.memberOptions = ['watch profil', '1v1 match', 'Friend Invite'];
+    else if (member.status === 'NORMAL' || this.login === this.selectedRoom?.owner)
+      this.memberOptions = ['watch profil', '1v1 match', 'Friend Invite', 'Promote', 'Downgrade', 'Mute', 'Kick', 'Ban'];
     this.selectedMember = member;
   }
 
@@ -198,9 +206,11 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
       return ;
     const body = {
       name: this.selectedRoom?.name,
-      status: this.selectedStatus,
+      status: 'PROTECTED',
       pwd: this.newPwd,
-    }    
+    }
+    if (this.selectedRoom)
+      this.selectedRoom.status = 'PROTECTED'
     this.socket.emit('room-change-status', body)
     this.selectedStatus = '';
     this.newPwd = '';
@@ -272,6 +282,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
           time: muteInSecond,
         }
         this.socket.emit('mute-member', bodyMute)
+        this.muteTime = '';
         break ;
 
       case 'Kick':
@@ -413,10 +424,10 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
     this.selectedStatus = (event.target as HTMLSelectElement).value;
     this.options = ['PUBLIC', 'PROTECTED', 'PRIVATE'];
     this.options.splice(this.options.findIndex(opt => opt === this.selectedStatus), 1)
-    if (this.selectedRoom)
-      this.selectedRoom.status = this.selectedStatus;
     if (this.selectedStatus === 'PROTECTED')
       return ;
+    if (this.selectedRoom)
+      this.selectedRoom.status = this.selectedStatus;
     const body = {
       name: this.selectedRoom?.name,
       status: this.selectedStatus,

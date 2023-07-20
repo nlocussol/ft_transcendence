@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { io } from 'socket.io-client';
 import { GameData } from '../models/game.models';
-import { BehaviorSubject, EMPTY, catchError } from 'rxjs';
+import { BehaviorSubject} from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -66,6 +66,7 @@ export class GameService {
 
   connectToStatusWS() {
     this.socketUpdateStatus = io(this.API_WEBSOCKET);
+    this.socket.emit('inGame')
   }
 
   updateMyStatus(login: string, status: string) {
