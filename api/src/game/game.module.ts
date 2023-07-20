@@ -9,9 +9,10 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { DbWriterRoomService } from 'src/db-writer-room/db-writer-room.service';
 import { GatewayModule } from 'src/gateway/gateway.module';
+import { DbWriterModule } from 'src/db-writer/db-writer.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), TypeOrmModule.forFeature([Room]), GatewayModule],
+  imports: [TypeOrmModule.forFeature([User]), TypeOrmModule.forFeature([Room]), GatewayModule, DbWriterModule],
   providers: [
     GameGateway,
     GameService,
