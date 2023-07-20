@@ -143,6 +143,7 @@ export class GameComponent implements OnInit, OnDestroy {
         this.searchingGame = false;
         this.inGame = true;
         this.startAnimationFrame();
+        this.movePlayer();
         this.loadOnce = true;
         clearInterval(this.queueInterval);
       }
