@@ -13,7 +13,6 @@ export class HeaderService {
 
   // Call logout from API to erase jwt cookie
   logout() {
-    // this.disconnectFromStatusWS(); //?????
     return this.http.post('http://localhost:3000/auth/logout', {})
   }
 

@@ -27,13 +27,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.authenticated = auth;
       if (auth) {
         this.login = this.dataService.getUserLogin();
-        this.headerService.connectToStatusWS(this.login as string);
       }
     });
   }
 
   ngOnDestroy(): void {
-    this.headerService.disconnectFromStatusWS()
   }
 
   logout() {

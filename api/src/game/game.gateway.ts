@@ -53,13 +53,13 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
       this.handleSocketConnection(socket);
 
       socket.on('disconnect', () => {
-        const client = this.clients.find((client) => client.pseudo == socket.handshake.auth.pseudo);
+        const client = this.clients.find((client) => client.login == socket.handshake.auth.login);
 
         if (client != undefined) {
           // console.log('DisconnectGateway: ', client.pseudo);
           this.removePlayerFromQueue(client);
           this.gameService.handleDeconnexion(
-            socket.handshake.auth.login as string,
+            client.login,
           );
         }
       });
