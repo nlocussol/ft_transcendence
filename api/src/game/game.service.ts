@@ -53,9 +53,9 @@ export class GameService {
   }
 
   findPlayerIndex(game: GameData, login: string): number {
-    let playerIndex: number
-    game.players[0].login == login ? playerIndex = 0 : playerIndex = 1
-    return playerIndex
+    let playerIndex: number;
+    game.players[0].login == login ? (playerIndex = 0) : (playerIndex = 1);
+    return playerIndex;
   }
 
   startGame(game: GameData) {
@@ -157,8 +157,8 @@ export class GameService {
     if (game.customGameMod) {
       game.ball.velX *= 1.1;
       game.ball.velY *= 1.1;
-      game.players[0].velY +=1;
-      game.players[1].velY +=1;
+      game.players[0].velY += 1;
+      game.players[1].velY += 1;
     } else {
       game.ball.velX *= 1.05;
       game.ball.velY *= 1.05;
@@ -214,6 +214,7 @@ export class GameService {
     movingUp: boolean,
     movingDown: boolean,
   ) {
+    game.players[playerIndex].AFK = false;
     if (!game.players[playerIndex].canMove) return;
     if (movingUp && game.players[playerIndex].posY > 0) {
       game.players[playerIndex].posY -= game.players[playerIndex].velY;
@@ -239,6 +240,7 @@ export class GameService {
     let playerIndex = this.findPlayerIndex(game, login);
     // console.log("handleDcService: ", game.players[playerIndex].pseudo)
     game.players[playerIndex].AFK = true;
+
     let timeoutStartingTime = Date.now();
     let timeoutInterval = setInterval(() => {
       game.players[playerIndex].AFKTimer =
@@ -292,7 +294,8 @@ export class GameService {
     newGame.players[1].side = side.RIGHT;
     newGame.players[1].height = PLAYER_INITIAL_HEIGHT;
     newGame.players[1].width = PLAYER_INITIAL_WIDTH;
-    newGame.players[1].posX = GAME_WIDTH - OFFSET_FROM_WALL - PLAYER_INITIAL_WIDTH;
+    newGame.players[1].posX =
+      GAME_WIDTH - OFFSET_FROM_WALL - PLAYER_INITIAL_WIDTH;
     newGame.players[1].posY = GAME_HEIGHT / 2 - PLAYER_INITIAL_HEIGHT / 2;
     newGame.players[1].score = 0;
     newGame.players[1].canMove = false;
@@ -327,5 +330,4 @@ export class GameService {
     newGame.players[1].login = gameData.player2;
     newGame.players[1].pseudo = gameData.player2pseudo;
   }
-
 }

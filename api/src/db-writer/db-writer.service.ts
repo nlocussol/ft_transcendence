@@ -397,6 +397,7 @@ export class DbWriterService {
 
       this.fillStats(player1, matchWinner);
       this.fillStats(player2, matchWinner);
+      // console.log("Match added to history")
       return true;
   }
 
@@ -444,6 +445,8 @@ export class DbWriterService {
         type: newNotif.type,
         content: newNotif.content,
       }
+      if (newNotif.name)
+        notif.name = newNotif.name
       if (currentUser) {
         currentUser.notif.push(notif);
         await this.userRepository.save(currentUser)

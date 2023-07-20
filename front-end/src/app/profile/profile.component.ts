@@ -90,6 +90,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   async changeUsername() {
+    const regex = new RegExp(/[a-zA-Z0-9]*/)
+    const regArray = regex.exec(this.newPseudo);
+    if (this.newPseudo.length > 16 || regArray?.[0] !== regArray?.input)
+      return ;
     const body = {
       currentLogin: this.login,
       newPseudo: this.newPseudo,
@@ -106,6 +110,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   acceptRequest(body: Notif) {
+    console.log(body);
     const bodyToDelete = {
       login: this.login,
       index: this.notifs.findIndex((notif) => notif === body),

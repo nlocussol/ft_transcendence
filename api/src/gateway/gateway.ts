@@ -22,59 +22,56 @@ export class MyGateway implements OnModuleInit{
     constructor(private dbWriter: DbWriterService, private dbWriterRoom: DbWriterRoomService) {}
 
     onModuleInit() {
-        this.server.on('connection', async(socket) => {
-            if (socket.handshake.auth.from === 'header') {
-              await this.handleSocketConnection(socket);
-
-              socket.on('disconnect', async () => {
-                const client = this.clients.find((client) => client.id == socket.id);
-                await this.handleSocketDeconnexion(client);
- 
-            })
-            }
-        })
+        this.server.on('connection', () => {})
     }
 
-    async handleSocketConnection(socket: Socket) {
-        if (
-            this.clients.find(
-              (client) => client.login == socket.handshake.auth.login,
-            ) == undefined
-          ) {
-            let client = new Client();
-            client.login = socket.handshake.auth.login as string;
-            client.id = socket.id;
-            client.socket = socket;
-            this.clients.push(client);
+    // async handleSocketConnection(socket: Socket) {
+    //     if (
+    //         this.clients.find(
+    //           (client) => client.login == socket.handshake.auth.login,
+    //         ) == undefined
+    //       ) {
+    //         let client = new Client();
+    //         client.login = socket.handshake.auth.login as string;
+    //         client.id = socket.id;
+    //         client.socket = socket;
+    //         this.clients.push(client);
 
-            const status = {login: socket.handshake.auth.login, status: 'ONLINE'}
-            const res = await this.dbWriter.changeStatus(status);
-            if (res == null)
-                return ;
-            this.server.emit('user-status-changed', status);
-          } else {
-            let client = this.clients.find(
-              (client) => client.login == socket.handshake.auth.login,
-            );
-            client.id = socket.id;
-            client.socket = socket;
-            const status = {login: socket.handshake.auth.login, status: 'ONLINE'}
-            const res = await this.dbWriter.changeStatus(status);
-            if (res == null)
-                return ;
-            this.server.emit('user-status-changed', status);
-          }
-    }
+    //         const status = {login: socket.handshake.auth.login, status: 'ONLINE'}
+    //         const res = await this.dbWriter.changeStatus(status);
+    //         if (res == null)
+    //             return ;
+    //         this.server.emit('user-status-changed', status);
+    //       } else {
+    //         let client = this.clients.find(
+    //           (client) => client.login == socket.handshake.auth.login,
+    //         );
+    //         client.id = socket.id;
+    //         client.socket = socket;
+    //         const status = {login: socket.handshake.auth.login, status: 'ONLINE'}
+    //         const res = await this.dbWriter.changeStatus(status);
+    //         if (res == null)
+    //             return ;
+    //         this.server.emit('user-status-changed', status);
+    //       }
+    // }
 
     async handleSocketDeconnexion(client: Client) {
         if (!client || !client.login)
-            return null;
+            return ;
         const status = {login: client.login, status: 'OFFLINE'}
         const res = await this.dbWriter.changeStatus(status);
         if (res == null)
             return ;
         this.server.emit('user-status-changed', status);
     }
+    // async handleSocketDeconnexion(client: Client) {
+    //     const status = {login: client.login, status: 'OFFLINE'}
+    //     const res = await this.dbWriter.changeStatus(status);
+    //     if (res == null)
+    //         return ;
+    //     this.server.emit('user-status-changed', status);
+    // }
 
     @SubscribeMessage('send-notif')
     async sendFriendRequest(client: Socket, friendToAdd: any) {
